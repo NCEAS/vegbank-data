@@ -25,11 +25,6 @@ project_LT <- data.frame(pj_code = rep(NA, nrow),
 
 # checking values -------------------------------------------------------------
 
-# Project Code needs to remove extra characters to convert them all into 4
-# characters.
-unique(projects$ProjectCode)
-unique(projects$ProjectCode)[nchar(unique(projects$ProjectCode)) > 4]
-
 # Start Date and End Date should have the time removed from them
 unique(projects$ProjectStartDate)
 unique(projects$ProjectEndDate)
@@ -37,10 +32,6 @@ class(projects$ProjectStartDate) # character
 class(projects$ProjectEndDate) # character
 
 # tidying CDFW data -----------------------------------------------------------
-
-# Converting Project Code into 4 characters
-projects_merged <- projects %>% 
-  mutate(ProjectCode = substr(ProjectCode, 1, 4))
 
 # Converting Start Date and End Time to just Dates
 # Start Date
@@ -55,7 +46,7 @@ projects$ProjectEndDate
                                             
 # assigning columns to loader table -------------------------------------------
 
-project_LT$pj_code <- projects_merged$ProjectCode
+project_LT$pj_code <- projects$ProjectCode
 project_LT$project_name <- projects$ProjectName
 project_LT$project_description <- projects$ProjectDescription
 project_LT$start_date <- projects_merged$ProjectStartDate
