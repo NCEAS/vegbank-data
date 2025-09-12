@@ -137,5 +137,114 @@ plots_LT <- data.frame(pl_code = rep(NA, nrow),
 
 # checking values -------------------------------------------------------------
 
+# SurveyDate (RAPlots) - obsStartDate (plots)
+# Time should be removed
+unique(plots$SurveyDate)
+class(plots$SurveyDate) # character
 
-                       
+# Elevation (RAPlots) related to ft_mElevation (RAPlots) - elevation (plots)
+# Numbers should be converted to their unit of measurement as stated in
+# ft_mElevation
+unique(plots$Elevation)
+unique(plots$ft_mElevation)                       
+class(plots$Elevation) # numeric
+class(plots$ft_mElevation) # character
+
+# Substrate (RAPlots) - rock_type (plots)
+# LSubstrate
+# GitHub Issue #3: CA currently uses its own classifications (LSubstrate)
+# We need to determine if CA classifications can be mapped onto FGCD standards
+unique(plots$Substrate)
+class(plots$Substrate) # character
+# Ask what this means
+
+# Aspect_actual (RAPlots) to Aspect_gen (RAPlots)? - slope_aspect (plots)
+# GitHub Issue #4: Apply the codes from the PlotObservations slope_aspect to
+# RAPlots Aspect field
+# If too flat to determine: -1
+# If too irregular to determine: -2
+# Flat locations can be listed as 0, 999, or NA
+# Reference: Aspect_gen (RAPlots)
+# Variable: NA
+# Which one is irregular?
+unique(plots$Aspect_actual)
+unique(plots$Aspect_gen)
+class(plots$Aspect_actual) # numeric
+class(plots$Aspect_gen) # character
+
+# Slope_actual (RAPlots) to Slope_gen (RAPlots)? - slope_gradient (plots)
+# Code if irregular to determine as well? Along with 0, 999, NA values
+# Looks like Reference is Slope_gen
+unique(plots$Slope_actual)
+unique(plots$Slope_gen)
+class(plots$Slope_actual) # numeric
+class(plots$Slope_gen) # character
+
+# Field_alliance (RAPlots) and Field_assocn (RAPlots)? - commName (plots)
+# Looks like we are merging the two fields to commName?
+unique(plots$Field_alliance)
+unique(plots$Field_assocn)
+class(plots$Field_alliance) # character
+class(plots$Field_assocn) # character
+
+# Stand_Size (RAPlots) - stand_size (plots)
+# LStandSize
+# Numbers will be matched to their code in LStandSize
+unique(plots$Stand_Size)
+unique(standsize_lookup$Stand_Size)
+unique(standsize_lookup$StandSizeNum)
+class(plots$Stand_Size) # character
+class(standsize_lookup$Stand_Size) # character
+class(standsize_lookup$StandSizeNum) # numeric
+
+# PlotArea (RAPlots) - area (plots)
+# -1 indicates plot has no boundaries
+# Data shows inconsistencies, there are different units and missing units
+unique(plots$PlotArea)
+class(plots$PlotArea) # character
+# Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
+
+# SurveyDimensions (RAPlots) - area (plots)
+# Data shows inconsistencies with different and missing units
+unique(plots$SurveyDimensions)
+class(plots$SurveyDimensions) # character
+
+# PlotShape (RAPlots) - shape (plots)
+# Data is not all shapes. There are measurements as well
+unique(plots$PlotShape)
+class(plots$PlotShape) # character
+
+# ConfidentialityStatus (RAPlots) - confidentiality_status (plots)
+# LConfidentiality
+# Ask if we want the characters or just leave the numbers
+unique(plots$ConfidentialityStatus)
+unique(confidentiality_lookup$ConfidentialityCode)
+unique(confidentiality_lookup$LocationPlotDataRestrictions)
+class(plots$ConfidentialityStatus) # numeric
+class(confidentiality_lookup$ConfidentialityCode) # numeric
+class(confidentiality_lookup$LocationPlotDataRestrictions) # character
+
+# tidying CDFW data -----------------------------------------------------------
+
+plots_merged <- plots
+
+# SurveyDate (RAPlots) - obsStartDate (plots)
+# Time should be removed
+plots_merged$SurveyDate <- as_date(mdy_hms(plots$SurveyDate))
+
+# Elevation (RAPlots) related to ft_mElevation (RAPlots) - elevation (plots)
+# Numbers should be converted to meters if the unit in ft_mElevation says ft.
+plots_merged <- plots %>% 
+  mutate(
+    Elevation = case_when(
+      ft_mElevation %in% c("F", "ft", "ft.") ~ Elevation * 0.3048,
+      TRUE ~ Elevation
+    )
+  )
+
+# Substrate (RAPlots) - rock_type (plots)
+# GitHub Issue #3 needs more clarification
+
+# Aspect_actual (RAPlots) to Aspect_gen (RAPlots) - slope_aspect (plots)
+# Flat: -1, Variable: -2
+# 0 and 999, not sure yet
