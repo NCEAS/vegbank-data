@@ -56,7 +56,7 @@ classification %>%
 classification <- classification %>%
   mutate(
     CaCode = str_squish(as.character(CaCode)),
-    CaCode = if_else(str_to_lower(CaCode) %in% c("", "na", "n/a", "none", "null"),
+    CaCode = if_else(str_to_lower(CaCode) %in% c("", "na", "n/a", "none", "null", "NA"),
                      NA_character_, CaCode)
   )
 classification %>%
