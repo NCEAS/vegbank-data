@@ -51,6 +51,17 @@ classification %>%
          c("ALLIANCE", "ASSOCIATION", "PROVISIONAL ALLIANCE", "PROVISIONAL ASSOCIATION", "PROVISONAL SEMI-NATURAL ALLIANCE", "PROVISIONAL SEMI-NATURAL ASSOCIATION", "SEMI-NATURAL ALLIANCE", "SEMI-NATURAL ASSOCIATION", "GROUP", "MACROGROUP")) %>%
   distinct(ClassificationLevel)
 
+# Checking if any records with a CaCode value do not have alliance or association information.
+# There are records with CaCodes that do not have alliance or assocation info, may need to add to VegBank as new communities.
+classification <- classification %>%
+  mutate(
+    CaCode = str_squish(as.character(CaCode)),
+    CaCode = if_else(str_to_lower(CaCode) %in% c("", "na", "n/a", "none", "null"),
+                     NA_character_, CaCode)
+  )
+classification %>%
+  filter(!is.na(CaCode) & is.na(Alliance) & is.na(Association))
+
 # Tidying CDFW data -------------------------------------------------------
 # The most specific level available will be assigned to commName.
 
