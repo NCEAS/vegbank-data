@@ -260,7 +260,9 @@ class(plots$Conif_cover) # numeric
 class(plots$Hdwd_cover) # numeric
 class(plots$RegenTree_cover) # numeric
 
-# AltPlots can joined with RAPlots
+# AltPlots can be joined with RAPlots?
+intersect(plots$SurveyID, alt_plots$SurveyID)
+
 # When assigning columns to loader table, column types are all changed to
 # numeric.
 
@@ -314,3 +316,5 @@ plots_merged <- plots %>%
   )
 
 # AltPlots can be joined with RAPlots
+plots_merged <- plots %>% 
+  left_join(alt_plots, by = "SurveyID")
