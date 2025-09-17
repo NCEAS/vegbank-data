@@ -238,6 +238,7 @@ unique(plots$ErrorMeasurement)
 unique(plots$ErrorUnits)
 class(plots$ErrorMeasurement) # numeric
 class(plots$ErrorUnits) # character
+# ErrorUnits also contains PDOP and Laptop. What to do with those?
 
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
 # Need to combine 4 columns into one
@@ -290,6 +291,7 @@ plots_merged <- plots %>%
 # Aspect_actual (RAPlots) to Aspect_gen (RAPlots) - slope_aspect (plots)
 # Flat: -1, Variable: -2
 # 0 and 999, not sure yet
+# Aspect_actual remains as is unless Aspect_gen is Flat or Variable
 
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
 # Need to combine 4 columns into one
