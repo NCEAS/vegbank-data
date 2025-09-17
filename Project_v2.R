@@ -42,12 +42,19 @@ invalid_dates <- projects %>%
 unique(invalid_dates$ProjectStartDate)
 unique(invalid_dates$ProjectEndDate)
 
+# Tidying CDFW data -------------------------------------------------------
+# Converting date format from MM/DD/YYYY hh:mm:ss to MM/DD/YYYY
+projects <- projects %>%
+  mutate(
+    ProjectStartDate = format(mdy_hms(ProjectStartDate), "%m/%d/%Y"),
+    ProjectEndDate = format(mdy_hms(ProjectEndDate), "%m/%d/%Y")
+  )
+
 # Assigning columns to loader table ---------------------------------------
 proj_LT$pj_code <- projects$ProjectCode
 proj_LT$project_name <- projects$ProjectName
 proj_LT$project_description <- projects$ProjectDescription
 proj_LT$start_date <- projects$ProjectStartDate
 proj_LT$stop_date <- projects$ProjectEndDate
-
 
 

@@ -99,6 +99,12 @@ plots <- plots %>%
     tree_cover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
   )
 
+# Converting date format from MM/DD/YYYY hh:mm:ss to MM/DD/YYYY
+plots <- plots %>%
+  mutate(
+    SurveyDate = format(mdy_hms(SurveyDate), "%m/%d/%Y")
+  )
+
 #AltStrata table also has contains data that can map to PlotObservations.
 plots_combined <- left_join(plots, alt_plots, by = "SurveyID")
 
