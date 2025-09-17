@@ -11,12 +11,14 @@ folder <- 'data'
 plots <- read_csv(here(folder, 'RAPlots.csv'), 
                   col_types = cols(.default = col_guess(), 
                                    `PlotOther5` = col_character()))
+alt_plots <- read_csv(here(folder, 'AltPlots.csv'))
 
 # loading CA lookup tables
 confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
 height_lookup <- read_csv(here(folder, 'LHeight.csv'))
 standsize_lookup <- read_csv(here(folder, 'LStandSize.csv'))
 substrate_lookup <- read_csv(here(folder, 'LSubstrate.csv'))
+macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 
 # creating loader table -------------------------------------------------------
 
@@ -229,6 +231,39 @@ class(plots$ConfidentialityStatus) # numeric
 class(confidentiality_lookup$ConfidentialityCode) # numeric
 class(confidentiality_lookup$LocationPlotDataRestrictions) # character
 
+# ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (plots)
+# Numbers should be converted to their unit of measurement as stated in
+# ErrorUnits
+unique(plots$ErrorMeasurement)
+unique(plots$ErrorUnits)
+class(plots$ErrorMeasurement) # numeric
+class(plots$ErrorUnits) # character
+
+# Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
+# Need to combine 4 columns into one
+unique(plots$Boulders)
+unique(plots$Stones)
+unique(plots$Cobbles)
+unique(plots$Gravels)
+class(plots$Boulders) # numeric
+class(plots$Stones) # numeric
+class(plots$Cobbles) # numeric
+class(plots$Gravels) # numeric
+
+# Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
+# Need to combine 3 columns into one
+# UnderTree_cover is missing values, so it will not be included
+unique(plots$Conif_cover)
+unique(plots$Hdwd_cover)
+unique(plots$RegenTree_cover)
+class(plots$Conif_cover) # numeric
+class(plots$Hdwd_cover) # numeric
+class(plots$RegenTree_cover) # numeric
+
+# AltPlots can joined with RAPlots
+# When assigning columns to loader table, column types are all changed to
+# numeric.
+
 # tidying CDFW data -----------------------------------------------------------
 
 plots_merged <- plots
@@ -253,3 +288,29 @@ plots_merged <- plots %>%
 # Aspect_actual (RAPlots) to Aspect_gen (RAPlots) - slope_aspect (plots)
 # Flat: -1, Variable: -2
 # 0 and 999, not sure yet
+
+# Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
+# Need to combine 4 columns into one
+plots_merged <- plots %>% 
+  mutate(
+    percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
+  )
+
+# Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
+# Need to combine 3 columns into one
+plots_merged <- plots %>% 
+  mutate(
+    treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
+  )
+
+# ErrorMeasurement + ErrorUnits (RAPlots) - location_accuracy (plots)
+# Numbers should be converted to their unit of measurement in ErrorUnits
+plots_merged <- plots %>% 
+  mutate(
+    ErrorMeasurement = case_when(
+      ErrorUnits %in% c("F", "ft", "ft.") ~ ErrorMeasurement * 0.3048,
+      TRUE ~ ErrorMeasurement
+    )
+  )
+
+# AltPlots can be joined with RAPlots
