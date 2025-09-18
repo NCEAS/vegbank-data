@@ -320,3 +320,5 @@ plots_merged <- plots %>%
 # AltPlots can be joined with RAPlots
 plots_merged <- plots %>% 
   left_join(alt_plots, by = "SurveyID")
+
+# Assigning columns to loader table ---------------------------------------
