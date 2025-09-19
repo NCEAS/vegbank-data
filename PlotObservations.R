@@ -19,6 +19,7 @@ height_lookup <- read_csv(here(folder, 'LHeight.csv'))
 standsize_lookup <- read_csv(here(folder, 'LStandSize.csv'))
 substrate_lookup <- read_csv(here(folder, 'LSubstrate.csv'))
 macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
+slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 
 # creating loader table -------------------------------------------------------
 
@@ -182,17 +183,12 @@ class(plots$Aspect_gen) # character
 # Slope_actual (RAPlots) to Slope_gen (RAPlots)? - slope_gradient (plots)
 # Code if irregular to determine as well? Along with 0, 999, NA values
 # Looks like Reference is Slope_gen
+# Also, it looks like there are two categories for when the slope is over 25
+# degrees, in values ">25 degrees" and "> 25 Degrees". Merge? GitHub Issue
 unique(plots$Slope_actual)
 unique(plots$Slope_gen)
 class(plots$Slope_actual) # numeric
 class(plots$Slope_gen) # character
-
-# Field_alliance (RAPlots) and Field_assocn (RAPlots)? - commName (plots)
-# Looks like we are merging the two fields to commName?
-unique(plots$Field_alliance)
-unique(plots$Field_assocn)
-class(plots$Field_alliance) # character
-class(plots$Field_assocn) # character
 
 # Stand_Size (RAPlots) - stand_size (plots)
 # LStandSize
@@ -292,6 +288,23 @@ plots_merged <- plots %>%
 # Flat: -1, Variable: -2
 # 0 and 999, not sure yet
 # Aspect_actual remains as is unless Aspect_gen is Flat or Variable
+plots_merged <- plots %>% 
+  mutate(
+    Aspect_actual = case_when(
+      Aspect_gen == "Flat" ~ -1,
+      Aspect_gen == "Variable" ~ -2,
+      TRUE ~ Aspect_actual
+    )
+  )
+# Note: All flat locations have been changed to -1. This may be sensitive to
+# change. GitHub Issue #4: "Currently, flat locations could be listed as 0,
+# 999, or left blank." If a flat location was listed as 0, 999, or NA 
+# beforehand, it has now been changed to -1.
+
+# Slope_actual (RAPlots) to Slope_gen (RAPlots) - slope_gradient (plots)
+# Code -1 if irregular to determine
+# GitHub Issue TBD
+
 
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
 # Need to combine 4 columns into one
