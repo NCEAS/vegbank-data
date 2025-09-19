@@ -193,6 +193,7 @@ class(plots$Slope_gen) # character
 # Stand_Size (RAPlots) - stand_size (plots)
 # LStandSize
 # Numbers will be matched to their code in LStandSize
+# Actually, thinking this doesn't need any tidying
 unique(plots$Stand_Size)
 unique(standsize_lookup$Stand_Size)
 unique(standsize_lookup$StandSizeNum)
@@ -206,26 +207,15 @@ class(standsize_lookup$StandSizeNum) # numeric
 unique(plots$PlotArea)
 class(plots$PlotArea) # character
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
-
-# SurveyDimensions (RAPlots) - area (plots)
-# Data shows inconsistencies with different and missing units
+unique(plots$ViewRadius)
 unique(plots$SurveyDimensions)
+class(plots$ViewRadius) # numeric
 class(plots$SurveyDimensions) # character
 
 # PlotShape (RAPlots) - shape (plots)
 # Data is not all shapes. There are measurements as well
 unique(plots$PlotShape)
 class(plots$PlotShape) # character
-
-# ConfidentialityStatus (RAPlots) - confidentiality_status (plots)
-# LConfidentiality
-# Ask if we want the characters or just leave the numbers
-unique(plots$ConfidentialityStatus)
-unique(confidentiality_lookup$ConfidentialityCode)
-unique(confidentiality_lookup$LocationPlotDataRestrictions)
-class(plots$ConfidentialityStatus) # numeric
-class(confidentiality_lookup$ConfidentialityCode) # numeric
-class(confidentiality_lookup$LocationPlotDataRestrictions) # character
 
 # ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (plots)
 # Numbers should be converted to their unit of measurement as stated in
@@ -305,7 +295,6 @@ plots_merged <- plots %>%
 # Code -1 if irregular to determine
 # GitHub Issue TBD
 
-
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
 # Need to combine 4 columns into one
 plots_merged <- plots %>% 
@@ -319,6 +308,15 @@ plots_merged <- plots %>%
   mutate(
     treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
   )
+
+# PlotArea (RAPlots) - area (plots)
+# -1 indicates plot has no boundaries
+# Data shows inconsistencies, there are different units and missing units
+# Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
+
+
+# PlotShape (RAPlots) - shape (plots)
+
 
 # ErrorMeasurement + ErrorUnits (RAPlots) - location_accuracy (plots)
 # Numbers should be converted to their unit of measurement in ErrorUnits
@@ -334,4 +332,4 @@ plots_merged <- plots %>%
 plots_merged <- plots %>% 
   left_join(alt_plots, by = "SurveyID")
 
-# Assigning columns to loader table ---------------------------------------
+# Assigning columns to loader table -------------------------------------------
