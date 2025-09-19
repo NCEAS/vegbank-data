@@ -1,6 +1,17 @@
 library(tidyverse)
 library(here)
 
+# Personal Notes (Will Delete):
+# Check for all linked SurveyID's in other .csv files
+# SurveyPoints.csv is empty
+# Remove units from PlotArea and leave just the number
+# If PlotArea, ViewRadius, and SurveyDimensions are ALL blank, I'll enter in 
+# their area as -1
+# If at least one of those three have values, the plot area can be determined 
+# from there and I can try to calculate it
+# PlotShape, I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
+# surveydimensions' 10x10 to square
+
 # load in CDFW data -----------------------------------------------------------
 
 # set folder where data is saved
@@ -12,6 +23,8 @@ plots <- read_csv(here(folder, 'RAPlots.csv'),
                   col_types = cols(.default = col_guess(), 
                                    `PlotOther5` = col_character()))
 alt_plots <- read_csv(here(folder, 'AltPlots.csv'))
+plants <- read_csv(here(folder, 'RAPlants.csv'))
+survey_points <- read_csv(here(folder, 'SurveyPoints.csv'))
 
 # loading CA lookup tables
 confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
@@ -247,8 +260,13 @@ class(plots$Conif_cover) # numeric
 class(plots$Hdwd_cover) # numeric
 class(plots$RegenTree_cover) # numeric
 
-# AltPlots can be joined with RAPlots?
+# SurveyID (RAPlots) - author_plot_code (plots)
+# AltPlots can be joined with RAPlots
 intersect(plots$SurveyID, alt_plots$SurveyID)
+# RAPlants can be joined with RAPlots
+intersect(plots$SurveyID, plants$SurveyID)
+# SurveyPoints can be joined with RAPlots
+intersect(plots$SurveyID, survey_points$SurveyID) # my copy of SurveyPoints is
 
 # When assigning columns to loader table, column types are all changed to
 # numeric.
