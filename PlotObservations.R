@@ -281,7 +281,7 @@ plots_merged$SurveyDate <- as_date(mdy_hms(plots$SurveyDate))
 
 # Elevation (RAPlots) related to ft_mElevation (RAPlots) - elevation (plots)
 # Numbers should be converted to meters if the unit in ft_mElevation says ft.
-plots_merged <- plots %>% 
+plots_merged <- plots_merged %>% 
   mutate(
     Elevation = case_when(
       ft_mElevation %in% c("F", "ft", "ft.") ~ Elevation * 0.3048,
@@ -296,7 +296,7 @@ plots_merged <- plots %>%
 # Flat: -1, Variable: -2
 # 0 and 999, not sure yet
 # Aspect_actual remains as is unless Aspect_gen is Flat or Variable
-plots_merged <- plots %>% 
+plots_merged <- plots_merged %>% 
   mutate(
     Aspect_actual = case_when(
       Aspect_gen == "Flat" ~ -1,
@@ -315,14 +315,14 @@ plots_merged <- plots %>%
 
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
 # Need to combine 4 columns into one
-plots_merged <- plots %>% 
+plots_merged <- plots_merged %>% 
   mutate(
     percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
   )
 
 # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
 # Need to combine 3 columns into one
-plots_merged <- plots %>% 
+plots_merged <- plots_merged %>% 
   mutate(
     treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
   )
@@ -331,14 +331,40 @@ plots_merged <- plots %>%
 # -1 indicates plot has no boundaries
 # Data shows inconsistencies, there are different units and missing units
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
-
+plots_merged <- plots_merged %>%
+  mutate(PlotArea_num = parse_number(as.character(PlotArea, na = c("NA","na","Not recorded","not recorded"))),
+         dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
+         SurveyLength = suppressWarnings(as.numeric(map_chr(dims, 1, .default = NA))),
+         SurveyWidth  = suppressWarnings(as.numeric(map_chr(dims, 2, .default = NA))),
+         area_from_radius = if_else(!is.na(ViewRadius), pi * (as.numeric(ViewRadius)^2), NA_real_),
+         area_from_dims   = if_else(!is.na(SurveyLength) & !is.na(SurveyWidth),
+                                    SurveyLength * SurveyWidth, NA_real_),
+         area = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
+  )
 
 # PlotShape (RAPlots) - shape (plots)
-
-
+# I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
+# surveydimensions' 10x10 to square
+plots_merged <- plots_merged %>%
+  mutate(
+    .tol = pmax(SurveyLength, SurveyWidth, na.rm = TRUE) * 0.02,
+    .is_square = !is.na(SurveyLength) & !is.na(SurveyWidth) &
+      SurveyLength > 0 & SurveyWidth > 0 &
+      abs(SurveyLength - SurveyWidth) <= coalesce(.tol, 0),
+    
+    shape = case_when(
+      !is.na(PlotShape)                     ~ PlotShape,
+      !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
+      .is_square                            ~ "square",
+      !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
+        SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
+      TRUE                                  ~ NA_character_
+    )
+  )
+plots_merged$shape
 # ErrorMeasurement + ErrorUnits (RAPlots) - location_accuracy (plots)
 # Numbers should be converted to their unit of measurement in ErrorUnits
-plots_merged <- plots %>% 
+plots_merged <- plots_merged %>% 
   mutate(
     ErrorMeasurement = case_when(
       ErrorUnits %in% c("F", "ft", "ft.") ~ ErrorMeasurement * 0.3048,
