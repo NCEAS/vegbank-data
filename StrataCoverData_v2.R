@@ -25,6 +25,11 @@ plants %>%
   filter(!SpeciesName %in% plants_lookup$ScientificName) %>%
   distinct(SpeciesName)
 
+# making sure values from Stratum fit the CA Description
+unique(plants$Stratum)
+# It looks like there are some values that do not fit the CA Description:
+# GitHub Issue #15
+
 # Assigning columns to loader table ---------------------------------------
 
 # Changing column types to support to data
