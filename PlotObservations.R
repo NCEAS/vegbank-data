@@ -3,11 +3,8 @@ library(here)
 
 # Personal Notes (Will Delete):
 # If PlotArea, ViewRadius, and SurveyDimensions are ALL blank, I'll enter in 
-# their area as -1
-# If at least one of those three have values, the plot area can be determined 
-# from there and I can try to calculate it
-# PlotShape, I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
-# surveydimensions' 10x10 to square
+# their area as -1. If at least one of those three have values, the plot area 
+# can be determined from there and I can try to calculate it. Nathan yay!
 # Clean the newly joined table data
 # StrataCoverData's updated with new RAPlants mapping
 
@@ -333,7 +330,8 @@ plots_merged <- plots_merged %>%
 # PlotArea (RAPlots) - area (plots)
 # Units will be removed
 plots_merged <- plots_merged %>% 
-  mutate(PlotArea = str_remove(PlotArea, " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"))
+  mutate(PlotArea = str_remove(PlotArea, 
+                               " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"))
 # There is a value here that looks like "~700". Should we remove the "~"?
 
 # -1 indicates plot has no boundaries
@@ -370,6 +368,21 @@ plots_merged <- plots_merged %>%
     )
   )
 plots_merged$shape
+
+plots_merged <- plots_merged %>% 
+  mutate(
+    PlotShape = case_when(
+      PlotShape == "10 m x 10 m" ~ "square",
+      PlotShape == "12 m x 9 m" ~ "rectangle",
+      PlotShape == "20 m x 5 m" ~ "rectangle",
+      SurveyDimensions == "10 m x 10 m" & is.na(PlotShape) ~ "square",
+      TRUE ~ PlotShape
+    )
+  )
+# PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
+# rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
+# SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
+
 # ErrorMeasurement + ErrorUnits (RAPlots) - location_accuracy (plots)
 # Numbers should be converted to their unit of measurement in ErrorUnits
 plots_merged <- plots_merged %>% 
@@ -387,6 +400,7 @@ plots_merged <- plots_merged %>%
 # RAClassification can be joined with RAPlots
 # plots_merged <- plots_merged %>% 
 #   left_join(classification, by = "SurveyID", relationship = "many-to-many")
+# I'm not sure if this works. I will have to check later
 
 # AltStrata can be joined with RAPlots
 plots_merged <- plots_merged %>% 
