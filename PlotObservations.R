@@ -2,15 +2,14 @@ library(tidyverse)
 library(here)
 
 # Personal Notes (Will Delete):
-# Check for all linked SurveyID's in other .csv files
-# SurveyPoints.csv is empty
-# Remove units from PlotArea and leave just the number
 # If PlotArea, ViewRadius, and SurveyDimensions are ALL blank, I'll enter in 
 # their area as -1
 # If at least one of those three have values, the plot area can be determined 
 # from there and I can try to calculate it
 # PlotShape, I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
 # surveydimensions' 10x10 to square
+# Clean the newly joined table data
+# StrataCoverData's updated with new RAPlants mapping
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -23,8 +22,10 @@ plots <- read_csv(here(folder, 'RAPlots.csv'),
                   col_types = cols(.default = col_guess(), 
                                    `PlotOther5` = col_character()))
 alt_plots <- read_csv(here(folder, 'AltPlots.csv'))
-plants <- read_csv(here(folder, 'RAPlants.csv'))
 survey_points <- read_csv(here(folder, 'SurveyPoints.csv'))
+impacts <- read_csv(here(folder, 'RAImpacts.csv'))
+alt_strata <- read_csv(here(folder, 'AltStrata.csv'))
+classification <- read_csv(here(folder, 'RAClassification.csv'))
 
 # loading CA lookup tables
 confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
@@ -263,10 +264,12 @@ class(plots$RegenTree_cover) # numeric
 # SurveyID (RAPlots) - author_plot_code (plots)
 # AltPlots can be joined with RAPlots
 intersect(plots$SurveyID, alt_plots$SurveyID)
-# RAPlants can be joined with RAPlots
-intersect(plots$SurveyID, plants$SurveyID)
 # SurveyPoints can be joined with RAPlots
-intersect(plots$SurveyID, survey_points$SurveyID) # my copy of SurveyPoints is
+intersect(plots$SurveyID, survey_points$SurveyID) # Empty SurveyPoints
+# RAClassification can be joined with RAPlots
+intersect(plots$SurveyID, classification$SurveyID)
+# AltStrata can be joined with RAPlots
+intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
 
 # When assigning columns to loader table, column types are all changed to
 # numeric.
@@ -328,9 +331,14 @@ plots_merged <- plots_merged %>%
   )
 
 # PlotArea (RAPlots) - area (plots)
+# Units will be removed
+plots_merged <- plots_merged %>% 
+  mutate(PlotArea = str_remove(PlotArea, " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"))
+# There is a value here that looks like "~700". Should we remove the "~"?
+
 # -1 indicates plot has no boundaries
-# Data shows inconsistencies, there are different units and missing units
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
+# 5 parsing failures
 plots_merged <- plots_merged %>%
   mutate(PlotArea_num = parse_number(as.character(PlotArea, na = c("NA","na","Not recorded","not recorded"))),
          dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
@@ -373,7 +381,15 @@ plots_merged <- plots_merged %>%
   )
 
 # AltPlots can be joined with RAPlots
-plots_merged <- plots %>% 
+plots_merged <- plots_merged %>% 
   left_join(alt_plots, by = "SurveyID")
+
+# RAClassification can be joined with RAPlots
+# plots_merged <- plots_merged %>% 
+#   left_join(classification, by = "SurveyID", relationship = "many-to-many")
+
+# AltStrata can be joined with RAPlots
+plots_merged <- plots_merged %>% 
+  left_join(alt_strata, by = "SurveyID")
 
 # Assigning columns to loader table -------------------------------------------
