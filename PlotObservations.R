@@ -10,7 +10,8 @@ library(here)
 # user_parent_pl_code: no mapping yet
 # real_latitude: AltPlots' Latitude_WGS84_Final
 # real_longitude: AltPlots' Longitude_WGS84_Final
-# location_accuracy: RAPlots' ErrorMeasurement
+# location_accuracy: RAPlots' ErrorMeasurement; PDOP and Laptop in ErrorUnits?
+# confidentiality_status:
 
 # load in CDFW data -----------------------------------------------------------
 
