@@ -4,7 +4,7 @@ library(here)
 # Personal Notes (Will Delete):
 # vb_pl_code: no mapping yet
 # user_pl_code: no mapping yet
-# author_plot_code: AltPlots and AltStrata can be joined with RAPlots. SurveyPoints?
+# author_plot_code: AltPlots and AltStrata can be joined with RAPlots. SurveyPoints is empty.
 # vb_parent_pl_code: no mapping yet
 # user_parent_pl_code: no mapping yet
 # real_latitude: AltPlots
@@ -167,6 +167,7 @@ intersect(plots$SurveyID, survey_points$SurveyID) # Empty SurveyPoints
 intersect(plots$SurveyID, classification$SurveyID)
 # AltStrata can be joined with RAPlots
 intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
+setdiff(alt_strata$SurveyID, plots$SurveyID)
 
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
@@ -289,16 +290,11 @@ plots_merged <- plots
 # AltPlots can be joined with RAPlots
 plots_merged <- plots_merged %>% 
   left_join(alt_plots, by = "SurveyID")
-
-# RAClassification can be joined with RAPlots
-# plots_merged <- plots_merged %>% 
-#   left_join(classification, by = "SurveyID", relationship = "many-to-many")
-# I'm not sure if this works. I will have to check later
-
 # AltStrata can be joined with RAPlots
 plots_merged <- plots_merged %>% 
   left_join(alt_strata, by = "SurveyID")
 # Very empty
+# SurveyPoints can be joined but there is nothing in it
 
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
