@@ -376,7 +376,7 @@ plots_merged <- plots_merged %>%
          area_from_radius = if_else(!is.na(ViewRadius), pi * (as.numeric(ViewRadius)^2), NA_real_),
          area_from_dims   = if_else(!is.na(SurveyLength) & !is.na(SurveyWidth),
                                     SurveyLength * SurveyWidth, NA_real_),
-         area = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
+         PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
   )
 
 # PlotShape (RAPlots) - shape (plots)
@@ -389,7 +389,7 @@ plots_merged <- plots_merged %>%
       SurveyLength > 0 & SurveyWidth > 0 &
       abs(SurveyLength - SurveyWidth) <= coalesce(.tol, 0),
     
-    shape = case_when(
+    PlotShape = case_when(
       !is.na(PlotShape)                     ~ PlotShape,
       !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
       .is_square                            ~ "square",
@@ -426,3 +426,32 @@ plots_merged <- plots_merged %>%
 
 
 # Assigning columns to loader table -------------------------------------------
+plots_LT$author_plot_code <- plots_merged$SurveyID
+plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
+plots_LT$real_longitude <- plots_merged$Longitude_WGS84_Final
+plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
+plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
+plots_LT$author_e <- plots_merged$UTME
+plots_LT$author_n <- plots_merged$UTMN
+plots_LT$author_zone <- plots_merged$UTM_zone
+plots_LT$author_datum <- plots_merged$GPS_datum
+plots_LT$author_location <- plots_merged$SiteLocation
+plots_LT$azimuth <- plots_merged$W_Axis_Bearing
+plots_LT$shape <- plots_merged$PlotShape
+plots_LT$area <- plots_merged$PlotArea
+plots_LT$stand_size <- plots_merged$Stand_Size
+plots_LT$elevation <- plots_merged$Elevation
+plots_LT$slope_aspect <- plots_merged$Aspect_actual
+plots_LT$slope_gradient <- plots_merged$Slope_actual
+plots_LT$topo_position <- plots_merged$MacroTopo
+plots_LT$rock_type <- plots_merged$Substrate
+plots_LT$pj_code <- plots_merged$ProjectCode
+plots_LT$obsStartDate <- plots_merged$SurveyDate
+plots_LT$successionalStatus = plots_merged$Trend
+plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
+plots_LT$shrubHt <- plots_merged$Shrub_ht2
+plots_LT$fieldHt <- plots_merged$Herb_ht2
+plots_LT$treeCover <- plots_merged$treeCover
+plots_LT$shrubCover <- plots_merged$Shrub_cover
+plots_LT$fieldCover <- plots_merged$Herb_cover
+plots_LT$dominantStratum <- plots_merged$DomLayer
