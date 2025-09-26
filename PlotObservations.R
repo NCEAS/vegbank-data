@@ -2,11 +2,14 @@ library(tidyverse)
 library(here)
 
 # Personal Notes (Will Delete):
-# If PlotArea, ViewRadius, and SurveyDimensions are ALL blank, I'll enter in 
-# their area as -1. If at least one of those three have values, the plot area 
-# can be determined from there and I can try to calculate it. Nathan yay!
-# Clean the newly joined table data
-# StrataCoverData's updated with new RAPlants mapping
+# vb_pl_code: no mapping yet
+# user_pl_code: no mapping yet
+# author_plot_code: AltPlots and AltStrata can be joined with RAPlots. SurveyPoints?
+# vb_parent_pl_code: no mapping yet
+# user_parent_pl_code: no mapping yet
+# real_latitude: AltPlots
+# real_longitude: AltPlots
+# location_accuracy:
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -40,11 +43,9 @@ nrow <- nrow(plots)
 # create blank data frame
 plots_LT <- data.frame(vb_pl_code = rep(NA, nrow),
                        user_pl_code = rep(NA, nrow),
-                       pl_code = rep(NA, nrow),
                        author_plot_code = rep(NA, nrow),
                        vb_parent_pl_code = rep(NA, nrow),
                        user_parent_pl_code = rep(NA, nrow),
-                       parent_pl_code = rep(NA, nrow),
                        real_latitude = rep(NA, nrow),
                        real_longitude = rep(NA, nrow),
                        location_accuracy = rep(NA, nrow),
@@ -156,6 +157,17 @@ plots_LT <- data.frame(vb_pl_code = rep(NA, nrow),
 
 # checking values -------------------------------------------------------------
 
+# SurveyID (RAPlots) - author_plot_code (PlotObservations)
+# AltPlots can be joined with RAPlots
+intersect(plots$SurveyID, alt_plots$SurveyID)
+setdiff(alt_plots$SurveyID, plots$SurveyID)
+# SurveyPoints can be joined with RAPlots
+intersect(plots$SurveyID, survey_points$SurveyID) # Empty SurveyPoints
+# RAClassification can be joined with RAPlots
+intersect(plots$SurveyID, classification$SurveyID)
+# AltStrata can be joined with RAPlots
+intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
+
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
 unique(plots$SurveyDate)
@@ -258,15 +270,13 @@ class(plots$Conif_cover) # numeric
 class(plots$Hdwd_cover) # numeric
 class(plots$RegenTree_cover) # numeric
 
-# SurveyID (RAPlots) - author_plot_code (plots)
-# AltPlots can be joined with RAPlots
-intersect(plots$SurveyID, alt_plots$SurveyID)
-# SurveyPoints can be joined with RAPlots
-intersect(plots$SurveyID, survey_points$SurveyID) # Empty SurveyPoints
-# RAClassification can be joined with RAPlots
-intersect(plots$SurveyID, classification$SurveyID)
-# AltStrata can be joined with RAPlots
-intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
+# Latitude_WGS84_Final (AltPlots) - real_latitude (plots)
+unique(alt_plots$Latitude_WGS84_Final)
+class(alt_plots$Latitude_WGS84_Final) # numeric
+
+# Longitude_WGS84_Final (AltPlots) - real_longitude (plots)
+unique(alt_plots$Longitude_WGS84_Final)
+class(alt_plots$Longitude_WGS84_Final)
 
 # When assigning columns to loader table, column types are all changed to
 # numeric.
@@ -274,6 +284,21 @@ intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
 # tidying CDFW data -----------------------------------------------------------
 
 plots_merged <- plots
+
+### author_plot_code (PlotObservations) ###
+# AltPlots can be joined with RAPlots
+plots_merged <- plots_merged %>% 
+  left_join(alt_plots, by = "SurveyID")
+
+# RAClassification can be joined with RAPlots
+# plots_merged <- plots_merged %>% 
+#   left_join(classification, by = "SurveyID", relationship = "many-to-many")
+# I'm not sure if this works. I will have to check later
+
+# AltStrata can be joined with RAPlots
+plots_merged <- plots_merged %>% 
+  left_join(alt_strata, by = "SurveyID")
+# Very empty
 
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
@@ -393,17 +418,5 @@ plots_merged <- plots_merged %>%
     )
   )
 
-# AltPlots can be joined with RAPlots
-plots_merged <- plots_merged %>% 
-  left_join(alt_plots, by = "SurveyID")
-
-# RAClassification can be joined with RAPlots
-# plots_merged <- plots_merged %>% 
-#   left_join(classification, by = "SurveyID", relationship = "many-to-many")
-# I'm not sure if this works. I will have to check later
-
-# AltStrata can be joined with RAPlots
-plots_merged <- plots_merged %>% 
-  left_join(alt_strata, by = "SurveyID")
 
 # Assigning columns to loader table -------------------------------------------
