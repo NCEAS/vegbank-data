@@ -4,12 +4,22 @@ library(here)
 # Personal Notes (Will Delete):
 # vb_pl_code: no mapping yet
 # user_pl_code: no mapping yet
-# author_plot_code: AltPlots and AltStrata can be joined with RAPlots. SurveyPoints is empty.
+# author_plot_code: AltPlots' SurveyID can be left-joined.
+#                   AltStrata's SurveyID can be left-joined.
+#                   SurveyPoints is empty?
 # vb_parent_pl_code: no mapping yet
 # user_parent_pl_code: no mapping yet
-# real_latitude: AltPlots
-# real_longitude: AltPlots
-# location_accuracy:
+# real_latitude: AltPlots' Latitude_WGS84_Final
+# real_longitude: AltPlots' Longitude_WGS84_Final
+# location_accuracy: SurveyPoints' ErrorMeasurement; but it is empty?
+# confidentiality_status: RAPlots' ConfidentialityStatus
+# confidentiality_reason: no mapping yet
+# author_e: SurveyPoints' UTM_E; but it is empty?
+# author_n: SurveyPoints' UTM_N; but it is empty?
+# author_zone: SurveyPoints' UTM_zone; but it is empty?
+# author_datum: no mapping yet
+# author_location: no mapping yet
+# location_narrative:
 
 # load in CDFW data -----------------------------------------------------------
 
