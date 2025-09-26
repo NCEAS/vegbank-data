@@ -6,20 +6,11 @@ library(here)
 # user_pl_code: no mapping yet
 # author_plot_code: AltPlots' SurveyID can be left-joined.
 #                   AltStrata's SurveyID can be left-joined.
-#                   SurveyPoints is empty?
 # vb_parent_pl_code: no mapping yet
 # user_parent_pl_code: no mapping yet
 # real_latitude: AltPlots' Latitude_WGS84_Final
 # real_longitude: AltPlots' Longitude_WGS84_Final
-# location_accuracy: SurveyPoints' ErrorMeasurement; but it is empty?
-# confidentiality_status: RAPlots' ConfidentialityStatus
-# confidentiality_reason: no mapping yet
-# author_e: SurveyPoints' UTM_E; but it is empty?
-# author_n: SurveyPoints' UTM_N; but it is empty?
-# author_zone: SurveyPoints' UTM_zone; but it is empty?
-# author_datum: no mapping yet
-# author_location: no mapping yet
-# location_narrative:
+# location_accuracy: RAPlots' ErrorMeasurement
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -179,6 +170,15 @@ intersect(plots$SurveyID, classification$SurveyID)
 intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
 setdiff(alt_strata$SurveyID, plots$SurveyID)
 
+# ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (plots)
+# Numbers should be converted to their unit of measurement as stated in
+# ErrorUnits
+unique(plots$ErrorMeasurement)
+unique(plots$ErrorUnits)
+class(plots$ErrorMeasurement) # numeric
+class(plots$ErrorUnits) # character
+# ErrorUnits also contains PDOP and Laptop. What to do with those?
+
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
 unique(plots$SurveyDate)
@@ -251,15 +251,6 @@ class(plots$SurveyDimensions) # character
 unique(plots$PlotShape)
 class(plots$PlotShape) # character
 
-# ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (plots)
-# Numbers should be converted to their unit of measurement as stated in
-# ErrorUnits
-unique(plots$ErrorMeasurement)
-unique(plots$ErrorUnits)
-class(plots$ErrorMeasurement) # numeric
-class(plots$ErrorUnits) # character
-# ErrorUnits also contains PDOP and Laptop. What to do with those?
-
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
 # Need to combine 4 columns into one
 unique(plots$Boulders)
@@ -305,6 +296,17 @@ plots_merged <- plots_merged %>%
   left_join(alt_strata, by = "SurveyID")
 # Very empty
 # SurveyPoints can be joined but there is nothing in it
+
+### location_accuracy (PlotObservations) ###
+# ErrorMeasurement + ErrorUnits (RAPlots)
+# Numbers should be converted to their unit of measurement in ErrorUnits
+plots_merged <- plots_merged %>% 
+  mutate(
+    ErrorMeasurement = case_when(
+      ErrorUnits %in% c("F", "ft", "ft.") ~ ErrorMeasurement * 0.3048,
+      TRUE ~ ErrorMeasurement
+    )
+  )
 
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
@@ -413,16 +415,6 @@ plots_merged <- plots_merged %>%
 # PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
 # rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
 # SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
-
-# ErrorMeasurement + ErrorUnits (RAPlots) - location_accuracy (plots)
-# Numbers should be converted to their unit of measurement in ErrorUnits
-plots_merged <- plots_merged %>% 
-  mutate(
-    ErrorMeasurement = case_when(
-      ErrorUnits %in% c("F", "ft", "ft.") ~ ErrorMeasurement * 0.3048,
-      TRUE ~ ErrorMeasurement
-    )
-  )
 
 
 # Assigning columns to loader table -------------------------------------------
