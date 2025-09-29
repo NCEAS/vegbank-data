@@ -1,5 +1,6 @@
 library(tidyverse)
 library(here)
+library(sf)
 
 # Personal Notes (Will Delete):
 # vb_pl_code: no mapping yet
@@ -11,7 +12,17 @@ library(here)
 # real_latitude: AltPlots' Latitude_WGS84_Final
 # real_longitude: AltPlots' Longitude_WGS84_Final
 # location_accuracy: RAPlots' ErrorMeasurement; PDOP and Laptop in ErrorUnits?
-# confidentiality_status:
+# confidentiality_status: RAPlots' ConfidentialityStatus
+# confidentiality_reason: no mapping yet
+# author_e: RAPlot's UTME_final; Convert UTM to lat long; Use UTME_final or UTME?; Confirm correct EPSG code?; I also ignored missing values
+#           When assigning columns, use author_e, not UTME_final
+# author_n: RAPlot's UTMN_final; Convert UTM to lat long; Use UTMN_final or UTMN?; Confirm correct EPSG code?; I also ignored missing values
+#           When assigning columns, use author_n, not UTMN_final
+# author_zone: RAPlot's UTM_zone
+# author_datum: RAPlot's GPS_datum; Inconsistent formatting; Change format? What is the correct format?
+#               When assigning columns, use author_datum, not GPS_datum
+# author_location: no mapping yet
+# location_narrative:
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -171,7 +182,7 @@ intersect(plots$SurveyID, classification$SurveyID)
 intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
 setdiff(alt_strata$SurveyID, plots$SurveyID)
 
-# ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (plots)
+# ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (PlotObservations)
 # Numbers should be converted to their unit of measurement as stated in
 # ErrorUnits
 unique(plots$ErrorMeasurement)
@@ -281,6 +292,20 @@ class(alt_plots$Latitude_WGS84_Final) # numeric
 unique(alt_plots$Longitude_WGS84_Final)
 class(alt_plots$Longitude_WGS84_Final)
 
+# UTME_final (RAPlots) - author_e (PlotObservations)
+unique(plots$UTME_final)
+class(plots$UTME_final) # numeric
+
+# UTMN_final (RAPlots) - author_n (PlotObservations)
+unique(plots$UTMN_final)
+class(plots$UTMN_final) # numeric
+
+# GPS_datum (RAPlots) - author_datum (PlotObservations)
+# Formatting is all over the place. Does VegBank want these to be changed to
+# consistent formatting?
+unique(plots$GPS_datum)
+class(plots$GPS_datum) # character
+
 # When assigning columns to loader table, column types are all changed to
 # numeric.
 
@@ -306,6 +331,55 @@ plots_merged <- plots_merged %>%
     ErrorMeasurement = case_when(
       ErrorUnits %in% c("F", "ft", "ft.") ~ ErrorMeasurement * 0.3048,
       TRUE ~ ErrorMeasurement
+    )
+  )
+
+### author_e (PlotObservations) ###
+### author_n (PlotObservations) ###
+# UTME_final (RAPlots) and UTMN_final (RAPlots)
+# Convert UTM to lat long
+# Possibly switch to UTME instead of UTME_final?
+# Two total zones: 10 and 11
+# I will split by zone, convert, then merge them back together
+# Confirm correct EPSG codes?
+# I also ignored missing values
+# Zone 10
+df_10N <- plots_merged %>% 
+  filter(UTM_zone == "10" & !is.na(UTME_final) & !is.na(UTMN_final)) %>% 
+  st_as_sf(coords = c("UTME_final", "UTMN_final"),
+           crs = 32610,
+           remove = FALSE) %>% 
+  st_transform(4326) %>% 
+  mutate(
+    author_e = st_coordinates(.)[,1],
+    author_n = st_coordinates(.)[,2]
+  )
+# Zone 11
+df_11N <- plots_merged %>% 
+  filter(UTM_zone == "11" & !is.na(UTME_final) & !is.na(UTMN_final)) %>% 
+  st_as_sf(coords = c("UTME_final", "UTMN_final"),
+           crs = 32611,
+           remove = FALSE) %>% 
+  st_transform(4326) %>% 
+  mutate(
+    author_e = st_coordinates(.)[,1],
+    author_n = st_coordinates(.)[,2]
+  )
+# Merge
+plots_merged <- bind_rows(df_10N, df_11N)
+
+### author_datum (PlotObservations) ###
+# GPS_datum (RAPlots)
+# Inconsistent Formatting. Does VegBank need these changed?
+# May delete this, if unnecessary
+# Also, what is the correct format? "NAD83"?
+plots_merged <- plots_merged %>% 
+  mutate(
+    author_datum = case_when(
+      GPS_datum %in% c("Nad83", "NAD 83", "NAD83") ~ "NAD83",
+      GPS_datum %in% c("WGS84", "WGS 84") ~ "WGS84",
+      GPS_datum %in% c("NAD 27") ~ "NAD27",
+      TRUE ~ GPS_datum
     )
   )
 
@@ -417,6 +491,8 @@ plots_merged <- plots_merged %>%
 # rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
 # SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
 
+# Note: After running this entire code chunk, something removes UTME_final
+# and UTMN_final. Not sure which line it is?
 
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
