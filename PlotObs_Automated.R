@@ -47,24 +47,29 @@ macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 
 # creating loader table -------------------------------------------------------
+cache_dir <- "/mnt/ceph/home/nkim/vegbank-data/.secrets"
+dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+options(gargle_oauth_cache = cache_dir)
 
-options(gargle_oauth_cache = ".secrets") 
-gs4_auth(
-  scopes = "https://www.googleapis.com/auth/spreadsheets.readonly",
-  cache = TRUE
-)
+if (!gs4_has_token()) gs4_auth(cache = TRUE)  # first time: choose account; later runs: silent
 
 sheet_url <- "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393"
+vars <- read_sheet(sheet_url, sheet = "PlotObservations", range = "C1:C", col_names = FALSE)
 
-vars <- read_sheet(sheet_url,
-                   sheet = "PlotObservations",
-                   range = "C1:C")
-
-fields <- vars[[1]] 
+fields <- vars[[1]] %>% 
+  tail(-1) %>%
+  unique() %>% 
+  discard(~ is.na(.x) || str_squish(.x) == "") %>% 
+  str_squish()
 
 
 # create blank data frame
-plots_LT <- as_tibble(setNames(replicate(length(fields), character(), simplify = FALSE), fields))
+plots_LT <- as_tibble(
+  setNames(
+    lapply(fields, \(.) rep(NA_character_, nrow(plots))),
+    fields
+  )
+)
 
 # checking values -------------------------------------------------------------
 
