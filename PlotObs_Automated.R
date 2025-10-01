@@ -47,16 +47,24 @@ macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 
 # creating loader table -------------------------------------------------------
+
+# Set up a cache directory for Google Sheets authentication
 cache_dir <- file.path(Sys.getenv("HOME"), ".vegbank_gs_cache")
 dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 options(gargle_oauth_cache = cache_dir)
 
+# Authenticate with Google Sheets
+# First run: will prompt user to log in and approve access
+# Later runs: reuses cached token silently
+# This is not working as intended yet (Will remove this line later)
 gs4_auth(cache = TRUE,
          scopes = "https://www.googleapis.com/auth/spreadsheets.readonly")  # first time: choose account; later runs: silent
 
+# Load the variables from the Google Sheet
 sheet_url <- "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393"
 vars <- read_sheet(sheet_url, sheet = "PlotObservations", range = "C1:C", col_names = FALSE)
 
+# Clean up the variable list
 fields <- vars[[1]] %>% 
   tail(-1) %>%
   unique() %>% 
@@ -71,6 +79,9 @@ plots_LT <- as_tibble(
     fields
   )
 )
+
+# Shows whether token exists, where it’s cached, and if it’s valid
+# This will also be removed later, this is just to check if the gs4_auth is doing its job
 gargle::gargle_oauth_sitrep()
 
 # checking values -------------------------------------------------------------
