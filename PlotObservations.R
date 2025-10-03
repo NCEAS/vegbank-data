@@ -426,9 +426,8 @@ plots_merged <- plots_merged %>%
 
 # -1 indicates plot has no boundaries
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
-# 5 parsing failures
 plots_merged <- plots_merged %>%
-  mutate(PlotArea_num = parse_number(as.character(PlotArea, na = c("NA","na","Not recorded","not recorded"))),
+  mutate(PlotArea_num = parse_number(as.character(PlotArea), na = c("NA","na","Not recorded","not recorded")),
          dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
          SurveyLength = suppressWarnings(as.numeric(map_chr(dims, 1, .default = NA))),
          SurveyWidth  = suppressWarnings(as.numeric(map_chr(dims, 2, .default = NA))),
