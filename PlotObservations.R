@@ -18,11 +18,30 @@ library(sf)
 #           When assigning columns, use author_e, not UTME_final
 # author_n: RAPlot's UTMN_final; Convert UTM to lat long; Use UTMN_final or UTMN?; Confirm correct EPSG code?; I also ignored missing values
 #           When assigning columns, use author_n, not UTMN_final
+# Check if I removed entire rows of data when ignoring missing values
 # author_zone: RAPlot's UTM_zone
 # author_datum: RAPlot's GPS_datum; Inconsistent formatting; Change format? What is the correct format?
 #               When assigning columns, use author_datum, not GPS_datum
 # author_location: no mapping yet
-# location_narrative:
+# location_narrative: no mapping yet
+# azimuth: RAPlots' W_Axis_Bearing
+# dsgpoly: no mapping
+# shape: RAPlots' PlotShape
+# area: RAPlots' PlotArea and ViewRadius (5 parsing failures!); need to fix
+# stand_size: RAPlots' Stand_Size
+# placement_method: no mapping yet
+# permanence: no mapping yet
+# layout_narrative: no mapping yet
+# elevation: RAPlots' Elevation and ft_mElevation
+# elevation_accuracy: no mapping
+# elevation_range: no mapping
+# slope_aspect: RAPlots' Aspect_actual
+# min_slope_aspect: no mapping
+# max_slope_aspect: no mapping
+# slope_gradient: RAPlots' Slope_actual; GitHub Issue TBD
+# min_slope_gradient: no mapping
+# max_slope_gradient: no mapping
+# topo_position: RAPlots' MacroTopo
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -309,6 +328,11 @@ class(plots$GPS_datum) # character
 # When assigning columns to loader table, column types are all changed to
 # numeric.
 
+# MacroTopo (RAPlots) - topo_position (PlotObservations)
+# Looks like there are some messy values, like "upper" and "6"
+unique(plots$MacroTopo)
+class(plots$MacroTopo) # character
+
 # tidying CDFW data -----------------------------------------------------------
 
 plots_merged <- plots
@@ -348,7 +372,7 @@ df_10N <- plots_merged %>%
   filter(UTM_zone == "10" & !is.na(UTME_final) & !is.na(UTMN_final)) %>% 
   st_as_sf(coords = c("UTME_final", "UTMN_final"),
            crs = 32610,
-           remove = FALSE) %>% 
+           na.fail = FALSE) %>% 
   st_transform(4326) %>% 
   mutate(
     author_e = st_coordinates(.)[,1],
@@ -359,7 +383,7 @@ df_11N <- plots_merged %>%
   filter(UTM_zone == "11" & !is.na(UTME_final) & !is.na(UTMN_final)) %>% 
   st_as_sf(coords = c("UTME_final", "UTMN_final"),
            crs = 32611,
-           remove = FALSE) %>% 
+           na.fail = FALSE) %>% 
   st_transform(4326) %>% 
   mutate(
     author_e = st_coordinates(.)[,1],
@@ -383,59 +407,44 @@ plots_merged <- plots_merged %>%
     )
   )
 
-# SurveyDate (RAPlots) - obsStartDate (plots)
-# Time should be removed
-plots_merged$SurveyDate <- as_date(mdy_hms(plots$SurveyDate))
-
-# Elevation (RAPlots) related to ft_mElevation (RAPlots) - elevation (plots)
-# Numbers should be converted to meters if the unit in ft_mElevation says ft.
-plots_merged <- plots_merged %>% 
+### shape (PlotObservations) ###
+# PlotShape (RAPlots)
+# I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
+# surveydimensions' 10x10 to square
+plots_merged <- plots_merged %>%
   mutate(
-    Elevation = case_when(
-      ft_mElevation %in% c("F", "ft", "ft.") ~ Elevation * 0.3048,
-      TRUE ~ Elevation
+    .tol = pmax(SurveyLength, SurveyWidth, na.rm = TRUE) * 0.02,
+    .is_square = !is.na(SurveyLength) & !is.na(SurveyWidth) &
+      SurveyLength > 0 & SurveyWidth > 0 &
+      abs(SurveyLength - SurveyWidth) <= coalesce(.tol, 0),
+    
+    PlotShape = case_when(
+      !is.na(PlotShape)                     ~ PlotShape,
+      !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
+      .is_square                            ~ "square",
+      !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
+        SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
+      TRUE                                  ~ NA_character_
     )
   )
+# plots_merged$shape
 
-# Substrate (RAPlots) - rock_type (plots)
-# GitHub Issue #3 needs more clarification
-
-# Aspect_actual (RAPlots) to Aspect_gen (RAPlots) - slope_aspect (plots)
-# Flat: -1, Variable: -2
-# 0 and 999, not sure yet
-# Aspect_actual remains as is unless Aspect_gen is Flat or Variable
 plots_merged <- plots_merged %>% 
   mutate(
-    Aspect_actual = case_when(
-      Aspect_gen == "Flat" ~ -1,
-      Aspect_gen == "Variable" ~ -2,
-      TRUE ~ Aspect_actual
+    PlotShape = case_when(
+      PlotShape == "10 m x 10 m" ~ "square",
+      PlotShape == "12 m x 9 m" ~ "rectangle",
+      PlotShape == "20 m x 5 m" ~ "rectangle",
+      SurveyDimensions == "10 m x 10 m" & is.na(PlotShape) ~ "square",
+      TRUE ~ PlotShape
     )
   )
-# Note: All flat locations have been changed to -1. This may be sensitive to
-# change. GitHub Issue #4: "Currently, flat locations could be listed as 0,
-# 999, or left blank." If a flat location was listed as 0, 999, or NA 
-# beforehand, it has now been changed to -1.
+# PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
+# rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
+# SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
 
-# Slope_actual (RAPlots) to Slope_gen (RAPlots) - slope_gradient (plots)
-# Code -1 if irregular to determine
-# GitHub Issue TBD
-
-# Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
-# Need to combine 4 columns into one
-plots_merged <- plots_merged %>% 
-  mutate(
-    percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
-  )
-
-# Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
-# Need to combine 3 columns into one
-plots_merged <- plots_merged %>% 
-  mutate(
-    treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
-  )
-
-# PlotArea (RAPlots) - area (plots)
+### area (PlotObservations) ### !!!PROBLEM!!!
+# PlotArea (RAPlots) and ViewRadius (RAPlots)
 # Units will be removed
 plots_merged <- plots_merged %>% 
   mutate(PlotArea = str_remove(PlotArea, 
@@ -456,40 +465,63 @@ plots_merged <- plots_merged %>%
          PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
   )
 
-# PlotShape (RAPlots) - shape (plots)
-# I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
-# surveydimensions' 10x10 to square
-plots_merged <- plots_merged %>%
-  mutate(
-    .tol = pmax(SurveyLength, SurveyWidth, na.rm = TRUE) * 0.02,
-    .is_square = !is.na(SurveyLength) & !is.na(SurveyWidth) &
-      SurveyLength > 0 & SurveyWidth > 0 &
-      abs(SurveyLength - SurveyWidth) <= coalesce(.tol, 0),
-    
-    PlotShape = case_when(
-      !is.na(PlotShape)                     ~ PlotShape,
-      !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
-      .is_square                            ~ "square",
-      !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
-        SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
-      TRUE                                  ~ NA_character_
-    )
-  )
-plots_merged$shape
-
+### elevation (PlotObservations) ###
+# Elevation (RAPlots) related to ft_mElevation (RAPlots)
+# Numbers should be converted to meters if the unit in ft_mElevation says ft.
 plots_merged <- plots_merged %>% 
   mutate(
-    PlotShape = case_when(
-      PlotShape == "10 m x 10 m" ~ "square",
-      PlotShape == "12 m x 9 m" ~ "rectangle",
-      PlotShape == "20 m x 5 m" ~ "rectangle",
-      SurveyDimensions == "10 m x 10 m" & is.na(PlotShape) ~ "square",
-      TRUE ~ PlotShape
+    Elevation = case_when(
+      ft_mElevation %in% c("F", "ft", "ft.") ~ Elevation * 0.3048,
+      TRUE ~ Elevation
     )
   )
-# PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
-# rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
-# SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
+
+### slope_aspect (PlotObservations) ###
+# Aspect_actual (RAPlots) to Aspect_gen (RAPlots)
+# Flat: -1, Variable: -2
+# 0 and 999, not sure yet
+# Aspect_actual remains as is unless Aspect_gen is Flat or Variable
+plots_merged <- plots_merged %>% 
+  mutate(
+    Aspect_actual = case_when(
+      Aspect_gen == "Flat" ~ -1,
+      Aspect_gen == "Variable" ~ -2,
+      TRUE ~ Aspect_actual
+    )
+  )
+# Note: All flat locations have been changed to -1. This may be sensitive to
+# change. GitHub Issue #4: "Currently, flat locations could be listed as 0,
+# 999, or left blank." If a flat location was listed as 0, 999, or NA 
+# beforehand, it has now been changed to -1.
+
+### slope_gradient (PlotObservations) ###
+# Slope_actual (RAPlots) to Slope_gen (RAPlots)
+# Code -1 if irregular to determine
+# GitHub Issue TBD
+
+# SurveyDate (RAPlots) - obsStartDate (plots)
+# Time should be removed
+plots_merged <- plots_merged %>% 
+  mutate(
+    SurveyDate = as_date(mdy_hms(SurveyDate))
+  )
+
+# Substrate (RAPlots) - rock_type (plots)
+# GitHub Issue #3 needs more clarification
+
+# Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
+# Need to combine 4 columns into one
+plots_merged <- plots_merged %>% 
+  mutate(
+    percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
+  )
+
+# Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
+# Need to combine 3 columns into one
+plots_merged <- plots_merged %>% 
+  mutate(
+    treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
+  )
 
 # Note: After running this entire code chunk, something removes UTME_final
 # and UTMN_final. Not sure which line it is?
