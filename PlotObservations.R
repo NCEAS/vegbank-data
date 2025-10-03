@@ -426,6 +426,7 @@ plots_merged <- plots_merged %>%
 
 # -1 indicates plot has no boundaries
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
+# 5 parsing failures
 plots_merged <- plots_merged %>%
   mutate(PlotArea_num = parse_number(as.character(PlotArea), na = c("NA","na","Not recorded","not recorded")),
          dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
@@ -507,6 +508,11 @@ plots_merged <- plots_merged %>%
 # Code -1 if irregular to determine
 # GitHub Issue TBD
 
+### user_ob_code (PlotObservations) ###
+# SurveyID (RAClassifications)
+plots_merged <- plots_merged %>% 
+  left_join(classification, by = "SurveyID")
+
 # SurveyDate (RAPlots) - obsStartDate (plots)
 # Time should be removed
 plots_merged <- plots_merged %>% 
@@ -535,32 +541,32 @@ plots_merged <- plots_merged %>%
 # and UTMN_final. Not sure which line it is?
 
 # Assigning columns to loader table -------------------------------------------
-plots_LT$author_plot_code <- plots_merged$SurveyID
-plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
-plots_LT$real_longitude <- plots_merged$Longitude_WGS84_Final
-plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
-plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
-plots_LT$author_e <- plots_merged$UTME
-plots_LT$author_n <- plots_merged$UTMN
-plots_LT$author_zone <- plots_merged$UTM_zone
-plots_LT$author_datum <- plots_merged$GPS_datum
-plots_LT$author_location <- plots_merged$SiteLocation
-plots_LT$azimuth <- plots_merged$W_Axis_Bearing
-plots_LT$shape <- plots_merged$PlotShape
-plots_LT$area <- plots_merged$PlotArea
-plots_LT$stand_size <- plots_merged$Stand_Size
-plots_LT$elevation <- plots_merged$Elevation
-plots_LT$slope_aspect <- plots_merged$Aspect_actual
-plots_LT$slope_gradient <- plots_merged$Slope_actual
-plots_LT$topo_position <- plots_merged$MacroTopo
-plots_LT$rock_type <- plots_merged$Substrate
-plots_LT$pj_code <- plots_merged$ProjectCode
-plots_LT$obsStartDate <- plots_merged$SurveyDate
-plots_LT$successionalStatus = plots_merged$Trend
-plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
-plots_LT$shrubHt <- plots_merged$Shrub_ht2
-plots_LT$fieldHt <- plots_merged$Herb_ht2
-plots_LT$treeCover <- plots_merged$treeCover
-plots_LT$shrubCover <- plots_merged$Shrub_cover
-plots_LT$fieldCover <- plots_merged$Herb_cover
-plots_LT$dominantStratum <- plots_merged$DomLayer
+# plots_LT$author_plot_code <- plots_merged$SurveyID
+# plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
+# plots_LT$real_longitude <- plots_merged$Longitude_WGS84_Final
+# plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
+# plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
+# plots_LT$author_e <- plots_merged$UTME
+# plots_LT$author_n <- plots_merged$UTMN
+# plots_LT$author_zone <- plots_merged$UTM_zone
+# plots_LT$author_datum <- plots_merged$GPS_datum
+# plots_LT$author_location <- plots_merged$SiteLocation
+# plots_LT$azimuth <- plots_merged$W_Axis_Bearing
+# plots_LT$shape <- plots_merged$PlotShape
+# plots_LT$area <- plots_merged$PlotArea
+# plots_LT$stand_size <- plots_merged$Stand_Size
+# plots_LT$elevation <- plots_merged$Elevation
+# plots_LT$slope_aspect <- plots_merged$Aspect_actual
+# plots_LT$slope_gradient <- plots_merged$Slope_actual
+# plots_LT$topo_position <- plots_merged$MacroTopo
+# plots_LT$rock_type <- plots_merged$Substrate
+# plots_LT$pj_code <- plots_merged$ProjectCode
+# plots_LT$obsStartDate <- plots_merged$SurveyDate
+# plots_LT$successionalStatus = plots_merged$Trend
+# plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
+# plots_LT$shrubHt <- plots_merged$Shrub_ht2
+# plots_LT$fieldHt <- plots_merged$Herb_ht2
+# plots_LT$treeCover <- plots_merged$treeCover
+# plots_LT$shrubCover <- plots_merged$Shrub_cover
+# plots_LT$fieldCover <- plots_merged$Herb_cover
+# plots_LT$dominantStratum <- plots_merged$DomLayer
