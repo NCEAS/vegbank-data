@@ -48,23 +48,29 @@ slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 
 # creating loader table -------------------------------------------------------
 
-options(gargle_oauth_cache = ".secrets") 
-gs4_auth(
-  scopes = "https://www.googleapis.com/auth/spreadsheets.readonly",
-  cache = TRUE
-)
-
+# Load the variables from the Google Sheet
 sheet_url <- "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393"
+vars <- read_sheet(sheet_url, sheet = "PlotObservations", range = "C1:C", col_names = FALSE)
 
-vars <- read_sheet(sheet_url,
-                   sheet = "PlotObservations",
-                   range = "C1:C")
-
-fields <- vars[[1]] 
+# Clean up the variable list
+fields <- vars[[1]] %>% 
+  tail(-1) %>%
+  unique() %>% 
+  discard(~ is.na(.x) || str_squish(.x) == "") %>% 
+  str_squish()
 
 
 # create blank data frame
-plots_LT <- as_tibble(setNames(replicate(length(fields), character(), simplify = FALSE), fields))
+plots_LT <- as_tibble(
+  setNames(
+    lapply(fields, \(.) rep(NA_character_, nrow(plots))),
+    fields
+  )
+)
+
+# Shows whether token exists, where it’s cached, and if it’s valid
+# This will also be removed later, this is just to check if the gs4_auth is doing its job
+gargle::gargle_oauth_sitrep()
 
 # checking values -------------------------------------------------------------
 
@@ -356,3 +362,4 @@ plots_LT$treeCover <- plots_merged$treeCover
 plots_LT$shrubCover <- plots_merged$Shrub_cover
 plots_LT$fieldCover <- plots_merged$Herb_cover
 plots_LT$dominantStratum <- plots_merged$DomLayer
+
