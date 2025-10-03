@@ -41,7 +41,8 @@ library(sf)
 # slope_gradient: RAPlots' Slope_actual; GitHub Issue TBD
 # min_slope_gradient: no mapping
 # max_slope_gradient: no mapping
-# topo_position: RAPlots' MacroTopo
+# topo_position: RAPlots' MacroTopo; some messy data should be converted?
+# landform:
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -407,42 +408,6 @@ plots_merged <- plots_merged %>%
     )
   )
 
-### shape (PlotObservations) ###
-# PlotShape (RAPlots)
-# I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
-# surveydimensions' 10x10 to square
-plots_merged <- plots_merged %>%
-  mutate(
-    .tol = pmax(SurveyLength, SurveyWidth, na.rm = TRUE) * 0.02,
-    .is_square = !is.na(SurveyLength) & !is.na(SurveyWidth) &
-      SurveyLength > 0 & SurveyWidth > 0 &
-      abs(SurveyLength - SurveyWidth) <= coalesce(.tol, 0),
-    
-    PlotShape = case_when(
-      !is.na(PlotShape)                     ~ PlotShape,
-      !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
-      .is_square                            ~ "square",
-      !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
-        SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
-      TRUE                                  ~ NA_character_
-    )
-  )
-# plots_merged$shape
-
-plots_merged <- plots_merged %>% 
-  mutate(
-    PlotShape = case_when(
-      PlotShape == "10 m x 10 m" ~ "square",
-      PlotShape == "12 m x 9 m" ~ "rectangle",
-      PlotShape == "20 m x 5 m" ~ "rectangle",
-      SurveyDimensions == "10 m x 10 m" & is.na(PlotShape) ~ "square",
-      TRUE ~ PlotShape
-    )
-  )
-# PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
-# rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
-# SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
-
 ### area (PlotObservations) ### !!!PROBLEM!!!
 # PlotArea (RAPlots) and ViewRadius (RAPlots)
 # Units will be removed
@@ -464,6 +429,42 @@ plots_merged <- plots_merged %>%
                                     SurveyLength * SurveyWidth, NA_real_),
          PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
   )
+
+plots_merged <- plots_merged %>% 
+  mutate(
+    PlotShape = case_when(
+      PlotShape == "10 m x 10 m" ~ "square",
+      PlotShape == "12 m x 9 m" ~ "rectangle",
+      PlotShape == "20 m x 5 m" ~ "rectangle",
+      SurveyDimensions == "10 m x 10 m" & is.na(PlotShape) ~ "square",
+      TRUE ~ PlotShape
+    )
+  )
+# PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
+# rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
+# SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
+
+### shape (PlotObservations) ###
+# PlotShape (RAPlots)
+# I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
+# surveydimensions' 10x10 to square
+plots_merged <- plots_merged %>%
+  mutate(
+    .tol = pmax(SurveyLength, SurveyWidth, na.rm = TRUE) * 0.02,
+    .is_square = !is.na(SurveyLength) & !is.na(SurveyWidth) &
+      SurveyLength > 0 & SurveyWidth > 0 &
+      abs(SurveyLength - SurveyWidth) <= coalesce(.tol, 0),
+    
+    PlotShape = case_when(
+      !is.na(PlotShape)                     ~ PlotShape,
+      !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
+      .is_square                            ~ "square",
+      !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
+        SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
+      TRUE                                  ~ NA_character_
+    )
+  )
+# plots_merged$shape
 
 ### elevation (PlotObservations) ###
 # Elevation (RAPlots) related to ft_mElevation (RAPlots)
