@@ -50,7 +50,16 @@ library(sf)
 # stateProvince: no mapping
 # country: no mapping
 # continent: no mapping
-# user_ob_code: RAClassifications' SurveyID
+# user_ob_code: RAClassifications' SurveyID; This is a separate ID variable from
+# author_plot_code, but I'm not sure if a left join is the correct means of
+# doing this, since it combines it all into SurveyID. How to do this?
+# Could just add RAClassifications$SurveyID
+# user_pj_code: no mapping
+# vb_pj_code: no mapping
+# authorObsCode: no mapping
+# parent_ob_code: no mapping
+# obsStartDate: RAPlots' SurveyDate
+# obsEndDate: no mapping
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -510,10 +519,14 @@ plots_merged <- plots_merged %>%
 
 ### user_ob_code (PlotObservations) ###
 # SurveyID (RAClassifications)
-plots_merged <- plots_merged %>% 
-  left_join(classification, by = "SurveyID")
+plots_merged <- plots_merged %>%
+  mutate(
+    user_ob_code = classification$SurveyID[match(SurveyID,
+                                                 classification$SurveyID)]
+  )
 
-# SurveyDate (RAPlots) - obsStartDate (plots)
+### obsStartDate (PlotObservations) ###
+# SurveyDate (RAPlots)
 # Time should be removed
 plots_merged <- plots_merged %>% 
   mutate(
