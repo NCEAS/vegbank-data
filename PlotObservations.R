@@ -42,7 +42,15 @@ library(sf)
 # min_slope_gradient: no mapping
 # max_slope_gradient: no mapping
 # topo_position: RAPlots' MacroTopo; some messy data should be converted?
-# landform:
+# landform: no mapping
+# surficial_deposits: no mapping
+# rock_type: no mapping
+# quadrangleName: no mapping
+# county: no mapping yet
+# stateProvince: no mapping
+# country: no mapping
+# continent: no mapping
+# user_ob_code: RAClassifications' SurveyID
 
 # load in CDFW data -----------------------------------------------------------
 
