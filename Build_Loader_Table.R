@@ -28,4 +28,50 @@ build_loader_template <- function(
     range     = range,
     col_names = FALSE
   )
+ 
+  if (ncol(vars) == 0 || nrow(vars) == 0) {
+    stop("Selected range has no data. Check `sheet`/`range`.")
+  }
+ 
+  fields <- vars[[1]]
+  
+  # drop the first cell if it’s a title/header
+  if (isTRUE(drop_first) && length(fields) > 0) {
+    fields <- fields[-1]
+  }
+  
+  # clean: remove duplicates, remove blanks, remove extra whitespace
+  if (isTRUE(clean)) {
+    fields <- unique(fields)
+    fields <- fields[!is.na(fields)]
+    fields <- if (requireNamespace("stringr", quietly = TRUE)) {
+      stringr::str_squish(fields)
+    } else {
+      trimws(gsub("\\s+", " ", fields))
+    }
+    fields <- fields[fields != ""]
+  }
+  
+  if (length(fields) == 0) {
+    stop("No field names found after cleaning. Check the sheet content.")
+  }
+  
+  # decide row count
+  if (!is.null(source_df)) {
+    n <- nrow(source_df)
+  } else if (!is.null(n_rows)) {
+    n <- as.integer(n_rows)
+    if (is.na(n) || n < 0) stop("`n_rows` must be a non-negative integer.")
+  } else {
+    n <- 0L
+  }
+  
+  # build the template (all character NA by default)
+  template <- tibble::as_tibble(
+    stats::setNames(
+      purrr::map(fields, ~ rep(NA_character_, n)),
+      fields
+    )
+  )
+  list(fields = fields, template = template)
 }
