@@ -60,6 +60,32 @@ library(sf)
 # parent_ob_code: no mapping
 # obsStartDate: RAPlots' SurveyDate
 # obsEndDate: no mapping
+# dateAccuracy: no mapping
+# vb_cm_code: no mapping yet
+# coverDispersion: no mapping
+# autoTaxonCover: no mapping
+# vb_sm_code: no mapping
+# stratumIndex1: no mapping
+# stratumHeight1: no mapping
+# stratumBase1: no mapping
+# stratumCover1: no mapping
+# eightMoreStratumSets: no mapping
+# methodNarrative: no mapping set for certain, but...RAPlots' GPS_name, GPS_in_stand, Survey_Type, AltPlots' AdditionalNotes? Should we combine it all together?
+# taxonObservationArea: no mapping set for certain, but...RAPlots' PlotArea? 
+# stemSizeLimit: no mapping
+# stemObservationArea: no mapping
+# stemSampleMethod: no mapping
+# originalData: no mapping
+# effortLevel: no mapping
+# floristicQuality: no mapping
+# bryophiteQuality: no mapping
+# lichenQuality: no mapping
+# observationNarrative: no mapping set for certain, but...RAPlots' Unusual_spp, Phen_Gr, Phen_Sh, Phen_Tr, ID_or_mapping_info?
+# landscapeNarrative: no mapping set for certain, but...RAPlots' MicroTopo, AltPlots' Vertical, Horizontal?
+# homogeneity: no mapping set for certain, but...AltPlots' Struct_Gr?
+# phenologicAspect: no mapping
+# standMaturity: no mapping
+# successionalStatus: AltPlots' Trend
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -350,6 +376,11 @@ class(plots$GPS_datum) # character
 # Looks like there are some messy values, like "upper" and "6"
 unique(plots$MacroTopo)
 class(plots$MacroTopo) # character
+
+# Trend (AltPlots) - successionalStatus (PlotObservations)
+# Looks fine
+unique(alt_plots$Trend)
+class(alt_plots$Trend) # character
 
 # tidying CDFW data -----------------------------------------------------------
 
