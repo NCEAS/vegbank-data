@@ -12,7 +12,7 @@
 # Returns:
 #   list(fields = <character>, template = <tibble>)
 
-build_loader_template <- function(
+build_loader_table <- function(
     sheet_url,
     sheet,
     range      = "C1:C",

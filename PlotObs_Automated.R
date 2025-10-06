@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(googlesheets4)
+source("Build_Loader_Table.R")
 
 # Personal Notes (Will Delete):
 # vb_pl_code: no mapping yet
@@ -47,6 +48,14 @@ macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 
 # creating loader table -------------------------------------------------------
+
+test <- build_loader_table(
+  sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
+  sheet = "PlotObservations",
+  source_df = plots
+)
+test$template
+test$fields
 
 # Load the variables from the Google Sheet
 sheet_url <- "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393"
