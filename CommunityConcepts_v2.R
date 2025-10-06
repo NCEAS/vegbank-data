@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(stringr)
+source("Build_Loader_Table.R")
 
 # load in CDFW data -------------------------------------------------------
 # RAClassification
