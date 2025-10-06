@@ -87,6 +87,11 @@ source("Build_Loader_Table.R")
 # phenologicAspect: no mapping
 # standMaturity: no mapping
 # successionalStatus: AltPlots' Trend
+# basalArea: no mapping set for certain, but...RAPlots' BasalStem?
+# hydrologicRegime: RAPlots' Upl_Wet_text
+# soilMoistureRegime: no mapping
+# soilDrainage: no mapping
+# waterSalinity: no mapping
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -275,6 +280,11 @@ class(plots$MacroTopo) # character
 unique(alt_plots$Trend)
 class(alt_plots$Trend) # character
 
+# Upl_Wet_text (RAPlots) - hydrologicRegime (PlotObservations)
+# Looks fine
+unique(plots$Upl_Wet_text)
+class(plots$Upl_Wet_text) # character
+
 # tidying CDFW data -----------------------------------------------------------
 
 plots_merged <- plots
@@ -307,11 +317,16 @@ plots_merged <- plots_merged %>%
 # Possibly switch to UTME instead of UTME_final?
 # Two total zones: 10 and 11
 # I will split by zone, convert, then merge them back together
-# Confirm correct EPSG codes?
-# I also ignored missing values
+# It keeps removing NA values by default and I am trying to keep them
+plots_merged$is_na_e = ifelse(is.na(plots_merged$UTME_final), TRUE, FALSE)
+plots_merged$is_na_n = ifelse(is.na(plots_merged$UTMN_final), TRUE, FALSE)
+index = plots_merged$is_na_e == TRUE
+index1 = plots_merged$is_na_n == TRUE
+plots_merged[index, "x"] <- 0
+plots_merged[index, "y"] <- 0
 # Zone 10
 df_10N <- plots_merged %>% 
-  filter(UTM_zone == "10" & !is.na(UTME_final) & !is.na(UTMN_final)) %>% 
+  filter(UTM_zone == "10") %>% 
   st_as_sf(coords = c("UTME_final", "UTMN_final"),
            crs = 32610,
            na.fail = FALSE) %>% 
@@ -322,7 +337,7 @@ df_10N <- plots_merged %>%
   )
 # Zone 11
 df_11N <- plots_merged %>% 
-  filter(UTM_zone == "11" & !is.na(UTME_final) & !is.na(UTMN_final)) %>% 
+  filter(UTM_zone == "11") %>% 
   st_as_sf(coords = c("UTME_final", "UTMN_final"),
            crs = 32611,
            na.fail = FALSE) %>% 
@@ -332,7 +347,7 @@ df_11N <- plots_merged %>%
     author_n = st_coordinates(.)[,2]
   )
 # Merge
-plots_merged <- bind_rows(df_10N, df_11N)
+# plots_merged <- bind_rows(df_10N_final, df_11N_final)
 
 ### author_datum (PlotObservations) ###
 # GPS_datum (RAPlots)
