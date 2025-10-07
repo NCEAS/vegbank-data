@@ -318,36 +318,44 @@ plots_merged <- plots_merged %>%
 # Two total zones: 10 and 11
 # I will split by zone, convert, then merge them back together
 # It keeps removing NA values by default and I am trying to keep them
-plots_merged$is_na_e = ifelse(is.na(plots_merged$UTME_final), TRUE, FALSE)
-plots_merged$is_na_n = ifelse(is.na(plots_merged$UTMN_final), TRUE, FALSE)
-index = plots_merged$is_na_e == TRUE
-index1 = plots_merged$is_na_n == TRUE
-plots_merged[index, "x"] <- 0
-plots_merged[index, "y"] <- 0
-# Zone 10
-df_10N <- plots_merged %>% 
-  filter(UTM_zone == "10") %>% 
-  st_as_sf(coords = c("UTME_final", "UTMN_final"),
-           crs = 32610,
-           na.fail = FALSE) %>% 
-  st_transform(4326) %>% 
+# New Version (To not affect row numbers)
+plots_merged <- plots_merged %>%
   mutate(
-    author_e = st_coordinates(.)[,1],
-    author_n = st_coordinates(.)[,2]
+    .row_id = row_number(),
+    UTM_zone_chr = str_to_upper(str_squish(as.character(UTM_zone)))
   )
-# Zone 11
-df_11N <- plots_merged %>% 
-  filter(UTM_zone == "11") %>% 
-  st_as_sf(coords = c("UTME_final", "UTMN_final"),
-           crs = 32611,
-           na.fail = FALSE) %>% 
-  st_transform(4326) %>% 
+
+df_10N <- plots_merged %>%
+  filter(UTM_zone_chr == "10",
+         !is.na(UTME_final), !is.na(UTMN_final)) %>%
+  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 32610, na.fail = FALSE) %>%
+  st_transform(4326) %>%
   mutate(
-    author_e = st_coordinates(.)[,1],
-    author_n = st_coordinates(.)[,2]
-  )
-# Merge
-# plots_merged <- bind_rows(df_10N_final, df_11N_final)
+    author_e = st_coordinates(geometry)[, 1],  # lon
+    author_n = st_coordinates(geometry)[, 2]   # lat
+  ) %>%
+  st_drop_geometry() %>%
+  select(.row_id, author_e, author_n)
+
+df_11N <- plots_merged %>%
+  filter(UTM_zone_chr == "11",
+         !is.na(UTME_final), !is.na(UTMN_final)) %>%
+  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 32611, na.fail = FALSE) %>%
+  st_transform(4326) %>%
+  mutate(
+    author_e = st_coordinates(geometry)[, 1],
+    author_n = st_coordinates(geometry)[, 2]
+  ) %>%
+  st_drop_geometry() %>%
+  select(.row_id, author_e, author_n)
+
+# combine computed coords and join back to FULL dataset (preserves row count)
+df_N_all <- bind_rows(df_10N, df_11N)
+
+# merge
+plots_merged <- plots_merged %>%
+  left_join(df_N_all, by = ".row_id") %>%
+  select(-.row_id, -UTM_zone_chr)
 
 ### author_datum (PlotObservations) ###
 # GPS_datum (RAPlots)
@@ -493,32 +501,32 @@ plots_merged <- plots_merged %>%
 # and UTMN_final. Not sure which line it is?
 
 # Assigning columns to loader table -------------------------------------------
-# plots_LT$author_plot_code <- plots_merged$SurveyID
-# plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
-# plots_LT$real_longitude <- plots_merged$Longitude_WGS84_Final
-# plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
-# plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
-# plots_LT$author_e <- plots_merged$UTME
-# plots_LT$author_n <- plots_merged$UTMN
-# plots_LT$author_zone <- plots_merged$UTM_zone
-# plots_LT$author_datum <- plots_merged$GPS_datum
-# plots_LT$author_location <- plots_merged$SiteLocation
-# plots_LT$azimuth <- plots_merged$W_Axis_Bearing
-# plots_LT$shape <- plots_merged$PlotShape
-# plots_LT$area <- plots_merged$PlotArea
-# plots_LT$stand_size <- plots_merged$Stand_Size
-# plots_LT$elevation <- plots_merged$Elevation
-# plots_LT$slope_aspect <- plots_merged$Aspect_actual
-# plots_LT$slope_gradient <- plots_merged$Slope_actual
-# plots_LT$topo_position <- plots_merged$MacroTopo
-# plots_LT$rock_type <- plots_merged$Substrate
-# plots_LT$pj_code <- plots_merged$ProjectCode
-# plots_LT$obsStartDate <- plots_merged$SurveyDate
-# plots_LT$successionalStatus = plots_merged$Trend
-# plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
-# plots_LT$shrubHt <- plots_merged$Shrub_ht2
-# plots_LT$fieldHt <- plots_merged$Herb_ht2
-# plots_LT$treeCover <- plots_merged$treeCover
-# plots_LT$shrubCover <- plots_merged$Shrub_cover
-# plots_LT$fieldCover <- plots_merged$Herb_cover
-# plots_LT$dominantStratum <- plots_merged$DomLayer
+plots_LT$author_plot_code <- plots_merged$SurveyID
+plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
+plots_LT$real_longitude <- plots_merged$Longitude_WGS84_Final
+plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
+plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
+plots_LT$author_e <- plots_merged$author_e
+plots_LT$author_n <- plots_merged$author_n
+plots_LT$author_zone <- plots_merged$UTM_zone
+plots_LT$author_datum <- plots_merged$GPS_datum
+plots_LT$author_location <- plots_merged$SiteLocation
+plots_LT$azimuth <- plots_merged$W_Axis_Bearing
+plots_LT$shape <- plots_merged$PlotShape
+plots_LT$area <- plots_merged$PlotArea
+plots_LT$stand_size <- plots_merged$Stand_Size
+plots_LT$elevation <- plots_merged$Elevation
+plots_LT$slope_aspect <- plots_merged$Aspect_actual
+plots_LT$slope_gradient <- plots_merged$Slope_actual
+plots_LT$topo_position <- plots_merged$MacroTopo
+plots_LT$rock_type <- plots_merged$Substrate
+plots_LT$pj_code <- plots_merged$ProjectCode
+plots_LT$obsStartDate <- plots_merged$SurveyDate
+plots_LT$successionalStatus = plots_merged$Trend
+plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
+plots_LT$shrubHt <- plots_merged$Shrub_ht2
+plots_LT$fieldHt <- plots_merged$Herb_ht2
+plots_LT$treeCover <- plots_merged$treeCover
+plots_LT$shrubCover <- plots_merged$Shrub_cover
+plots_LT$fieldCover <- plots_merged$Herb_cover
+plots_LT$dominantStratum <- plots_merged$DomLayer
