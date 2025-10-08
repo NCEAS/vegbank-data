@@ -29,7 +29,7 @@ contributor_LT <- contributor_template_fields$template
 
 # Checking values ---------------------------------------------------------
 
-# DataContactName* (RAProjects) - givenName (Party) + surname (Party)
+# DataContactName* (RAProjects) - given_name (Party) + surname (Party)
 # DataContactName* values Should be separated into `FirstName` and `LastName`.
 # Change RAProjects to long format to have one row per contact.
 unique(projects$DataContactName)
@@ -94,18 +94,31 @@ projects_long <- projects %>%
     ContactOrg = str_squish(Organization)
   )
 
+# Adjusting number of rows in party_LT to account for pivot.
+n_new <- 30  # number of rows to add
+
+party_LT <- bind_rows(
+  party_LT,
+  as_tibble(map(party_LT, ~ rep(NA, n_new)))
+)
+
+### given_name (Party) + surname (Party) ###
 # Separating DataContactName into `FirstName` and `LastName`.
 
-project_name_split <- projects_long %>%
+projects <- projects_long %>%
   separate(ContactName, into = c("FirstName", "LastName"), sep = " ", extra = "merge")
 
+### user_py_code (Party) ###
+# Create a unique code for each individual (ca_***)
+projects <- projects %>%
+  mutate(user_py_code = sprintf("ca_%03d", seq_len(n())))
+projects
+
 # Assigning columns to loader table ---------------------------------------
-party_LT <- bind_rows(
-  template,
-  tibble(surname = project_name_split$LastName,
-         organization_name = project_name_split$ContactOrg,
-         given_name = project_name_split$FirstName,
-         email = project_name_split$ContactEmail)
-)
+party_LT$user_py_code <- projects$user_py_code
+party_LT$surname = projects$LastName
+party_LT$organization_name = projects$ContactOrg
+party_LTgiven_name = projects$FirstName
+party_LT$email = projects$ContactEmail
 
 # py_code, middle_name, party_type, org_position, orcid, and ror not present in CDFW data.
