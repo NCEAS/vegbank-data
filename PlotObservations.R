@@ -12,23 +12,22 @@ source("Build_Loader_Table.R")
 # user_parent_pl_code: no mapping yet
 # real_latitude: AltPlots' Latitude_WGS84_Final
 # real_longitude: AltPlots' Longitude_WGS84_Final
-# location_accuracy: RAPlots' ErrorMeasurement; PDOP and Laptop in ErrorUnits?
+# location_accuracy: RAPlots' ErrorMeasurement; PDOP and Laptop in ErrorUnits. Wait for CDFW update.
 # confidentiality_status: RAPlots' ConfidentialityStatus
 # confidentiality_reason: no mapping yet
-# author_e: RAPlot's UTME_final; Convert UTM to lat long; Use UTME_final or UTME?; Confirm correct EPSG code?; I also ignored missing values
+# author_e: RAPlot's UTME_final; Convert UTM to lat long
 #           When assigning columns, use author_e, not UTME_final
-# author_n: RAPlot's UTMN_final; Convert UTM to lat long; Use UTMN_final or UTMN?; Confirm correct EPSG code?; I also ignored missing values
+# author_n: RAPlot's UTMN_final; Convert UTM to lat long
 #           When assigning columns, use author_n, not UTMN_final
-# Check if I removed entire rows of data when ignoring missing values
 # author_zone: RAPlot's UTM_zone
-# author_datum: RAPlot's GPS_datum; Inconsistent formatting; Change format? What is the correct format?
+# author_datum: RAPlot's GPS_datum
 #               When assigning columns, use author_datum, not GPS_datum
 # author_location: no mapping yet
 # location_narrative: no mapping yet
 # azimuth: RAPlots' W_Axis_Bearing
 # dsgpoly: no mapping
 # shape: RAPlots' PlotShape
-# area: RAPlots' PlotArea and ViewRadius (5 parsing failures!); need to fix
+# area: RAPlots' PlotArea and ViewRadius
 # stand_size: RAPlots' Stand_Size
 # placement_method: no mapping yet
 # permanence: no mapping yet
@@ -92,6 +91,39 @@ source("Build_Loader_Table.R")
 # soilMoistureRegime: no mapping
 # soilDrainage: no mapping
 # waterSalinity: no mapping
+# waterDepth: no mapping
+# shoreDistance: no mapping
+# soilDepth: no mapping
+# organicDepth: no mapping
+# vb_so_code: no mapping
+# soilTaxonSrc: no mapping
+# percentBedRock: RAPlots' Bedrock
+# percentRockGravel: RAPlots' Gravels (Maybe RAPlots' Boulders, Stones, Cobbles; AltPlots' Small_rock?) For now, I map to just Gravels.
+# percentWood: no mapping
+# percentLitter: RAPlots' Litter
+# percentBareSoil: RAPlots' Bare_fines
+# percentWater: RAPlots' Water
+# percentOther: Maybe combine RAPlots' Boulders, Stones, and Cobbles?
+# nameOther: Possibly AltPlots' Small_rock and combine percentOther? Won't do it yet. I leave it alone for now.
+# treeHt: RAPlots' Conif_ht2, Hdwd_ht2, UnderTree_ht2, RegenTree_ht2; AltStrata's OverstoryTree_Ht, EmergentTree_Ht. But AltStrata has missing values.
+# shrubHt: RAPlots' Shrub_ht2; AltStrata's LoTreeTallShrub_Ht, LoMidShrub_Ht, DwarfShrub_Ht. AltStrata also has missing values.
+# fieldHt: RAPlots' Herb_ht2, but it has a range problem like treeHt and shrubHt.
+# nonvascularHt: AltStrata's Nonvascular_Ht, but it is empty?
+# submergedHt: no mapping
+# treeCover: RAPlots' Conif_cover, AltStrata's Epiphyte_Cov, OverstoryTree_Cov, EmergentTree_Cov. AltStrata is empty.
+# shrubCover: RAPlots' Shrub_cover. AltStrata is empty, but AltStrata's LoTreeTallShrub_Cov, LoMidShrub_Cov, DwarfShrub_Cov
+# fieldCover: RAPlots' Herb_cover. Looks good!
+# nonvascularCover: RAPlots' NonVasc_Veg_cover, AltStrata's Nonvascular_Cov. AltStrata is empty.
+# floatingCover: no mapping
+# submergedCover: no mapping
+# dominantStratum: AltPlots' DomLayer, but they're all empty?
+# growthform1Type: no mapping
+# growthform2Type: no mapping
+# growthform3Type: no mapping
+# growthform1Cover: no mapping
+# growthform2Cover: no mapping
+# growthform3Cover: no mapping
+# totalCover: no mapping
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -285,6 +317,50 @@ class(alt_plots$Trend) # character
 unique(plots$Upl_Wet_text)
 class(plots$Upl_Wet_text) # character
 
+# Gravels (RAPlots) - percentRockGravel (PlotObservations)
+# May need to get combined with the other percents
+unique(plots$Gravels)
+class(plots$Gravels) # numeric
+
+# Boulders, Stones, Cobbles (RAPlots) - percentOther (PlotObservations)
+# Combine
+# Mapping may change
+unique(plots$Boulders)
+unique(plots$Stones)
+unique(plots$Cobbles)
+class(plots$Boulders) # numeric
+class(plots$Stones) # numeric
+class(plots$Cobbles) # numeric
+
+# Conif_ht2, Hdwd_ht2, UnderTree_ht2, RegenTree_ht2 (RAPlots), OverstoryTree_Ht, EmergentTree_Ht (AltStrata) - treeHt (PlotObservations)
+# Combine? I'm not sure if we grab the maximum height and then combine.
+# May also need to convert to numeric
+# Will wait for Maggie's meeting
+unique(plots$Conif_ht2)
+unique(plots$Hdwd_ht2)
+unique(plots$RegenTree_ht2)
+unique(alt_strata$OverstoryTree_Ht) # AltStrata has no values
+unique(alt_strata$EmergentTree_Ht) # AltStrata has no values
+class(plots$Conif_ht2) # character
+class(plots$Hdwd_ht2) # character
+class(plots$RegenTree_ht2) # character
+
+# Shrub_ht2 (RAPlots), LoTreeTallShrub_Ht, LoMidShrub_Ht, DwarfShrub_Ht (AltStrata) - shrubHt (PlotObservations)
+# Also not sure if we grab the maximum height and then combine
+# AltStrata has missing values again. I don't think we combine?
+# May also need to convert to numeric
+unique(plots$Shrub_ht2)
+unique(alt_strata$LoTreeTallShrub_Ht) # NA
+unique(alt_strata$LoMidShrub_Ht) # NA
+unique(alt_strata$DwarfShrub_Ht) # NA
+class(plots$Shrub_ht2) # character
+
+# Herb_ht2 (RAPlots) - fieldHt (PlotObservations)
+# Also not sure if we grab the maximum height and then combine
+# May also need to convert to numeric
+unique(plots$Herb_ht2)
+class(plots$Herb_ht2) # character
+
 # tidying CDFW data -----------------------------------------------------------
 
 plots_merged <- plots
@@ -371,6 +447,7 @@ plots_merged <- plots_merged %>%
       TRUE ~ GPS_datum
     )
   )
+# Use author_datum to assign column to loader table
 
 ### area (PlotObservations) ### !!!PROBLEM!!!
 # PlotArea (RAPlots) and ViewRadius (RAPlots)
@@ -464,6 +541,18 @@ plots_merged <- plots_merged %>%
 # Code -1 if irregular to determine
 # GitHub Issue TBD
 
+### topo_position (PlotObservations) ###
+# MacroTopo (RAPlots)
+# Convert to corresponding values in LMacroTopo.csv
+plots_merged <- plots_merged %>% 
+  mutate(
+    topo_position = case_when(
+      MacroTopo == "upper" ~ "Upper 1/3 of slope",
+      MacroTopo == "mid" ~ "Middle 1/3 of slope",
+      TRUE ~ MacroTopo
+    )
+  )
+
 ### user_ob_code (PlotObservations) ###
 # SurveyID (RAClassifications)
 plots_merged <- plots_merged %>%
@@ -480,15 +569,24 @@ plots_merged <- plots_merged %>%
     SurveyDate = as_date(mdy_hms(SurveyDate))
   )
 
-# Substrate (RAPlots) - rock_type (plots)
-# GitHub Issue #3 needs more clarification
-
+### percentOther (PlotObservations) ###
 # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
+# Boulders/Stones/Cobbles (RAPlots) - percentOther (PlotObservations)
+# Gravels (RAPlots) - percentRockGravel (PlotObservations)
 # Need to combine 4 columns into one
+# CDFW unsure if we want Boulders/Stones/Cobbles with percentOther or
+# percentRockGravel
+# plots_merged <- plots_merged %>% 
+#   mutate(
+#     percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
+#   )
 plots_merged <- plots_merged %>% 
   mutate(
-    percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
+    percentOther = rowSums(cbind(Boulders, Stones, Cobbles))
   )
+
+# Substrate (RAPlots) - rock_type (plots)
+# GitHub Issue #3 needs more clarification
 
 # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
 # Need to combine 3 columns into one
@@ -509,7 +607,7 @@ plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
 plots_LT$author_e <- plots_merged$author_e
 plots_LT$author_n <- plots_merged$author_n
 plots_LT$author_zone <- plots_merged$UTM_zone
-plots_LT$author_datum <- plots_merged$GPS_datum
+plots_LT$author_datum <- plots_merged$author_datum
 plots_LT$author_location <- plots_merged$SiteLocation
 plots_LT$azimuth <- plots_merged$W_Axis_Bearing
 plots_LT$shape <- plots_merged$PlotShape
