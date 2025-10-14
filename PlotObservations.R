@@ -333,9 +333,7 @@ class(plots$Stones) # numeric
 class(plots$Cobbles) # numeric
 
 # Conif_ht2, Hdwd_ht2, UnderTree_ht2, RegenTree_ht2 (RAPlots), OverstoryTree_Ht, EmergentTree_Ht (AltStrata) - treeHt (PlotObservations)
-# Combine? I'm not sure if we grab the maximum height and then combine.
-# May also need to convert to numeric
-# Will wait for Maggie's meeting
+# long explanation
 unique(plots$Conif_ht2)
 unique(plots$Hdwd_ht2)
 unique(plots$RegenTree_ht2)
@@ -595,8 +593,72 @@ plots_merged <- plots_merged %>%
     treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
   )
 
-# Note: After running this entire code chunk, something removes UTME_final
-# and UTMN_final. Not sure which line it is?
+### tree_Ht (PlotObservations) ###
+# Conif_ht2 and Hdwd_ht2 (RAPlots)
+plots_merged <- plots_merged %>% 
+  mutate(
+    # Formula
+    conif_ratio = Conif_cover / (Conif_cover + Hdwd_cover),
+    
+    # Consistent Format
+    Conif_ht22 = case_when(
+      Conif_ht2 == "20-35m" ~ "20-35 m",
+      Conif_ht2 == "5-10m" ~ "5-10 m",
+      Conif_ht2 == "10-15m" ~ "10-15 m",
+      Conif_ht2 == "15-20m" ~ "15-20 m",
+      Conif_ht2 == "35-50m" ~ "35-50 m",
+      Conif_ht2 == "2-5m" ~ "2-5 m",
+      Conif_ht2 == ".5-1m" ~ "0.5-1 m",
+      TRUE ~ Conif_ht2
+    ),
+    
+    Hdwd_ht22 = case_when(
+      Hdwd_ht2 == "2-5 m" ~ "2-5m",
+      Hdwd_ht2 == "1-2 m" ~ "1-2m",
+      Hdwd_ht2 == "0.5-1 m" ~ "0.5-1m",
+      Hdwd_ht2 == "15-20 m" ~ "15-20m",
+      TRUE ~ Hdwd_ht2
+    ),
+    
+    tree_Ht = case_when(
+      
+      # Conif_ht2 has an observation but Hdwd_ht2 doesn't
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "5-10 m" ~ 7.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "0.5-1 m" ~ 0.75,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "10-15 m" ~ 12.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "2-5 m" ~ 3.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "20-35 m" ~ 27.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "15-20 m" ~ 17.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "35-50 m" ~ 42.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "1-2 m" ~ 1.5,
+      
+      # Hdwd_ht2 has an observation but Conif_ht2 doesn't
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "2-5m" ~ 3.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "1-2m" ~ 1.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "0.5-1m" ~ 0.75,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "15-20m" ~ 17.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "5-10m" ~ 7.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "10-15m" ~ 12.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "20-35m" ~ 27.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "35-50m" ~ 42.5,
+      
+      # Both Hdwd_ht2 and Conif_ht2 has observations, >= 30%, Hdwd_ht2 is taller
+      !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio >= 0.30 
+      & Hdwd_ht22 > Conif_ht22 ~ Hdwd_ht22,
+      
+      # Both Hdwd_ht2 and Conif_ht2 has observations, >= 30%, Conif_ht2 is taller
+      !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio >= 0.30
+      & Conif_ht22 > Hdwd_ht22 ~ Conif_ht22,
+      
+      # Both Hdwd_ht2 and Conif_ht2 has observations, <30%
+      !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio < 0.30
+      ~ Hdwd_ht22,
+      
+      TRUE ~ NA_real_
+    )
+  )
+# Use tree_Ht when assigning columns to loader table
+# There is an error in this code, fix next time
 
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
