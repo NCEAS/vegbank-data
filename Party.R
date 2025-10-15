@@ -132,12 +132,25 @@ contributor_LT <- bind_rows(
   contributor_LT,
   as_tibble(map(contributor_LT, ~ rep(NA, n_new)))
 )
+
 ### given_name (Party) + surname (Party) ###
 # Separating DataContactName into `FirstName` and `LastName`.
+# Currently no middle names, but can optionally separate middle name as well.
+# If no middle name, it is set to NA
 
 projects <- projects_long %>%
-  separate(ContactName, into = c("FirstName", "LastName"), sep = " ", extra = "merge")
+  extract(
+    ContactName,
+    into  = c("FirstName", "MiddleName", "LastName"),
+    regex = "^\\s*([^\\s]+)\\s+(?:([^\\s]+)\\s+)?(.+?)\\s*$",
+    remove = FALSE
+  ) %>%
+  mutate(
+    MiddleName = na_if(MiddleName, ""),
+    across(c(FirstName, MiddleName, LastName), str_squish)
+  )
 
+projects
 ### user_py_code (Party) ###
 # Create a unique code for each individual (ca_***)
 projects <- projects %>%
@@ -192,7 +205,8 @@ role_map <- c(
 
 projects <- projects %>%
   mutate(
-    RoleCode = recode(ContactRole, !!!role_map)
+    RoleCode = recode(ContactRole, !!!role_map),
+    RoleCode = if_else(is.na(RoleCode) | str_squish(ContactRole) == "", "ar.46", RoleCode)
   )
 
 ### contributor_type (Contributor) ###
@@ -211,10 +225,9 @@ party_LT$surname <- projects$LastName
 party_LT$organization_name <- projects$ContactOrg
 party_LT$given_name <- projects$FirstName
 party_LT$email <- projects$ContactEmail
+party_LT$middle_name <- projects$MiddleName
 
 contributor_LT$user_py_code <- projects$user_py_code
 contributor_LT$role <- projects$RoleCode
 contributor_LT$contributor_type <- projects$contributor_type
 contributor_LT$recordIdentifier <- projects$ProjectCode
-
-# py_code, middle_name, party_type, org_position, orcid, and ror not present in CDFW data.
