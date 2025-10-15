@@ -10,8 +10,8 @@ source("Build_Loader_Table.R")
 # middle_name: no mapping yet
 # organization_name: RAProjects' DataContactOrganization
 # email: RAProject's DataContactEmail
-# orcid: no mapping yet
-# ror: no mapping yet
+# orcid: no mapping
+# ror: no mapping
 
 # Personal Notes for Contributor (Will Delete):
 # vb_py_code: no mapping yet
@@ -64,6 +64,15 @@ class(projects$DataContactEmail) # character
 class(projects$DataContactEmail2) # character
 class(projects$DataContactEmail3) # character
 
+
+# DataContactOrganization* (RAProjects) ~ organization_name (Party)
+unique(projects$DataContactOrganization)
+unique(projects$DataContactOrganization2)
+unique(projects$DataContactOrganization3)
+class(projects$DataContactOrganization) # character
+class(projects$DataContactOrganization2) # character
+class(projects$DataContactOrganization3) # character
+
 # DataContactRole* (RAProjects) - role (Contributor)
 # Values must be matched and changed to VegBank ar_codes.
 # (Most likely done manually)
@@ -73,7 +82,6 @@ unique(projects$DataContactRole3)
 class(projects$DataContactRole) # character
 class(projects$DataContactRole2) # character
 class(projects$DataContactRole3) # character
-
 
 # Tidying Data -------------------------------------------------------
 
@@ -95,6 +103,7 @@ unique(invalid_emails$DataContactEmail)
 # All email and name values are valid
 
 # Changing to RAProjects to long format to have one row per contact
+# Remove unnecessary variables (can add back later if needed)
 
 projects_long <- projects %>%
   pivot_longer(
@@ -104,6 +113,7 @@ projects_long <- projects %>%
   ) %>%
   filter(!is.na(Name) & str_squish(Name) != "") %>%
   transmute(
+    ProjectCode,
     ContactName  = str_squish(Name),
     ContactEmail = str_squish(Email),
     ContactOrg = str_squish(Organization),
@@ -118,6 +128,10 @@ party_LT <- bind_rows(
   as_tibble(map(party_LT, ~ rep(NA, n_new)))
 )
 
+contributor_LT <- bind_rows(
+  contributor_LT,
+  as_tibble(map(contributor_LT, ~ rep(NA, n_new)))
+)
 ### given_name (Party) + surname (Party) ###
 # Separating DataContactName into `FirstName` and `LastName`.
 
@@ -132,6 +146,7 @@ projects <- projects %>%
 
 ### role (Contributor) ###
 # Map DataContactRole values to ar.* codes
+# Done manually for each value
 unique(projects$ContactRole)
 role_map <- c(
   "project lead" = "ar.18",
@@ -180,12 +195,26 @@ projects <- projects %>%
     RoleCode = recode(ContactRole, !!!role_map)
   )
 
+### contributor_type (Contributor) ###
+# Since we are in RAProjects, each value will be "Project" for now
+# Can potentially merge with something else to add values "Observation" or "Class"
+# But, there is not contributor data for these
+
+projects <- projects %>%
+  mutate(
+    contributor_type = "Project"
+  )
+
 # Assigning columns to loader table ---------------------------------------
 party_LT$user_py_code <- projects$user_py_code
-party_LT$surname = projects$LastName
-party_LT$organization_name = projects$ContactOrg
-party_LTgiven_name = projects$FirstName
-party_LT$email = projects$ContactEmail
+party_LT$surname <- projects$LastName
+party_LT$organization_name <- projects$ContactOrg
+party_LT$given_name <- projects$FirstName
+party_LT$email <- projects$ContactEmail
 
+contributor_LT$user_py_code <- projects$user_py_code
+contributor_LT$role <- projects$RoleCode
+contributor_LT$contributor_type <- projects$contributor_type
+contributor_LT$recordIdentifier <- projects$ProjectCode
 
 # py_code, middle_name, party_type, org_position, orcid, and ror not present in CDFW data.
