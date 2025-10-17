@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(stringr)
+library(vctrs)
 source("Build_Loader_Table.R")
 
 # Personal Notes for Party (Will Delete):
@@ -120,18 +121,27 @@ projects_long <- projects %>%
     ContactRole = str_squish(Role)
   )
 
-# Adjusting number of rows in party_LT to account for pivot.
-n_new <- 30  # number of rows to add
+# Adjusting number of rows in party_LT to account for pivot
 
-party_LT <- bind_rows(
-  party_LT,
-  as_tibble(map(party_LT, ~ rep(NA, n_new)))
-)
+needed_n <- nrow(projects_long)
+have_n <- nrow(party_LT)
+need <- needed_n - have_n
 
-contributor_LT <- bind_rows(
-  contributor_LT,
-  as_tibble(map(contributor_LT, ~ rep(NA, n_new)))
-)
+if (need > 0) {
+  # create `need` NA rows with the SAME types as party_LT
+  blank_rows <- as_tibble(
+    map(party_LT, ~ vec_init(.x, n = need))
+  )
+  party_LT <- bind_rows(party_LT, blank_rows)
+}
+
+if (need > 0) {
+  # create `need` NA rows with the SAME types as contributor_LT
+  blank_rows <- as_tibble(
+    map(contributor_LT, ~ vec_init(.x, n = need))
+  )
+  contributor_LT <- bind_rows(contributor_LT, blank_rows)
+}
 
 ### given_name (Party) + surname (Party) ###
 # Separating DataContactName into `FirstName` and `LastName`.
