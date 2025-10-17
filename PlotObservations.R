@@ -148,6 +148,7 @@ standsize_lookup <- read_csv(here(folder, 'LStandSize.csv'))
 substrate_lookup <- read_csv(here(folder, 'LSubstrate.csv'))
 macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
+survey_lookup <- read_csv(here(folder, 'LSurveyType.csv'))
 
 # creating loader table -------------------------------------------------------
 
@@ -359,6 +360,12 @@ class(plots$Shrub_ht2) # character
 unique(plots$Herb_ht2)
 class(plots$Herb_ht2) # character
 
+# Survey_Type (RAPlots) & AdditionalNotes (AltPlots) - methodNarrative (PlotObservations)
+# Reference: LSurveyType.csv
+# Capitalize entries
+unique(plots$Survey_Type) 
+class(plots$Survey_Type) # character
+
 # tidying CDFW data -----------------------------------------------------------
 
 plots_merged <- plots
@@ -539,6 +546,19 @@ plots_merged <- plots_merged %>%
 # Code -1 if irregular to determine
 # GitHub Issue TBD
 
+### methodNarrative (PlotObservations) ###
+# Survey_Type (RAPlots) and AdditionalNotes (AltPlots)
+# AltPlots is empty
+# Capitalizing entries
+plots_merged <- plots_merged %>% 
+  mutate(
+    methodNarrative = case_when(
+      Survey_Type == "Rapid assessment" ~ "Rapid Assessment",
+      Survey_Type == "releve" ~ "Releve",
+      Survey_Type == "rapid assessment" ~ "Rapid Assessment"
+    )
+  )
+
 ### topo_position (PlotObservations) ###
 # MacroTopo (RAPlots)
 # Convert to corresponding values in LMacroTopo.csv
@@ -593,7 +613,7 @@ plots_merged <- plots_merged %>%
     treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
   )
 
-### tree_Ht (PlotObservations) ###
+### treeHt (PlotObservations) ###
 # Conif_ht2 and Hdwd_ht2 (RAPlots)
 # First, I need to convert Conif_ht2 and Hdwd_ht2 to numeric by taking the 
 # midpoint
@@ -669,7 +689,6 @@ plots_merged <- plots_merged %>%
     )
   )
 
-# Fix this
 plots_merged <- plots_merged %>% 
   mutate(
     # Formula
@@ -725,7 +744,6 @@ plots_merged <- plots_merged %>%
       TRUE ~ NA_real_
     )
   )
-# Use treeHt when assigning columns to loader table
 
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
