@@ -4,25 +4,6 @@ library(sf)
 source("Build_Loader_Table.R")
 
 # Personal Notes (Will Delete):
-# vb_pl_code: no mapping yet
-# user_pl_code: no mapping yet
-# author_plot_code: AltPlots' SurveyID can be left-joined.
-#                   AltStrata's SurveyID can be left-joined.
-# vb_parent_pl_code: no mapping yet
-# user_parent_pl_code: no mapping yet
-# real_latitude: AltPlots' Latitude_WGS84_Final
-# real_longitude: AltPlots' Longitude_WGS84_Final
-# location_accuracy: RAPlots' ErrorMeasurement; PDOP and Laptop in ErrorUnits. Wait for CDFW update.
-# confidentiality_status: RAPlots' ConfidentialityStatus
-# confidentiality_reason: no mapping yet
-# author_e: RAPlot's UTME_final; Convert UTM to lat long
-#           When assigning columns, use author_e, not UTME_final
-# author_n: RAPlot's UTMN_final; Convert UTM to lat long
-#           When assigning columns, use author_n, not UTMN_final
-# author_zone: RAPlot's UTM_zone
-# author_datum: RAPlot's GPS_datum
-#               When assigning columns, use author_datum, not GPS_datum
-# author_location: no mapping yet
 # location_narrative: no mapping yet
 # azimuth: RAPlots' W_Axis_Bearing
 # dsgpoly: no mapping
