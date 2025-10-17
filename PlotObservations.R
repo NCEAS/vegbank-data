@@ -547,6 +547,7 @@ plots_merged <- plots_merged %>%
     topo_position = case_when(
       MacroTopo == "upper" ~ "Upper 1/3 of slope",
       MacroTopo == "mid" ~ "Middle 1/3 of slope",
+      MacroTopo == "6" ~ "Bottom",
       TRUE ~ MacroTopo
     )
   )
