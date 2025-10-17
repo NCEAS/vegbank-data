@@ -595,52 +595,120 @@ plots_merged <- plots_merged %>%
 
 ### tree_Ht (PlotObservations) ###
 # Conif_ht2 and Hdwd_ht2 (RAPlots)
+# First, I need to convert Conif_ht2 and Hdwd_ht2 to numeric by taking the 
+# midpoint
+
+# Conif_ht2
+plots_merged <- plots_merged %>% 
+  mutate(
+    Conif_ht22 = case_when(
+      
+      # Midpoint Measurements
+      Conif_ht2 == "5-10 m" ~ 7.5,
+      Conif_ht2 == "0.5-1 m" ~ 0.75,
+      Conif_ht2 == "10-15 m" ~ 12.5,
+      Conif_ht2 == "2-5 m" ~ 3.5,
+      Conif_ht2 == "20-35m" ~ 27.5,
+      Conif_ht2 == "15-20 m" ~ 17.5,
+      Conif_ht2 == "35-50 m" ~ 42.5,
+      Conif_ht2 == "20-35 m" ~ 27.5,
+      Conif_ht2 == "5-10m" ~ 7.5,
+      Conif_ht2 == "10-15m" ~ 12.5,
+      Conif_ht2 == "15-20m" ~ 17.5,
+      Conif_ht2 == "35-50m" ~ 42.5,
+      Conif_ht2 == "2-5m" ~ 3.5,
+      Conif_ht2 == ".5-1m" ~ 0.75,
+      Conif_ht2 == "1-2 m" ~ 1.5,
+      
+      # Out of Range Measurements (Must Adjust! These are placeholders)
+      Conif_ht2 == "<0.5 m" ~ 0.25,
+      Conif_ht2 == ">50 m" ~ 55,
+      Conif_ht2 == ">50m" ~ 55,
+      
+      # Miscellaneous
+      Conif_ht2 == "0" ~ 0,
+      
+      # Missing Values
+      Conif_ht2 == "N/A" ~ NA,
+      Conif_ht2 == "Not recorded" ~ NA,
+      Conif_ht2 == "Not present" ~ NA,
+      
+      TRUE ~ NA_real_
+    )
+  )
+
+# Hdwd_ht2
+plots_merged <- plots_merged %>% 
+  mutate(
+    Hdwd_ht22 = case_when(
+      
+      # Midpoint Measurements
+      Hdwd_ht2 == "2-5 m" ~ 3.5,
+      Hdwd_ht2 == "1-2 m" ~ 1.5,
+      Hdwd_ht2 == "0.5-1 m" ~ 0.75,
+      Hdwd_ht2 == "15-20 m" ~ 17.5,
+      Hdwd_ht2 == "5-10m" ~ 7.5,
+      Hdwd_ht2 == "10-15m" ~ 12.5,
+      Hdwd_ht2 == "2-5m" ~ 3.5,
+      Hdwd_ht2 == "20-35m" ~ 27.5,
+      Hdwd_ht2 == "15-20m" ~ 17.5,
+      Hdwd_ht2 == "35-50m" ~ 42.5,
+      
+      # Out of Range Measurements (Must Adjust! These are placeholders)
+      Hdwd_ht2 == "<.5m" ~ 0.25,
+      
+      # Miscellaneous
+      Hdwd_ht2 == "0" ~ 0,
+      
+      # Missing Values
+      Hdwd_ht2 == "N/A" ~ NA,
+      Hdwd_ht2 == "Not recorded" ~ NA,
+      Hdwd_ht2 == "Not present" ~ NA,
+      
+      TRUE ~ NA_real_
+    )
+  )
+
+# Fix this
 plots_merged <- plots_merged %>% 
   mutate(
     # Formula
-    conif_ratio = Conif_cover / (Conif_cover + Hdwd_cover),
-    
-    # Consistent Format
-    Conif_ht22 = case_when(
-      Conif_ht2 == "20-35m" ~ "20-35 m",
-      Conif_ht2 == "5-10m" ~ "5-10 m",
-      Conif_ht2 == "10-15m" ~ "10-15 m",
-      Conif_ht2 == "15-20m" ~ "15-20 m",
-      Conif_ht2 == "35-50m" ~ "35-50 m",
-      Conif_ht2 == "2-5m" ~ "2-5 m",
-      Conif_ht2 == ".5-1m" ~ "0.5-1 m",
-      TRUE ~ Conif_ht2
-    ),
-    
-    Hdwd_ht22 = case_when(
-      Hdwd_ht2 == "2-5 m" ~ "2-5m",
-      Hdwd_ht2 == "1-2 m" ~ "1-2m",
-      Hdwd_ht2 == "0.5-1 m" ~ "0.5-1m",
-      Hdwd_ht2 == "15-20 m" ~ "15-20m",
-      TRUE ~ Hdwd_ht2
-    ),
-    
-    tree_Ht = case_when(
+    conif_ratio = Conif_cover / (Conif_cover + Hdwd_cover)
+  ) %>% 
+  
+  mutate(
+    treeHt = case_when(
       
       # Conif_ht2 has an observation but Hdwd_ht2 doesn't
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "5-10 m" ~ 7.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "0.5-1 m" ~ 0.75,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "10-15 m" ~ 12.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "2-5 m" ~ 3.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "20-35 m" ~ 27.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "15-20 m" ~ 17.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "35-50 m" ~ 42.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == "1-2 m" ~ 1.5,
-      
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 7.5 ~ 7.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 0.75 ~ 0.75,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 12.5 ~ 12.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 3.5 ~ 3.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 27.5 ~ 27.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 17.5 ~ 17.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 42.5 ~ 42.5,
+      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 1.5 ~ 1.5,
+      TRUE ~ NA_real_
+      )
+    ) %>% 
+  
+  mutate(
+    treeHt = case_when(
       # Hdwd_ht2 has an observation but Conif_ht2 doesn't
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "2-5m" ~ 3.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "1-2m" ~ 1.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "0.5-1m" ~ 0.75,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "15-20m" ~ 17.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "5-10m" ~ 7.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "10-15m" ~ 12.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "20-35m" ~ 27.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == "35-50m" ~ 42.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 3.5 ~ 3.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 1.5 ~ 1.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 0.75 ~ 0.75,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 17.5 ~ 17.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 7.5 ~ 7.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 12.5 ~ 12.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 27.5 ~ 27.5,
+      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 42.5 ~ 42.5,
+      TRUE ~ NA_real_
+    )
+  ) %>% 
+  
+  mutate(
+    treeHt = case_when(
       
       # Both Hdwd_ht2 and Conif_ht2 has observations, >= 30%, Hdwd_ht2 is taller
       !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio >= 0.30 
@@ -657,8 +725,7 @@ plots_merged <- plots_merged %>%
       TRUE ~ NA_real_
     )
   )
-# Use tree_Ht when assigning columns to loader table
-# There is an error in this code, fix next time
+# Use treeHt when assigning columns to loader table
 
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
@@ -684,6 +751,7 @@ plots_LT$pj_code <- plots_merged$ProjectCode
 plots_LT$obsStartDate <- plots_merged$SurveyDate
 plots_LT$successionalStatus = plots_merged$Trend
 plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
+plots_LT$treeHt <- plots_merged$treeHt
 plots_LT$shrubHt <- plots_merged$Shrub_ht2
 plots_LT$fieldHt <- plots_merged$Herb_ht2
 plots_LT$treeCover <- plots_merged$treeCover
