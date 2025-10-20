@@ -31,7 +31,7 @@ class(plots$Soil_text) # character
 
 # tidying CDFW data -----------------------------------------------------------
 
-### soilDescription (PlotObservations) ###
+### soilDescription (SoilData) ###
 # Soil_text (RAPlots)
 # all values are valid.
 plots %>%
