@@ -38,9 +38,9 @@ projects <- projects %>%
 
 # Assigning columns to loader table ---------------------------------------
 
-community_LT$expert_system = projects$ClassificationTool
-community_LT$inspection = projects$inspectionText
-community_LT$multivariate_analysis = projects$multivariateAnalysisText
+community_LT$expert_system <- projects$ClassificationTool
+community_LT$inspection <- projects$inspectionText
+community_LT$multivariate_analysis <- projects$multivariateAnalysisText
 
 # All variables besides expertSystem, inspection, multivariateAnalysis, and tableAnalysis were not matched and are left as 'NA'
 
