@@ -37,7 +37,7 @@ unique(plants$Stratum)
 
 # Assigning columns to loader table ---------------------------------------
 
-strata_cover_LT$authorPlantName = plants$SpeciesName
-strata_cover_LT$cover = plants$Species_cover
+strata_cover_LT$authorPlantName <- plants$SpeciesName
+strata_cover_LT$cover <- plants$Species_cover
 
 # All variables besides authorPlantName and cover were not matched and are left as 'NA'
