@@ -12,9 +12,14 @@ csv_path <- here("data", "USDA_PLANTS.csv")
 plants_lookup <- read_csv(csv_path, show_col_types = FALSE)
 
 # creating loader table ---------------------------------------------------
-# create a header csv with only variable names
-csv_path <- here("loader_tables", "StrataCoverData_Header.csv")
-template <- read_csv(csv_path, show_col_types = FALSE)
+
+strata_cover_template_fields <- build_loader_table(
+  sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
+  sheet = "StrataCoverData",
+  source_df = plants
+)
+
+strata_cover_LT <- strata_cover_template_fields$template
 
 # Checking values ---------------------------------------------------------
 
@@ -32,17 +37,7 @@ unique(plants$Stratum)
 
 # Assigning columns to loader table ---------------------------------------
 
-# Changing column types to support to data
-template <- template %>%
-  mutate(
-    cover = as.numeric(cover)
-  )
-
-StrataCoverData_LT <- bind_rows(
-  template,
-  tibble(authorPlantName = plants$SpeciesName,
-         cover = plants$Species_cover
-  )
-)
+strata_cover_LT$authorPlantName <- plants$SpeciesName
+strata_cover_LT$cover <- plants$Species_cover
 
 # All variables besides authorPlantName and cover were not matched and are left as 'NA'

@@ -9,17 +9,14 @@ csv_path <- here("data", "RAProjects.csv")
 projects <- read_csv(csv_path, show_col_types = FALSE)
 
 # creating loader table ---------------------------------------------------
-test <- build_loader_table(
+community_template_fields <- build_loader_table(
   sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
   sheet = "CommunityClassifications",
   source_df = projects
 )
-test$template
-test$fields
-# create a header csv with only variable names
-csv_path <- here("loader_tables", "CommunityClassification_Header.csv")
-template <- read_csv(csv_path, show_col_types = FALSE)
 
+community_LT <- community_template_fields$template
+  
 # Tidying CDFW data -------------------------------------------------------
 # Manually assigning ClassificationDescription values to inspection, multivariateAnalysis, or tableAnalysis based on the described methods.
 # None mapped to tableAnalysis
@@ -41,19 +38,10 @@ projects <- projects %>%
 
 # Assigning columns to loader table ---------------------------------------
 
-CommunityClassifications_LT <- bind_rows(
-  template,
-  tibble(expertSystem = projects$ClassificationTool,
-         inspection = projects$inspectionText,
-         multivariateAnalysis = projects$multivariateAnalysisText
-  )
-)
-CommunityClassifications_LT
+community_LT$expert_system <- projects$ClassificationTool
+community_LT$inspection <- projects$inspectionText
+community_LT$multivariate_analysis <- projects$multivariateAnalysisText
+
 # All variables besides expertSystem, inspection, multivariateAnalysis, and tableAnalysis were not matched and are left as 'NA'
 
-# Assigning columns to loader table (Test Automation) ---------------------
-test$template$expert_system <- projects$ClassificationTool
-test$template$inspection = projects$inspectionText
-test$template$multivariate_analysis = projects$multivariateAnalysisText
 
-test$template
