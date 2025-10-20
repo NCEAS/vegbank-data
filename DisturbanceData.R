@@ -1,5 +1,6 @@
 library(tidyverse)
 library(here)
+source("Build_Loader_Table.R")
 
 # load in CDFW data -------------------------------------------------------
 
@@ -13,15 +14,14 @@ impacts <- read_csv(here(folder, 'RAImpacts.csv'))
 impacts_lookup <- read_csv(here(folder, 'LImpacts.csv'))
 
 # creating loader table ---------------------------------------------------
-# getting number of rows
-nrow <-  nrow(impacts)
-# create blank data frame (probably better way to do this)
-disturb_LT <- data.frame(ob_code = rep(NA, nrow),
-                         disturbance_type = rep(NA, nrow),
-                         disturbance_comment = rep(NA, nrow),
-                         disturbance_intensity = rep(NA, nrow),
-                         disturbance_age = rep(NA, nrow),
-                         disturbance_extent = rep(NA, nrow))
+
+disturb_template_fields <- build_loader_table(
+  sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
+  sheet = "DisturbanceData",
+  source_df = impacts
+)
+
+disturb_LT <- disturb_template_fields$template
 
 # Checking values ---------------------------------------------------------
 
