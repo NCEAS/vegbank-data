@@ -4,74 +4,6 @@ library(sf)
 source("Build_Loader_Table.R")
 
 # Personal Notes (Will Delete):
-# location_narrative: no mapping yet
-# azimuth: RAPlots' W_Axis_Bearing
-# dsgpoly: no mapping
-# shape: RAPlots' PlotShape
-# area: RAPlots' PlotArea and ViewRadius
-# stand_size: RAPlots' Stand_Size
-# placement_method: no mapping yet
-# permanence: no mapping yet
-# layout_narrative: no mapping yet
-# elevation: RAPlots' Elevation and ft_mElevation
-# elevation_accuracy: no mapping
-# elevation_range: no mapping
-# slope_aspect: RAPlots' Aspect_actual
-# min_slope_aspect: no mapping
-# max_slope_aspect: no mapping
-# slope_gradient: RAPlots' Slope_actual; GitHub Issue TBD
-# min_slope_gradient: no mapping
-# max_slope_gradient: no mapping
-# topo_position: RAPlots' MacroTopo; some messy data should be converted?
-# landform: no mapping
-# surficial_deposits: no mapping
-# rock_type: no mapping
-# quadrangleName: no mapping
-# county: no mapping yet
-# stateProvince: no mapping
-# country: no mapping
-# continent: no mapping
-# user_ob_code: RAClassifications' SurveyID; This is a separate ID variable from
-# author_plot_code, but I'm not sure if a left join is the correct means of
-# doing this, since it combines it all into SurveyID. How to do this?
-# Could just add RAClassifications$SurveyID
-# user_pj_code: no mapping
-# vb_pj_code: no mapping
-# authorObsCode: no mapping
-# parent_ob_code: no mapping
-# obsStartDate: RAPlots' SurveyDate
-# obsEndDate: no mapping
-# dateAccuracy: no mapping
-# vb_cm_code: no mapping yet
-# coverDispersion: no mapping
-# autoTaxonCover: no mapping
-# vb_sm_code: no mapping
-# stratumIndex1: no mapping
-# stratumHeight1: no mapping
-# stratumBase1: no mapping
-# stratumCover1: no mapping
-# eightMoreStratumSets: no mapping
-# methodNarrative: no mapping set for certain, but...RAPlots' GPS_name, GPS_in_stand, Survey_Type, AltPlots' AdditionalNotes? Should we combine it all together?
-# taxonObservationArea: no mapping set for certain, but...RAPlots' PlotArea? 
-# stemSizeLimit: no mapping
-# stemObservationArea: no mapping
-# stemSampleMethod: no mapping
-# originalData: no mapping
-# effortLevel: no mapping
-# floristicQuality: no mapping
-# bryophiteQuality: no mapping
-# lichenQuality: no mapping
-# observationNarrative: no mapping set for certain, but...RAPlots' Unusual_spp, Phen_Gr, Phen_Sh, Phen_Tr, ID_or_mapping_info?
-# landscapeNarrative: no mapping set for certain, but...RAPlots' MicroTopo, AltPlots' Vertical, Horizontal?
-# homogeneity: no mapping set for certain, but...AltPlots' Struct_Gr?
-# phenologicAspect: no mapping
-# standMaturity: no mapping
-# successionalStatus: AltPlots' Trend
-# basalArea: no mapping set for certain, but...RAPlots' BasalStem?
-# hydrologicRegime: RAPlots' Upl_Wet_text
-# soilMoistureRegime: no mapping
-# soilDrainage: no mapping
-# waterSalinity: no mapping
 # waterDepth: no mapping
 # shoreDistance: no mapping
 # soilDepth: no mapping
@@ -293,6 +225,10 @@ class(plots$MacroTopo) # character
 # Looks fine
 unique(alt_plots$Trend)
 class(alt_plots$Trend) # character
+
+# BasalStem (RAPlots) - basalArea (PlotObservations)
+unique(plots$BasalStem)
+class(plots$BasalStem) # numeric
 
 # Upl_Wet_text (RAPlots) - hydrologicRegime (PlotObservations)
 # Looks fine
@@ -745,11 +681,12 @@ plots_LT$stand_size <- plots_merged$Stand_Size
 plots_LT$elevation <- plots_merged$Elevation
 plots_LT$slope_aspect <- plots_merged$Aspect_actual
 plots_LT$slope_gradient <- plots_merged$Slope_actual
-plots_LT$topo_position <- plots_merged$MacroTopo
+plots_LT$topo_position <- plots_merged$topo_position
 plots_LT$rock_type <- plots_merged$Substrate
 plots_LT$pj_code <- plots_merged$ProjectCode
 plots_LT$obsStartDate <- plots_merged$SurveyDate
 plots_LT$successionalStatus = plots_merged$Trend
+plots_LT$basalArea <- plots_merged$BasalStem
 plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
 plots_LT$treeHt <- plots_merged$treeHt
 plots_LT$shrubHt <- plots_merged$Shrub_ht2
