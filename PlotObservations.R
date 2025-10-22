@@ -531,6 +531,23 @@ plots_merged <- plots_merged %>%
 #   mutate(
 #     percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
 #   )
+any(plots$SurveyID %in% alt_plots$SurveyID)
+matching_ids <- intersect(plots$SurveyID, alt_plots$SurveyID)
+matching_ids
+
+shared_ids <- intersect(plots$SurveyID, alt_plots$SurveyID)
+# finding overlap
+plots %>%
+  filter(SurveyID %in% shared_ids) %>%
+  filter(if_any(c(Bedrock, Boulders, Stones, Cobbles), ~ !is.na(.x) & .x != 0)) %>%
+  inner_join(
+    alt_plots %>%
+      filter(SurveyID %in% shared_ids) %>%
+      filter(if_any(c(Large_rock, Small_rock), ~ !is.na(.x) & .x != 0)),
+    by = "SurveyID"
+  )
+
+
 plots_merged <- plots_merged %>% 
   mutate(
     percentOther = rowSums(cbind(Boulders, Stones, Cobbles))
