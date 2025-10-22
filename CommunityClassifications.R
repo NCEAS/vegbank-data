@@ -21,17 +21,26 @@ community_LT <- community_template_fields$template
 # Manually assigning ClassificationDescription values to inspection, multivariateAnalysis, or tableAnalysis based on the described methods.
 # None mapped to tableAnalysis
 
+text_map <- c(
+  "inspectionText" = "surveys were keyed using",
+  "multivariateAnalysisText" = paste(
+    'See "Vegetation Map and Classification of Fish',
+    'These data were analyzed using multivariate cluster analysis, performed',
+    'See: Classification of the Vegetation Alliances',
+    'These data were analyzed using a number of statistical methods, chiefly an',
+    'CNPS analyzed the species cover data using PC-Ord and R software',
+    sep = "|"
+  )
+)
+
 projects <- projects %>%
   mutate(
     inspectionText = if_else(
-      coalesce(str_detect(ClassificationDescription, "surveys were keyed using"), FALSE),
+      coalesce(str_detect(ClassificationDescription, text_map["inspectionText"]), FALSE),
       ClassificationDescription, NA_character_
     ),
     multivariateAnalysisText = if_else(
-      coalesce(str_detect(
-        ClassificationDescription,
-        'See "Vegetation Map and Classification of Fish|These data were analyzed using multivariate cluster analysis, performed|See: Classification of the Vegetation Alliances|These data were analyzed using a number of statistical methods, chiefly an|CNPS analyzed the species cover data using PC-Ord and R software'
-      ), FALSE),
+      coalesce(str_detect(ClassificationDescription, text_map["multivariateAnalysisText"]), FALSE),
       ClassificationDescription, NA_character_
     )
   )
@@ -43,5 +52,3 @@ community_LT$inspection <- projects$inspectionText
 community_LT$multivariate_analysis <- projects$multivariateAnalysisText
 
 # All variables besides expertSystem, inspection, multivariateAnalysis, and tableAnalysis were not matched and are left as 'NA'
-
-
