@@ -137,6 +137,8 @@ class(plots$Aspect_gen) # character
 # Looks like Reference is Slope_gen
 # Also, it looks like there are two categories for when the slope is over 25
 # degrees, in values ">25 degrees" and "> 25 Degrees". Merge? GitHub Issue
+# If Slope_actual is missing, take the midpoint of Slope_gen
+# If Slope_gen > 25, use value 35
 unique(plots$Slope_actual)
 unique(plots$Slope_gen)
 class(plots$Slope_actual) # numeric
@@ -460,7 +462,20 @@ plots_merged <- plots_merged %>%
 ### slope_gradient (PlotObservations) ###
 # Slope_actual (RAPlots) to Slope_gen (RAPlots)
 # Code -1 if irregular to determine
-# GitHub Issue TBD
+# # If Slope_actual is missing, take the midpoint of Slope_gen
+# If Slope_gen > 25, use value 35
+plots_merged <- plots_merged %>%
+  mutate(
+    .m = str_match(Slope_gen, "\\b(\\d+)\\s*[-–]\\s*(\\d+)\\b"),
+    .mid = ((as.numeric(.m[,2]) + as.numeric(.m[,3])) / 2),
+    
+    slope = coalesce(
+      Slope_actual,
+      if_else(str_detect(Slope_gen, ">\\s*25"), 35, NA_real_),
+      .mid
+    )
+  ) %>%
+  select(-.m, -.mid)
 
 ### methodNarrative (PlotObservations) ###
 # Survey_Type (RAPlots) and AdditionalNotes (AltPlots)
@@ -515,6 +530,23 @@ plots_merged <- plots_merged %>%
 #   mutate(
 #     percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
 #   )
+any(plots$SurveyID %in% alt_plots$SurveyID)
+matching_ids <- intersect(plots$SurveyID, alt_plots$SurveyID)
+matching_ids
+
+shared_ids <- intersect(plots$SurveyID, alt_plots$SurveyID)
+# finding overlap
+plots %>%
+  filter(SurveyID %in% shared_ids) %>%
+  filter(if_any(c(Bedrock, Boulders, Stones, Cobbles), ~ !is.na(.x) & .x != 0)) %>%
+  inner_join(
+    alt_plots %>%
+      filter(SurveyID %in% shared_ids) %>%
+      filter(if_any(c(Large_rock, Small_rock), ~ !is.na(.x) & .x != 0)),
+    by = "SurveyID"
+  )
+
+
 plots_merged <- plots_merged %>% 
   mutate(
     percentOther = rowSums(cbind(Boulders, Stones, Cobbles))
@@ -679,7 +711,7 @@ plots_LT$area <- plots_merged$PlotArea
 plots_LT$stand_size <- plots_merged$Stand_Size
 plots_LT$elevation <- plots_merged$Elevation
 plots_LT$slope_aspect <- plots_merged$Aspect_actual
-plots_LT$slope_gradient <- plots_merged$Slope_actual
+plots_LT$slope_gradient <- plots_merged$slope
 plots_LT$topo_position <- plots_merged$topo_position
 plots_LT$rock_type <- plots_merged$Substrate
 plots_LT$pj_code <- plots_merged$ProjectCode

@@ -24,10 +24,16 @@ soil_LT <- soil_template_fields$template
 
 # Checking values ---------------------------------------------------------
 
+# Soil_text (RAPlots) - soilDescription (SoilData)
 # making sure values that should be from L* tables are found in L* tables
-# all values are valid.
+unique(plots$Soil_text)
+class(plots$Soil_text) # character
 
-# Soil
+# tidying CDFW data -----------------------------------------------------------
+
+### soilDescription (SoilData) ###
+# Soil_text (RAPlots)
+# all values are valid.
 plots %>%
   filter(!Soil_text %in% soil_lookup$SoilTexture) %>%
   distinct(Soil_text)
