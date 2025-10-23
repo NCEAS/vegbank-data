@@ -4,7 +4,6 @@ library(sf)
 source("Build_Loader_Table.R")
 
 # Personal Notes (Will Delete):
-# waterDepth: no mapping
 # shoreDistance: no mapping
 # soilDepth: no mapping
 # organicDepth: no mapping
