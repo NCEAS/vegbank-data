@@ -4,23 +4,6 @@ library(sf)
 source("Build_Loader_Table.R")
 
 # Personal Notes (Will Delete):
-# shoreDistance: no mapping
-# soilDepth: no mapping
-# organicDepth: no mapping
-# vb_so_code: no mapping
-# soilTaxonSrc: no mapping
-# percentBedRock: RAPlots' Bedrock
-# percentRockGravel: RAPlots' Gravels (Maybe RAPlots' Boulders, Stones, Cobbles; AltPlots' Small_rock?) For now, I map to just Gravels.
-# percentWood: no mapping
-# percentLitter: RAPlots' Litter
-# percentBareSoil: RAPlots' Bare_fines
-# percentWater: RAPlots' Water
-# percentOther: Maybe combine RAPlots' Boulders, Stones, and Cobbles?
-# nameOther: Possibly AltPlots' Small_rock and combine percentOther? Won't do it yet. I leave it alone for now.
-# treeHt: RAPlots' Conif_ht2, Hdwd_ht2, UnderTree_ht2, RegenTree_ht2; AltStrata's OverstoryTree_Ht, EmergentTree_Ht. But AltStrata has missing values.
-# shrubHt: RAPlots' Shrub_ht2; AltStrata's LoTreeTallShrub_Ht, LoMidShrub_Ht, DwarfShrub_Ht. AltStrata also has missing values.
-# fieldHt: RAPlots' Herb_ht2, but it has a range problem like treeHt and shrubHt.
-# nonvascularHt: AltStrata's Nonvascular_Ht, but it is empty?
 # submergedHt: no mapping
 # treeCover: RAPlots' Conif_cover, AltStrata's Epiphyte_Cov, OverstoryTree_Cov, EmergentTree_Cov. AltStrata is empty.
 # shrubCover: RAPlots' Shrub_cover. AltStrata is empty, but AltStrata's LoTreeTallShrub_Cov, LoMidShrub_Cov, DwarfShrub_Cov
@@ -61,8 +44,6 @@ substrate_lookup <- read_csv(here(folder, 'LSubstrate.csv'))
 macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 survey_lookup <- read_csv(here(folder, 'LSurveyType.csv'))
-
-# creating loader table -------------------------------------------------------
 
 # create blank data frame -----------------------------------------------------
 
@@ -719,6 +700,9 @@ plots_LT$obsStartDate <- plots_merged$SurveyDate
 plots_LT$successionalStatus = plots_merged$Trend
 plots_LT$basalArea <- plots_merged$BasalStem
 plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
+plots_LT$percentLitter <- plots_merged$Litter
+plots_LT$percentBareSoil <- plots_merged$Bare_fines
+plots_LT$percentWater <- plots_merged$Water
 plots_LT$treeHt <- plots_merged$treeHt
 plots_LT$shrubHt <- plots_merged$Shrub_ht2
 plots_LT$fieldHt <- plots_merged$Herb_ht2
