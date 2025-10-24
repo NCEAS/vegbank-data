@@ -515,19 +515,46 @@ any(plots$SurveyID %in% alt_plots$SurveyID)
 matching_ids <- intersect(plots$SurveyID, alt_plots$SurveyID)
 matching_ids
 
-shared_ids <- intersect(plots$SurveyID, alt_plots$SurveyID)
 # finding overlap
-plots %>%
-  filter(SurveyID %in% shared_ids) %>%
-  filter(if_any(c(Bedrock, Boulders, Stones, Cobbles), ~ !is.na(.x) & .x != 0)) %>%
+rock_compare <- plots %>%
   inner_join(
-    alt_plots %>%
-      filter(SurveyID %in% shared_ids) %>%
-      filter(if_any(c(Large_rock, Small_rock), ~ !is.na(.x) & .x != 0)),
-    by = "SurveyID"
+    alt_plots,
+    by = "SurveyID",
+    suffix = c("_RA", "_Alt")
+  ) %>%
+  select(
+    SurveyID,
+    Bedrock, Boulders, Stones, Cobbles, Gravels,
+    Large_rock, Small_rock
   )
 
+rock_overlap <- rock_compare %>%
+  filter(
+    if_any(c(Bedrock, Boulders, Stones, Cobbles, Gravels), ~ !is.na(.x) & .x != 0) &
+      if_any(c(Large_rock, Small_rock), ~ !is.na(.x) & .x != 0)
+  )
+nrow(rock_compare)
+nrow(rock_overlap)
 
+matches <- rock_overlap %>%
+  mutate(
+    sum_lr = Bedrock + Boulders + Stones
+  ) %>%
+  filter(
+    !is.na(sum_lr) & !is.na(Large_rock) &
+      abs(Large_rock - sum_lr) < 1e-6
+  )
+matches
+
+matches <- rock_overlap %>%
+  mutate(
+    sum_sr = Cobbles + Gravels
+  ) %>%
+  filter(
+    !is.na(sum_sr) & !is.na(Small_rock) &
+      abs(Small_rock - sum_sr) < 1e-6
+  )
+matches
 plots_merged <- plots_merged %>% 
   mutate(
     percentOther = rowSums(cbind(Boulders, Stones, Cobbles))
