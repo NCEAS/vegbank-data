@@ -6,7 +6,8 @@ source("Build_Loader_Table.R")
 # load in CDFW data -------------------------------------------------------
 # RAPlots
 csv_path <- here("data", "RAPlots.csv")
-plots <- read_csv(csv_path, show_col_types = FALSE)
+plots <- read_csv(csv_path, col_types = cols(.default = col_guess(), 
+                                             `PlotOther5` = col_character()))
 
 # loading CA lookup tables
 csv_path <- here("data", "LSoil.csv")
@@ -40,6 +41,9 @@ plots %>%
 
 # Assigning column to loader table ---------------------------------------
 
-soil_LT$soilDescription = plots$Soil_text
+soil_LT$soilTexture = plots$Soil_text
 
 # For now there is only one variable that mapped to the Soil Data Loader table (Soil_text from RAPlots)
+
+# save filled in loader table
+write_csv(soil_LT, here('loader_tables', 'SoilDataLT.csv'))
