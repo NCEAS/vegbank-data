@@ -3,22 +3,18 @@ library(here)
 library(sf)
 source("Build_Loader_Table.R")
 
-# Personal Notes (Will Delete):
-# submergedHt: no mapping
-# treeCover: RAPlots' Conif_cover, AltStrata's Epiphyte_Cov, OverstoryTree_Cov, EmergentTree_Cov. AltStrata is empty.
-# shrubCover: RAPlots' Shrub_cover. AltStrata is empty, but AltStrata's LoTreeTallShrub_Cov, LoMidShrub_Cov, DwarfShrub_Cov
-# fieldCover: RAPlots' Herb_cover. Looks good!
-# nonvascularCover: RAPlots' NonVasc_Veg_cover, AltStrata's Nonvascular_Cov. AltStrata is empty.
-# floatingCover: no mapping
-# submergedCover: no mapping
-# dominantStratum: AltPlots' DomLayer, but they're all empty?
-# growthform1Type: no mapping
-# growthform2Type: no mapping
-# growthform3Type: no mapping
-# growthform1Cover: no mapping
-# growthform2Cover: no mapping
-# growthform3Cover: no mapping
-# totalCover: no mapping
+# Remaining Issues:
+# location_accuracy
+# slope_gradient
+# topo_position
+# user_ob_code
+# methodNarrative
+# taxonObservationArea
+# observationNarrative
+# landscapeNarrative
+# tree_Ht
+# basalArea
+# nameOther
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -689,4 +685,8 @@ plots_LT$fieldHt <- plots_merged$Herb_ht2
 plots_LT$treeCover <- plots_merged$treeCover
 plots_LT$shrubCover <- plots_merged$Shrub_cover
 plots_LT$fieldCover <- plots_merged$Herb_cover
+plots_LT$nonvascularCover <- plots_merged$NonVasc_Veg_cover
 plots_LT$dominantStratum <- plots_merged$DomLayer
+
+# save filled in loader table
+write_csv(plots_LT, here('loader_tables', 'PlotObservationsLT.csv'))
