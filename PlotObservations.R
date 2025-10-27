@@ -3,11 +3,9 @@ library(here)
 library(sf)
 source("Build_Loader_Table.R")
 
-# Remaining Issues:
+# Remaining Issues (Wait for Update):
 # location_accuracy
 # slope_gradient
-# topo_position
-# user_ob_code
 # methodNarrative
 # taxonObservationArea
 # observationNarrative
