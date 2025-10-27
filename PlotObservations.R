@@ -649,6 +649,101 @@ plots_merged <- plots_merged %>%
     )
   )
 
+### growthform1/2Cover (PlotObservations) ###
+# Conif_ht2
+plots_merged <- plots_merged %>% 
+  mutate(
+    growthform1Cover = case_when(
+      
+      # Midpoint Measurements
+      Conif_ht2 == "5-10 m" ~ 7.5,
+      Conif_ht2 == "0.5-1 m" ~ 0.75,
+      Conif_ht2 == "10-15 m" ~ 12.5,
+      Conif_ht2 == "2-5 m" ~ 3.5,
+      Conif_ht2 == "20-35m" ~ 27.5,
+      Conif_ht2 == "15-20 m" ~ 17.5,
+      Conif_ht2 == "35-50 m" ~ 42.5,
+      Conif_ht2 == "20-35 m" ~ 27.5,
+      Conif_ht2 == "5-10m" ~ 7.5,
+      Conif_ht2 == "10-15m" ~ 12.5,
+      Conif_ht2 == "15-20m" ~ 17.5,
+      Conif_ht2 == "35-50m" ~ 42.5,
+      Conif_ht2 == "2-5m" ~ 3.5,
+      Conif_ht2 == ".5-1m" ~ 0.75,
+      Conif_ht2 == "1-2 m" ~ 1.5,
+      
+      # Out of Range Measurements (Must Adjust! These are placeholders)
+      Conif_ht2 == "<0.5 m" ~ 0.25,
+      Conif_ht2 == ">50 m" ~ 55,
+      Conif_ht2 == ">50m" ~ 55,
+      
+      # Miscellaneous
+      Conif_ht2 == "0" ~ 0,
+      
+      # Missing Values
+      Conif_ht2 == "N/A" ~ NA,
+      Conif_ht2 == "Not recorded" ~ NA,
+      Conif_ht2 == "Not present" ~ NA,
+      
+      TRUE ~ NA_real_
+    )
+  )
+
+# Hdwd_ht2
+plots_merged <- plots_merged %>% 
+  mutate(
+    growthform2Cover = case_when(
+      
+      # Midpoint Measurements
+      Hdwd_ht2 == "2-5 m" ~ 3.5,
+      Hdwd_ht2 == "1-2 m" ~ 1.5,
+      Hdwd_ht2 == "0.5-1 m" ~ 0.75,
+      Hdwd_ht2 == "15-20 m" ~ 17.5,
+      Hdwd_ht2 == "5-10m" ~ 7.5,
+      Hdwd_ht2 == "10-15m" ~ 12.5,
+      Hdwd_ht2 == "2-5m" ~ 3.5,
+      Hdwd_ht2 == "20-35m" ~ 27.5,
+      Hdwd_ht2 == "15-20m" ~ 17.5,
+      Hdwd_ht2 == "35-50m" ~ 42.5,
+      
+      # Out of Range Measurements (Must Adjust! These are placeholders)
+      Hdwd_ht2 == "<.5m" ~ 0.25,
+      
+      # Miscellaneous
+      Hdwd_ht2 == "0" ~ 0,
+      
+      # Missing Values
+      Hdwd_ht2 == "N/A" ~ NA,
+      Hdwd_ht2 == "Not recorded" ~ NA,
+      Hdwd_ht2 == "Not present" ~ NA,
+      
+      TRUE ~ NA_real_
+    )
+  )
+
+### growthform1/2Type (PlotObservations) ###
+# growthform1Type
+plots_merged <- plots_merged %>% 
+  mutate(
+    growthform1Type = case_when(
+      !is.na(growthform1Cover) ~ "Conifer Tree",
+      is.na(growthform1Cover) ~ NA,
+      
+      TRUE ~ NA_character_
+    )
+  )
+
+# growthform2Type
+plots_merged <- plots_merged %>% 
+  mutate(
+    growthform2Type = case_when(
+      !is.na(growthform2Cover) ~ "Hardwood Tree",
+      is.na(growthform2Cover) ~ NA,
+      
+      TRUE ~ NA_character_
+    )
+  )
+
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
 plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
@@ -685,6 +780,10 @@ plots_LT$shrubCover <- plots_merged$Shrub_cover
 plots_LT$fieldCover <- plots_merged$Herb_cover
 plots_LT$nonvascularCover <- plots_merged$NonVasc_Veg_cover
 plots_LT$dominantStratum <- plots_merged$DomLayer
+plots_LT$growthform1Cover <- plots_merged$growthform1Cover
+plots_LT$growthform2Cover <- plots_merged$growthform2Cover
+plots_LT$growthform1Type <- plots_merged$growthform1Type
+plots_LT$growthform2Type <- plots_merged$growthform2Type
 
 # save filled in loader table
 write_csv(plots_LT, here('loader_tables', 'PlotObservationsLT.csv'))
