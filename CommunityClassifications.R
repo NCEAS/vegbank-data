@@ -16,8 +16,16 @@ community_template_fields <- build_loader_table(
 )
 
 community_LT <- community_template_fields$template
-  
+# Checking values ---------------------------------------------------------
+
+# ClassificationDescription (RAProjects) - inspection (CommunityClassifications) + multivariateAnalysis (CommunityClassifications) + tableAnalysis (CommunityClassifications)
+# Values must be manually matched to 1 of 3 fields: inspection, multivariateAnalysis, tableAnalysis
+unique(projects$ClassificationDescription)
+class(projects$ClassificationDescription) # character
+
 # Tidying CDFW data -------------------------------------------------------
+
+### inspection (CommunityClassifications) + multivariateAnalysis (CommunityClassifications) + tableAnalysis (CommunityClassifications ###
 # Manually assigning ClassificationDescription values to inspection, multivariateAnalysis, or tableAnalysis based on the described methods.
 # None mapped to tableAnalysis
 
