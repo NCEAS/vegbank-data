@@ -24,6 +24,12 @@ project_LT <- project_template_fields$template
 
 # checking values -------------------------------------------------------------
 
+# ProjectCode (RAProjects) - user_pj_code (Projects)
+# ProjectCode should be a 4 digit character code
+unique(projects$ProjectCode)
+class(projects$ProjectCode) # character
+
+# ProjectStartDate (RAProjects) + ProjectEndDate (RAProjects) - start_date (Projects) + stop_date (Projects)
 # Start Date and End Date should have the time removed from them
 unique(projects$ProjectStartDate)
 unique(projects$ProjectEndDate)
@@ -32,6 +38,18 @@ class(projects$ProjectEndDate) # character
 
 # tidying CDFW data -----------------------------------------------------------
 
+### user_pj_code (Projects) ###
+# Confirming values of the correct form (4 characters)
+# Some values are not exactly 4 digits, but are still character codes
+
+invalid_codes <- projects %>%
+  mutate(ProjectCode = str_squish(ProjectCode)) %>%
+  filter(!str_detect(ProjectCode, "^[A-Z0-9]{4}$"))
+
+# View all unique invalids
+unique(invalid_codes$ProjectCode)
+
+### start_date (Project) + stop_date (Project) ###
 # Converting Start Date and End Time to just Dates
 # Start Date
 projects$ProjectStartDate <- as_date(mdy_hms(projects$ProjectStartDate))
