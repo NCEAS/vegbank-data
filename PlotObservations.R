@@ -766,6 +766,7 @@ plots_LT$topo_position <- plots_merged$topo_position
 plots_LT$rock_type <- plots_merged$Substrate
 plots_LT$pj_code <- plots_merged$ProjectCode
 plots_LT$obsStartDate <- plots_merged$SurveyDate
+plots_LT$methodNarrative <- plots_merged$methodNarrative
 plots_LT$successionalStatus = plots_merged$Trend
 plots_LT$basalArea <- plots_merged$BasalStem
 plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
