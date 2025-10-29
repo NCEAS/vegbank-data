@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(sf)
+library(tigris)
 source("Build_Loader_Table.R")
 
 # Remaining Issues (Wait for Update):
@@ -167,19 +168,12 @@ class(plots$Conif_cover) # numeric
 class(plots$Hdwd_cover) # numeric
 class(plots$RegenTree_cover) # numeric
 
-# Latitude_WGS84_Final (AltPlots) - real_latitude (plots)
-unique(alt_plots$Latitude_WGS84_Final)
-class(alt_plots$Latitude_WGS84_Final) # numeric
-
-# Longitude_WGS84_Final (AltPlots) - real_longitude (plots)
-unique(alt_plots$Longitude_WGS84_Final)
-class(alt_plots$Longitude_WGS84_Final)
-
-# UTME_final (RAPlots) - author_e (PlotObservations)
+# UTME_final/UTMN_final (RAPlots) - real_longitude/real_latitude (PlotObservations) + author_e/author_n (PlotObservations) + county, stateProvince, country, continent (PlotObservations)
+# Map UTME_final/UTMN_final to author_e and author_n as is
+# Convert UTME_final/UTMN_final to lat/long and map to real_longitude/real_latitude
+# Use real_longitude/real_latitude to find county/stateProvince/country/continent
 unique(plots$UTME_final)
 class(plots$UTME_final) # numeric
-
-# UTMN_final (RAPlots) - author_n (PlotObservations)
 unique(plots$UTMN_final)
 class(plots$UTMN_final) # numeric
 
@@ -284,8 +278,8 @@ plots_merged <- plots_merged %>%
     )
   )
 
-### author_e (PlotObservations) ###
-### author_n (PlotObservations) ###
+### real_longitude (PlotObservations) ###
+### real_latitude (PlotObservations) ###
 # UTME_final (RAPlots) and UTMN_final (RAPlots)
 # Convert UTM to lat long
 # Possibly switch to UTME instead of UTME_final?
@@ -302,26 +296,26 @@ plots_merged <- plots_merged %>%
 df_10N <- plots_merged %>%
   filter(UTM_zone_chr == "10",
          !is.na(UTME_final), !is.na(UTMN_final)) %>%
-  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 32610, na.fail = FALSE) %>%
+  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26910, na.fail = FALSE) %>%
   st_transform(4326) %>%
   mutate(
-    author_e = st_coordinates(geometry)[, 1],  # lon
-    author_n = st_coordinates(geometry)[, 2]   # lat
+    real_longitude = st_coordinates(geometry)[, 1],  # lon
+    real_latitude = st_coordinates(geometry)[, 2]   # lat
   ) %>%
   st_drop_geometry() %>%
-  select(.row_id, author_e, author_n)
+  select(.row_id, real_longitude, real_latitude)
 
 df_11N <- plots_merged %>%
   filter(UTM_zone_chr == "11",
          !is.na(UTME_final), !is.na(UTMN_final)) %>%
-  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 32611, na.fail = FALSE) %>%
+  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26911, na.fail = FALSE) %>%
   st_transform(4326) %>%
   mutate(
-    author_e = st_coordinates(geometry)[, 1],
-    author_n = st_coordinates(geometry)[, 2]
+    real_longitude = st_coordinates(geometry)[, 1],
+    real_latitude = st_coordinates(geometry)[, 2]
   ) %>%
   st_drop_geometry() %>%
-  select(.row_id, author_e, author_n)
+  select(.row_id, real_longitude, real_latitude)
 
 # combine computed coords and join back to FULL dataset (preserves row count)
 df_N_all <- bind_rows(df_10N, df_11N)
@@ -330,6 +324,31 @@ df_N_all <- bind_rows(df_10N, df_11N)
 plots_merged <- plots_merged %>%
   left_join(df_N_all, by = ".row_id") %>%
   select(-.row_id, -UTM_zone_chr)
+
+### county (PlotObservations) ###
+### stateProvince (PlotObservations) ###
+# New version (To not affect row numbers)
+plots_merged <- plots_merged %>% mutate(.row_id = row_number())
+
+points <- plots_merged %>%
+  filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
+  st_as_sf(coords = c("real_longitude", "real_latitude"),
+           crs = 4326, remove = FALSE)
+
+us_states  <- states(cb = TRUE, year = 2024)   %>% st_transform(4326)
+us_counties <- counties(cb = TRUE, year = 2024) %>% st_transform(4326)
+
+# Combine state and county
+points_sc <- points %>%
+  st_join(us_states["NAME"], left = TRUE)  %>% rename(stateProvince = NAME) %>%
+  st_join(us_counties["NAME"], left = TRUE) %>% rename(county = NAME) %>%
+  st_drop_geometry() %>%
+  select(.row_id, stateProvince, county)
+
+# Merge
+plots_merged <- plots_merged %>%
+  left_join(points_sc, by = ".row_id") %>%
+  select(-.row_id)
 
 ### author_datum (PlotObservations) ###
 # GPS_datum (RAPlots)
@@ -746,12 +765,12 @@ plots_merged <- plots_merged %>%
 
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
-plots_LT$real_latitude <- plots_merged$Latitude_WGS84_Final
-plots_LT$real_longitude <- plots_merged$Longitude_WGS84_Final
+plots_LT$real_latitude <- plots_merged$real_latitude
+plots_LT$real_longitude <- plots_merged$real_longitude
 plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
 plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
-plots_LT$author_e <- plots_merged$author_e
-plots_LT$author_n <- plots_merged$author_n
+plots_LT$author_e <- plots_merged$UTME_final
+plots_LT$author_n <- plots_merged$UTMN_final
 plots_LT$author_zone <- plots_merged$UTM_zone
 plots_LT$author_datum <- plots_merged$author_datum
 plots_LT$author_location <- plots_merged$SiteLocation
