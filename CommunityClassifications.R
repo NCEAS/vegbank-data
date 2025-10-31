@@ -13,6 +13,14 @@ plots <- read_csv(here(folder, 'RAPlots.csv'),
                                    `PlotOther5` = col_character()))
 
 # creating loader table ---------------------------------------------------
+
+
+# RAPlots and RAProjects needs to be merged
+plots_merged <- plots
+
+projects <- projects %>% 
+  left_join(plots_merged, by = "ProjectCode")
+
 community_template_fields <- build_loader_table(
   sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
   sheet = "CommunityClassifications",
@@ -32,13 +40,7 @@ class(projects$ClassificationDescription) # character
 unique(plots$Confidence_ID)
 class(plots$Confidence_ID) # character
 
-# Tidying CDFW data -----------------------------------------------------------
-
-# RAPlots and RAProjects needs to be merged
-plots_merged <- plots
-
-projects <- plots_merged %>% 
-  left_join(projects, by = "ProjectCode")
+# Tidying CDFW data -------------------------------------------------------
 
 ### inspection (CommunityClassifications) + multivariateAnalysis (CommunityClassifications) + tableAnalysis (CommunityClassifications ###
 # Manually assigning ClassificationDescription values to inspection, multivariateAnalysis, or tableAnalysis based on the described methods.
@@ -72,7 +74,7 @@ projects <- projects %>%
 # Convert L, M, H to Low, Medium, High
 # Convert Not recorded to NA
 
-projects <- plots_merged %>% 
+projects <- projects %>% 
   mutate(
     class_confidence = case_when(
       Confidence_ID == "Not recorded" ~ NA,
