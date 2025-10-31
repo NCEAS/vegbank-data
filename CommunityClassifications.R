@@ -77,7 +77,12 @@ projects <- projects %>%
 projects <- projects %>% 
   mutate(
     class_confidence = case_when(
-      Confidence_ID == "Not recorded" ~ NA,
+      
+      # NA Values
+      Confidence_ID == "Not recorded" ~ "",
+      is.na(Confidence_ID) ~ "",
+      
+      # Standard Values
       Confidence_ID == "H" ~ "High",
       Confidence_ID == "M" ~ "Medium",
       Confidence_ID == "L" ~ "Low",
@@ -91,7 +96,7 @@ projects <- projects %>%
 community_LT$expert_system <- projects$ClassificationTool
 community_LT$inspection <- projects$inspectionText
 community_LT$multivariate_analysis <- projects$multivariateAnalysisText
-community_LT$class_confidence <- projects$class_confidence # Error, need to fix
+community_LT$class_confidence <- projects$class_confidence
 
 # All variables besides expertSystem, inspection, multivariateAnalysis, and tableAnalysis were not matched and are left as 'NA'
 write_csv(community_LT, here('loader_tables', 'CommunityClassificationsLT.csv'))
