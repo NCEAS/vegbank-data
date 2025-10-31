@@ -2,6 +2,7 @@ library(tidyverse)
 library(here)
 library(sf)
 library(tigris)
+library(rnaturalearth)
 source("Build_Loader_Table.R")
 
 # Remaining Issues (Wait for Update):
@@ -327,6 +328,9 @@ plots_merged <- plots_merged %>%
 
 ### county (PlotObservations) ###
 ### stateProvince (PlotObservations) ###
+### country (PlotObservations) ###
+### continent (PlotsObservations) ###
+
 # New version (To not affect row numbers)
 plots_merged <- plots_merged %>% mutate(.row_id = row_number())
 
@@ -345,10 +349,43 @@ points_sc <- points %>%
   st_drop_geometry() %>%
   select(.row_id, stateProvince, county)
 
-# Merge
+# Merge and add country/continent
 plots_merged <- plots_merged %>%
   left_join(points_sc, by = ".row_id") %>%
-  select(-.row_id)
+  select(-.row_id) %>%
+  mutate(
+    country   = if_else(!is.na(stateProvince), "United States", NA_character_),
+    continent = if_else(!is.na(stateProvince), "North America", NA_character_)
+  )
+
+# Exploring NA values 
+
+plots_merged %>% 
+  filter(is.na(stateProvince) | is.na(county) | is.na(country)) %>%
+  select(c(country, stateProvince, county))
+
+missing_us_admin <- plots_merged %>%
+  mutate(has_ll = !is.na(real_longitude) & !is.na(real_latitude)) %>%
+  filter(has_ll & (is.na(stateProvince) | is.na(county))) %>%
+  select(real_longitude, real_latitude, stateProvince, county, country, continent, everything())
+
+nrow(missing_us_admin) # how many to investigate
+
+world <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  st_transform(4326) %>%
+  select(world_admin = admin, world_continent = continent)
+
+pts <- plots_merged %>%
+  mutate(.row_id = row_number()) %>%
+  filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
+  st_as_sf(coords = c("real_longitude", "real_latitude"),
+           crs = 4326, remove = FALSE)
+
+pts_world <- st_join(pts, world, left = TRUE) %>%
+  st_drop_geometry() %>%
+  rename(country_guess = world_admin,
+         continent_guess = world_continent) %>%
+  select(.row_id, country_guess, continent_guess)
 
 ### author_datum (PlotObservations) ###
 # GPS_datum (RAPlots)
