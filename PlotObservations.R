@@ -331,61 +331,111 @@ plots_merged <- plots_merged %>%
 ### country (PlotObservations) ###
 ### continent (PlotsObservations) ###
 
-# New version (To not affect row numbers)
-plots_merged <- plots_merged %>% mutate(.row_id = row_number())
+options(tigris_use_cache = TRUE, tigris_class = "sf")
 
+# add stable row id once
+if (!".row_id" %in% names(plots_merged)) {
+  plots_merged <- plots_merged %>% mutate(.row_id = row_number())
+}
+
+# build sf points
 points <- plots_merged %>%
   filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
   st_as_sf(coords = c("real_longitude", "real_latitude"),
            crs = 4326, remove = FALSE)
 
-us_states  <- states(cb = TRUE, year = 2024)   %>% st_transform(4326)
-us_counties <- counties(cb = TRUE, year = 2024) %>% st_transform(4326)
+# load boundaries (try 2024, else 2023)
+get_states  <- function(y) states(cb = TRUE, year = y)
+get_counties <- function(y) counties(cb = TRUE, year = y)
 
-# Combine state and county
+us_states <- tryCatch(get_states(2024),  error = function(e) get_states(2023)) %>%  st_transform(4326)
+us_counties <- tryCatch(get_counties(2024), error = function(e) get_counties(2023)) %>% st_transform(4326)
+
+# join state & county
 points_sc <- points %>%
-  st_join(us_states["NAME"], left = TRUE)  %>% rename(stateProvince = NAME) %>%
-  st_join(us_counties["NAME"], left = TRUE) %>% rename(county = NAME) %>%
-  st_drop_geometry() %>%
-  select(.row_id, stateProvince, county)
+  st_join(us_states["NAME"],   left = TRUE) %>% rename(stateProvince = NAME) %>%
+  st_join(us_counties["NAME"], left = TRUE) %>% rename(county        = NAME) %>%
+  mutate(state_source = if_else(is.na(stateProvince), NA_character_, "intersect"),
+         county_source= if_else(is.na(county),        NA_character_, "intersect"))
 
-# Merge and add country/continent
+albers <- 5070
+buf_m <- 50 # 50 m buffer (can tweak if needed)
+
+points_m <- st_transform(points, albers)
+states_m <- st_transform(us_states,   albers)
+counties_m <- st_transform(us_counties, albers)
+
+# buffer only rows that are still NA
+need_state_buf <- is.na(points_sc$stateProvince)
+need_county_buf <- is.na(points_sc$county)
+
+if (any(need_state_buf)) {
+  st_buf <- st_buffer(points_m[need_state_buf, ], dist = buf_m)
+  hit <- st_join(st_buf, states_m["NAME"], left = TRUE)
+  points_sc$stateProvince[need_state_buf] <- hit$NAME
+  points_sc$state_source [need_state_buf & !is.na(hit$NAME)] <- "buffer50m"
+}
+
+if (any(need_county_buf)) {
+  ct_buf <- st_buffer(points_m[need_county_buf, ], dist = buf_m)
+  hit <- st_join(ct_buf, counties_m["NAME"], left = TRUE)
+  points_sc$county[need_county_buf] <- hit$NAME
+  points_sc$county_source[need_county_buf & !is.na(hit$NAME)] <- "buffer50m"
+}
+
+# nearest fallback (for any that are still NA after buffer)
+max_nearest_m <- 5000  # cap assignment to features within 5 km (can adjust as needed)
+
+# states
+need_state_near <- is.na(points_sc$stateProvince)
+if (any(need_state_near)) {
+  idx <- st_nearest_feature(points_m[need_state_near, ], states_m)
+  dists <- as.numeric(st_distance(points_m[need_state_near, ], states_m[idx, ], by_element = TRUE))
+  ok <- dists <= max_nearest_m
+  points_sc$stateProvince[need_state_near][ok] <- states_m$NAME[idx[ok]]
+  points_sc$state_source [need_state_near][ok] <- paste0("nearest_", max_nearest_m, "m")
+}
+
+# counties
+need_county_near <- is.na(points_sc$county)
+if (any(need_county_near)) {
+  idx <- st_nearest_feature(points_m[need_county_near, ], counties_m)
+  dists <- as.numeric(st_distance(points_m[need_county_near, ], counties_m[idx, ], by_element = TRUE))
+  ok <- dists <= max_nearest_m
+  points_sc$county[need_county_near][ok] <- counties_m$NAME[idx[ok]]
+  points_sc$county_source[need_county_near][ok] <- paste0("nearest_", max_nearest_m, "m")
+}
+
+# Drop geometry
+points_sc <- points_sc %>%
+  st_drop_geometry() %>%
+  select(.row_id, stateProvince, county, state_source, county_source)
+
+# Merge back & add country/continent
 plots_merged <- plots_merged %>%
   left_join(points_sc, by = ".row_id") %>%
-  select(-.row_id) %>%
   mutate(
-    country   = if_else(!is.na(stateProvince), "United States", NA_character_),
+    country = if_else(!is.na(stateProvince), "United States", NA_character_),
     continent = if_else(!is.na(stateProvince), "North America", NA_character_)
   )
 
 # Exploring NA values 
+# Originally 32 rows with NA for stateProvince and county
+# After 50m buffer, only 9 rows
+# After nearest within 5km, no rows are NA
 
-plots_merged %>% 
-  filter(is.na(stateProvince) | is.na(county) | is.na(country)) %>%
-  select(c(country, stateProvince, county))
-
+# Rows that HAVE lon/lat but are missing state or county (to investigate)
 missing_us_admin <- plots_merged %>%
-  mutate(has_ll = !is.na(real_longitude) & !is.na(real_latitude)) %>%
-  filter(has_ll & (is.na(stateProvince) | is.na(county))) %>%
-  select(real_longitude, real_latitude, stateProvince, county, country, continent, everything())
-
-nrow(missing_us_admin) # how many to investigate
-
-world <- ne_countries(scale = "medium", returnclass = "sf") %>%
-  st_transform(4326) %>%
-  select(world_admin = admin, world_continent = continent)
-
-pts <- plots_merged %>%
-  mutate(.row_id = row_number()) %>%
   filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
-  st_as_sf(coords = c("real_longitude", "real_latitude"),
-           crs = 4326, remove = FALSE)
+  filter(is.na(stateProvince) | is.na(county)) %>%
+  select(.row_id, real_longitude, real_latitude, stateProvince, county, everything())
 
-pts_world <- st_join(pts, world, left = TRUE) %>%
-  st_drop_geometry() %>%
-  rename(country_guess = world_admin,
-         continent_guess = world_continent) %>%
-  select(.row_id, country_guess, continent_guess)
+# Quick counts
+cat("Total rows:", nrow(plots_merged), "\n")
+cat("With lon/lat:", sum(!is.na(plots_merged$real_longitude) & !is.na(plots_merged$real_latitude)), "\n")
+cat("Missing state/county (with lon/lat):", nrow(missing_us_admin), "\n")
+
+missing_us_admin
 
 ### author_datum (PlotObservations) ###
 # GPS_datum (RAPlots)
