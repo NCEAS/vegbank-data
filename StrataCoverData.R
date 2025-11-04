@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(stringr)
+library(vegbankr)
 
 # load in CDFW data -------------------------------------------------------
 # RAPlants
@@ -34,6 +35,29 @@ plants %>%
 unique(plants$Stratum)
 # It looks like there are some values that do not fit the CA Description:
 # GitHub Issue #15
+
+# tidying CDFW data -----------------------------------------------------------
+
+# set_vb_base_url("https://api-dev.vegbank.org")    (Run this before running functions from vegbankr)
+# CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
+
+# Adaptive, resumable pager for VegBank plant concepts
+page_init <- 5000 # shrink this if there is an error
+page_min <- 500 # don't go smaller than this
+max_pages <- 500 # hard stop
+sleep_sec <- 0.05 # brief pause to avoid error
+keep_cols <- c("pc_code","plant_name")
+checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
+save_every <- 10
+
+out <- list()
+seen_codes <- character(0)
+limit <- page_init
+
+for (i in seq_len(max_pages)) {
+  offset <- (i - 1L) * limit
+  message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
+  
 
 # Assigning columns to loader table ---------------------------------------
 
