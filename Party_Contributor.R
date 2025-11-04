@@ -241,3 +241,34 @@ contributor_LT$user_py_code <- projects$user_py_code
 contributor_LT$role <- projects$RoleCode
 contributor_LT$contributor_type <- projects$contributor_type
 contributor_LT$recordIdentifier <- projects$ProjectCode
+
+# -------------------------------------------------------------------------
+
+### vb_py_code (Contributor) ###
+# If the person matches, turn py_code into vb_py_code
+
+# Turn get_all_parties() output into a dataframe
+party_vegbank <- as.data.frame(vegbankr::get_all_parties())
+
+# Create a "full_name" key in both data frames
+df1 <- party_LT %>% 
+  mutate(
+    full_name = str_trim(str_to_lower(paste(given_name, middle_name, surname,
+                                            sep = ' ')))
+  )
+
+df2 <- party_vegbank %>% 
+  mutate(
+    full_name = str_trim(str_to_lower(paste(given_name, middle_name, surname,
+                                            sep = ' ')))
+  )
+
+# Left join and flag matches in name_match column
+df1 <- df1 %>% 
+  left_join(df2 %>% select(full_name, py_code), by = "full_name") %>% 
+  mutate(
+    name_match = !is.na(py_code)
+  )
+
+# Add py_code to vb_py_code if person matches
+contributor_LT
