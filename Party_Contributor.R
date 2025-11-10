@@ -280,16 +280,45 @@ df2 <- party_vegbank %>%
 
 # Make a lookup table from df1 to find rows where a match is TRUE
 lookup_df <- df1 %>%
-  mutate(name_key = paste(given_name, middle_name, surname, sep = " ")) %>% 
+  # mutate(name_key = paste(given_name, middle_name, surname, sep = " ")) %>% 
+  mutate(
+    name_key = pmap_chr(
+      list(given_name, middle_name, surname),
+      ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
+    )) %>% 
   select(name_key, user_py_code)
 
 # Create a name_key in df3 to match on
 df3 <- df2 %>% 
-  mutate(name_key = paste(given_name, middle_name, surname, sep = " "))
+  # mutate(name_key = paste(given_name, middle_name, surname, sep = " "))
+  mutate(
+    name_key = pmap_chr(
+      list(given_name, middle_name, surname),
+      ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
+    ))
 
 # Create named vector from df1 for fast lookup
 py_code_lookup <- setNames(df1$user_py_code, df1$full_name)
 
+# Count how many times each name appears
+name_counts <- df1 %>% 
+  count(full_name, name = "name_count")
+
+# Join name_counts to df1
+df1 <- df1 %>% 
+  left_join(name_counts, by = "full_name")
+
+# Pick the first user_py_code per full_name key
+vb_code_lookup <- df1 %>% 
+  group_by(full_name) %>% 
+  summarise(vb_py_code = first(user_py_code), .groups = "drop")
+
+# Problem: Need to join df2, bind_rows?
+
+# Join the consistent vb_py_code to df3
+df3 <- df1 %>% 
+  left_join(vb_code_lookup, by = "full_name")
+
 # Match and assign
 df3 <- df3 %>% 
-  mutate(vb_py_code = py_code_lookup[name_key])
+  mutate(vb_py_code = py_code_lookup[full_name])
