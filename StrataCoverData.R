@@ -105,17 +105,31 @@ csv_path <- here("data", "pc_all.csv")
 pc_all <- read_csv(csv_path, show_col_types = FALSE)
 
 pc_lookup <- pc_all %>%
-  transmute(
-    plant_name_norm = str_squish(str_to_lower(plant_name)),
-    pc_code
+  mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
+  separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
+  mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
+  filter(plant_name_norm != "") %>%
+  group_by(plant_name_norm) %>%
+  summarise(pc_code = first(pc_code), .groups = "drop")
+
+mapping_values <- plants %>%
+  mutate(
+    authorPlantName = str_squish(coalesce(SpeciesName, "")),
+    author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
   ) %>%
-  distinct()
+  left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
+  transmute(
+    authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
+    vb_pc_code = pc_code
+  )
+
+nrow(mapping_values) == nrow(plants)
 
 # Assigning columns to loader table ---------------------------------------
 
 strata_cover_LT$user_sr_code <- plants$Stratum
 strata_cover_LT$authorPlantName <- plants$SpeciesName
 strata_cover_LT$cover <- plants$Species_cover
-
+strata_cover_LT$vb_pc_code <- mapping_values$vb_pc_code
 
 # All variables besides authorPlantName, cover, and user_sre_code were not matched and are left as 'NA'
