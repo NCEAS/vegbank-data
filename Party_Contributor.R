@@ -250,15 +250,13 @@ contributor_LT$recordIdentifier <- projects$ProjectCode
 # Turn get_all_parties() output into a dataframe
 vegbankr::set_vb_base_url("https://api-dev.vegbank.org")
 party_vegbank <- as.data.frame(vegbankr::get_all_parties())
+# Note: I am getting a warning message suddenly now for saying there is
+# In canonicalize_names(vb_data):
+# Unmatched names: given_name, middle_name, organization_name, contact_instructions
+# I'm going to ignore this for now
 
 # Create a "full_name" key in both data frames
 df1 <- party_LT %>% 
-  # mutate(
-  #   full_name = str_trim(str_to_lower(paste(given_name, middle_name, surname,
-  #                                           sep = ' ')))
-  # )
-  # unite("full_name", given_name, middle_name, surname, sep = " ", na.rm = TRUE) %>% 
-  # mutate(full_name = str_trim(str_to_lower(full_name)))
   mutate(
     full_name = pmap_chr(
       list(given_name, middle_name, surname),
@@ -267,10 +265,6 @@ df1 <- party_LT %>%
   )
 
 df2 <- party_vegbank %>% 
-  # mutate(
-  #   full_name = str_trim(str_to_lower(paste(given_name, middle_name, surname,
-  #                                           sep = ' ')))
-  # )
   mutate(
     full_name = pmap_chr(
       list(given_name, middle_name, surname),
@@ -278,47 +272,67 @@ df2 <- party_vegbank %>%
     )
   )
 
-# Make a lookup table from df1 to find rows where a match is TRUE
-lookup_df <- df1 %>%
-  # mutate(name_key = paste(given_name, middle_name, surname, sep = " ")) %>% 
-  mutate(
-    name_key = pmap_chr(
-      list(given_name, middle_name, surname),
-      ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
-    )) %>% 
-  select(name_key, user_py_code)
-
-# Create a name_key in df3 to match on
-df3 <- df2 %>% 
-  # mutate(name_key = paste(given_name, middle_name, surname, sep = " "))
-  mutate(
-    name_key = pmap_chr(
-      list(given_name, middle_name, surname),
-      ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
-    ))
-
 # Create named vector from df1 for fast lookup
 py_code_lookup <- setNames(df1$user_py_code, df1$full_name)
 
 # Count how many times each name appears
 name_counts <- df1 %>% 
   count(full_name, name = "name_count")
+name_counts2 <- df2 %>% 
+  count(full_name, name = "name_count")
 
 # Join name_counts to df1
-df1 <- df1 %>% 
+df1 <- df1 %>%
   left_join(name_counts, by = "full_name")
+# Join name_counts2 to df2
+df2 <- df2 %>% 
+  left_join(name_counts2, by = "full_name")
 
-# Pick the first user_py_code per full_name key
-vb_code_lookup <- df1 %>% 
-  group_by(full_name) %>% 
+# Pick the first user_py_code per full_name key for df1
+vb_code_lookup <- df1 %>%
+  group_by(full_name) %>%
   summarise(vb_py_code = first(user_py_code), .groups = "drop")
 
-# Problem: Need to join df2, bind_rows?
+# Pick the first user_py_code per full_name key for df2
+vb_code_lookup2 <- df2 %>% 
+  group_by(full_name) %>% 
+  summarise(vb_py_code = first(py_code), .groups = "drop")
+
+# Question: py_code is in a different format than user_py_code. Which format?
+
+# Combine full_name
+combined_df <- bind_rows(df1, df2)
+
+# After figuring out the py_code format, change df1 to combined_df
+# Group by full_name and combine code
+combined_unique <- df1 %>% 
+  group_by(full_name) %>% 
+  summarise(
+    given_name = first(na.omit(given_name)),
+    middle_name = first(na.omit(middle_name)),
+    surname = first(na.omit(surname)),
+    vb_py_code = first(na.omit(user_py_code)),
+    .groups = "drop"
+  )
 
 # Join the consistent vb_py_code to df3
-df3 <- df1 %>% 
-  left_join(vb_code_lookup, by = "full_name")
+df3 <- df1 %>%
+   left_join(vb_code_lookup, by = "full_name")
+# df3 <- df2 %>% 
+#   left_join(vb_code_lookup2, by = "full_name")
+
+# Join combined_df to full data
+# You can uncomment after we figure out py_code format
+# vb_lookup <- combined_df %>% 
+#   group_by(full_name) %>% 
+#   summarise(vb_py_code = first(na.omit(user_py_code)), .groups = "drop")
+# final_df <- combined_df %>% 
+#   left_join(vb_lookup, by = "full_name")
+# 
+# # Only one row per person from join to full data
+# final_df <- final_df %>% 
+#   distinct(full_name, .keep_all = TRUE)
 
 # Match and assign
-df3 <- df3 %>% 
+df3 <- df3 %>%
   mutate(vb_py_code = py_code_lookup[full_name])
