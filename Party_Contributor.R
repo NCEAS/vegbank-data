@@ -288,6 +288,15 @@ df1 <- df1 %>%
 df2 <- df2 %>% 
   left_join(name_counts2, by = "full_name")
 
+# Transform user_py_code format to patch py_code format
+# ca_055 -> py.055
+# Update after Maggie confirms
+# Leading zeroes?
+df1 <- df1 %>%
+  mutate(user_py_code = paste0("py.", sprintf("%03d", 
+                                              as.integer(str_remove(user_py_code, 
+                                                                    "^ca_")))))
+
 # Pick the first user_py_code per full_name key for df1
 vb_code_lookup <- df1 %>%
   group_by(full_name) %>%
@@ -299,6 +308,7 @@ vb_code_lookup2 <- df2 %>%
   summarise(vb_py_code = first(py_code), .groups = "drop")
 
 # Question: py_code is in a different format than user_py_code. Which format?
+# Assuming py_code is in py.4317 format
 
 # Combine full_name
 combined_df <- bind_rows(df1, df2)
