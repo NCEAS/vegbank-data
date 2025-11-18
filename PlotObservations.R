@@ -852,102 +852,129 @@ plots_merged <- plots_merged %>%
   )
 
 ### user_pl_code (PlotObservations)
-set_vb_base_url("https://api-dev.vegbank.org")
-get_all_plot_observations()
+# For now, there is no matches so user_pl_code will remain empty
+# set_vb_base_url("https://api-dev.vegbank.org")
 
 # CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
 # saved as csv so commented the code
 
 # Adaptive, resumable pager for VegBank plot observations
 
-page_init  <- 5000  # shrink this if there is an error
-page_min   <- 500   # don't go smaller than this
-max_pages  <- 500   # hard stop
-sleep_sec  <- 0.05  # brief pause to avoid error
-keep_cols  <- c("pl_code","latitude","longitude","ob_code","state_province","country")
-checkpoint <- "pl_all_checkpoint.rds" # just in case something fails
-save_every <- 10
+# page_init  <- 5000  # shrink this if there is an error
+# page_min   <- 500   # don't go smaller than this
+# max_pages  <- 500   # hard stop
+# sleep_sec  <- 0.05  # brief pause to avoid error
+# keep_cols  <- c("pl_code","latitude","longitude","ob_code","author_plot_code", "author_obs_code", "state_province","country")
+# checkpoint <- "pl_all_checkpoint.rds" # just in case something fails
+# save_every <- 10
 
-out <- list()
-seen_codes <- character(0)
-limit <- page_init
+# out <- list()
+# seen_codes <- character(0)
+# limit <- page_init
 
 # column types
-text_cols <- c("ob_code","state_province","country")
-num_cols  <- c("latitude","longitude")
+# text_cols <- c("ob_code","state_province","country", "author_obs_code")
+# num_cols  <- c("latitude","longitude")
 
-for (i in seq_len(max_pages)) {
-  offset <- (i - 1L) * limit
-  message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
+# for (i in seq_len(max_pages)) {
+  # offset <- (i - 1L) * limit
+  # message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
   
   # try once
   # on failure (e.g., 504), halve the limit and retry
-  chunk <- tryCatch(
-    get_all_plot_observations(limit = limit, offset = offset),
-    error = function(e) {
-      message("  Request failed: ", conditionMessage(e))
-      limit <<- max(page_min, floor(limit/2))
-      message("  Reducing limit and retrying with limit=", limit)
-      tryCatch(get_all_plot_observations(limit = limit, offset = offset),
-               error = function(e2) { message("  Retry failed."); NULL })
-    }
-  )
-  if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
+  # chunk <- tryCatch(
+    # get_all_plot_observations(limit = limit, offset = offset),
+    # error = function(e) {
+      # message("  Request failed: ", conditionMessage(e))
+      # limit <<- max(page_min, floor(limit/2))
+      # message("  Reducing limit and retrying with limit=", limit)
+      # tryCatch(get_all_plot_observations(limit = limit, offset = offset),
+               # error = function(e2) { message("  Retry failed."); NULL })
+    # }
+  # )
+  # if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
   
-  keep <- intersect(keep_cols, names(chunk))
-  if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
+  # keep <- intersect(keep_cols, names(chunk))
+  # if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
   
   # normalize
-  chunk <- chunk %>%
-    mutate(
-      across(any_of(text_cols), as.character),
-      across(any_of(num_cols),  as.numeric)
-    )
+  # chunk <- chunk %>%
+    # mutate(
+      # across(any_of(text_cols), as.character),
+      # across(any_of(num_cols),  as.numeric)
+    # )
   
-  if ("pl_code" %in% names(chunk)) {
-    new <- !chunk$pl_code %in% seen_codes
-    if (!any(new)) { message("  All rows seen already; stopping."); break }
-    seen_codes <- c(seen_codes, chunk$pl_code[new])
-    chunk <- chunk[new, , drop = FALSE]
-  }
+  # if ("pl_code" %in% names(chunk)) {
+    # new <- !chunk$pl_code %in% seen_codes
+    # if (!any(new)) { message("  All rows seen already; stopping."); break }
+    # seen_codes <- c(seen_codes, chunk$pl_code[new])
+    # chunk <- chunk[new, , drop = FALSE]
+  # }
   
-  out[[length(out) + 1L]] <- chunk
-  total <- sum(vapply(out, nrow, integer(1)))
-  message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
+  # out[[length(out) + 1L]] <- chunk
+  # total <- sum(vapply(out, nrow, integer(1)))
+  # message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
   
-  if (nrow(chunk) < limit) { message("  Short page; done."); break }
+  # if (nrow(chunk) < limit) { message("  Short page; done."); break }
   
-  if (save_every > 0 && (i %% save_every == 0)) {
+  # if (save_every > 0 && (i %% save_every == 0)) {
   # Normalize again
-    out_fixed <- map(out, ~ .x %>%
-                       mutate(
-                         across(any_of(text_cols), as.character),
-                         across(any_of(num_cols),  as.numeric)
-                       ))
-    tmp <- bind_rows(out_fixed) %>% distinct()
-    saveRDS(tmp, checkpoint)
-    message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
-  }
+    # out_fixed <- map(out, ~ .x %>%
+                       # mutate(
+                         # across(any_of(text_cols), as.character),
+                         # across(any_of(num_cols),  as.numeric)
+                       # ))
+    # tmp <- bind_rows(out_fixed) %>% distinct()
+    # saveRDS(tmp, checkpoint)
+    # message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
+  # }
   
-  if (sleep_sec > 0) Sys.sleep(sleep_sec)
-}
+  # if (sleep_sec > 0) Sys.sleep(sleep_sec)
+# }
 
 # normalize again
-out_fixed <- map(out, ~ .x %>%
-                   mutate(
-                     across(any_of(text_cols), as.character),
-                     across(any_of(num_cols),  as.numeric)
-                   ))
+# out_fixed <- map(out, ~ .x %>%
+                   # mutate(
+                     # across(any_of(text_cols), as.character),
+                     # across(any_of(num_cols),  as.numeric)
+                   # ))
 
-pl_all <- bind_rows(out_fixed) %>% distinct()
+# pl_all <- bind_rows(out_fixed) %>% distinct()
 
-dir.create(here("data"), recursive = TRUE, showWarnings = FALSE)
-write_csv(pl_all, here("data", "pl_all.csv"))
+# dir.create(here("data"), recursive = TRUE, showWarnings = FALSE)
+# write_csv(pl_all, here("data", "pl_all.csv"))
 
 csv_path <- here("data", "pl_all.csv")
 pl_all <- read_csv(csv_path, show_col_types = FALSE)
 
-pl_all
+plots_merged <- plots_merged %>%
+  left_join(
+    pl_all %>% select(author_plot_code, pl_code),
+    by = c("SurveyID" = "author_plot_code")
+  )
+
+sum(plots_merged$SurveyID %in% pl_all$author_plot_code)
+
+normalize_id <- function(x) {
+  x %>%
+    str_to_upper() %>%
+    str_replace_all("[^A-Z0-9]", "") %>%
+    str_squish()
+}
+
+RA_ids <- plots_merged %>%
+  mutate(SurveyID_norm = normalize_id(SurveyID)) %>%
+  pull(SurveyID_norm) %>%
+  unique()
+
+VB_ids <- pl_all %>%
+  mutate(author_norm = normalize_id(author_plot_code)) %>%
+  pull(author_norm) %>%
+  unique()
+
+sum(RA_ids %in% VB_ids)
+
+# Since there are no matches above, vb_pl_code will be left empty for now.
 
 
 # Assigning columns to loader table -------------------------------------------
