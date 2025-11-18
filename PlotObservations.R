@@ -860,11 +860,11 @@ get_all_plot_observations()
 
 # Adaptive, resumable pager for VegBank plot observations
 
-page_init <- 5000 # shrink this if there is an error
-page_min <- 500 # don't go smaller than this
-max_pages <- 500 # hard stop
-sleep_sec <- 0.05 # brief pause to avoid error
-keep_cols <- c("pl_code","latitude", "longitude", "ob_code", "state_province", "country")
+page_init  <- 5000  # shrink this if there is an error
+page_min   <- 500   # don't go smaller than this
+max_pages  <- 500   # hard stop
+sleep_sec  <- 0.05  # brief pause to avoid error
+keep_cols  <- c("pl_code","latitude","longitude","ob_code","state_province","country")
 checkpoint <- "pl_all_checkpoint.rds" # just in case something fails
 save_every <- 10
 
@@ -872,11 +872,16 @@ out <- list()
 seen_codes <- character(0)
 limit <- page_init
 
+# column types
+text_cols <- c("ob_code","state_province","country")
+num_cols  <- c("latitude","longitude")
+
 for (i in seq_len(max_pages)) {
   offset <- (i - 1L) * limit
   message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
-
-# try once; on failure (e.g., 504), halve the limit and retry
+  
+  # try once
+  # on failure (e.g., 504), halve the limit and retry
   chunk <- tryCatch(
     get_all_plot_observations(limit = limit, offset = offset),
     error = function(e) {
@@ -888,35 +893,55 @@ for (i in seq_len(max_pages)) {
     }
   )
   if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
-
+  
   keep <- intersect(keep_cols, names(chunk))
   if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-
+  
+  # normalize
+  chunk <- chunk %>%
+    mutate(
+      across(any_of(text_cols), as.character),
+      across(any_of(num_cols),  as.numeric)
+    )
+  
   if ("pl_code" %in% names(chunk)) {
     new <- !chunk$pl_code %in% seen_codes
     if (!any(new)) { message("  All rows seen already; stopping."); break }
     seen_codes <- c(seen_codes, chunk$pl_code[new])
     chunk <- chunk[new, , drop = FALSE]
   }
-
+  
   out[[length(out) + 1L]] <- chunk
   total <- sum(vapply(out, nrow, integer(1)))
   message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
-
+  
   if (nrow(chunk) < limit) { message("  Short page; done."); break }
-
+  
   if (save_every > 0 && (i %% save_every == 0)) {
-    tmp <- bind_rows(out) %>% distinct()
+  # Normalize again
+    out_fixed <- map(out, ~ .x %>%
+                       mutate(
+                         across(any_of(text_cols), as.character),
+                         across(any_of(num_cols),  as.numeric)
+                       ))
+    tmp <- bind_rows(out_fixed) %>% distinct()
     saveRDS(tmp, checkpoint)
     message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
   }
-
+  
   if (sleep_sec > 0) Sys.sleep(sleep_sec)
 }
 
-pl_all <- bind_rows(out) %>% distinct()
-message(sprintf("Finished. Total plot observations: %d", nrow(pl_all)))
+# normalize again
+out_fixed <- map(out, ~ .x %>%
+                   mutate(
+                     across(any_of(text_cols), as.character),
+                     across(any_of(num_cols),  as.numeric)
+                   ))
 
+pl_all <- bind_rows(out_fixed) %>% distinct()
+
+dir.create(here("data"), recursive = TRUE, showWarnings = FALSE)
 write_csv(pl_all, here("data", "pl_all.csv"))
 
 csv_path <- here("data", "pl_all.csv")
