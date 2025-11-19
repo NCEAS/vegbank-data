@@ -32,6 +32,7 @@ survey_points <- read_csv(here(folder, 'SurveyPoints.csv'))
 impacts <- read_csv(here(folder, 'RAImpacts.csv'))
 alt_strata <- read_csv(here(folder, 'AltStrata.csv'))
 classification <- read_csv(here(folder, 'RAClassification.csv'))
+projects <- read_csv(here(folder, "RAProjects.csv"))
 
 # loading CA lookup tables
 confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
@@ -851,7 +852,7 @@ plots_merged <- plots_merged %>%
     )
   )
 
-### user_pl_code (PlotObservations)
+### user_pl_code (PlotObservations) ###
 # For now, there is no matches so user_pl_code will remain empty
 # set_vb_base_url("https://api-dev.vegbank.org")
 
@@ -976,7 +977,46 @@ sum(RA_ids %in% VB_ids)
 
 # Since there are no matches above, vb_pl_code will be left empty for now.
 
+### vb_pj_code ####
 
+# pj_all <- get_all_projects(limit = 1000)
+
+# dir.create(here("data"), recursive = TRUE, showWarnings = FALSE)
+# write_csv(pj_all, here("data", "pj_all.csv"))
+
+pj_all <- read_csv(here("data", "pj_all.csv"), show_col_types = FALSE)
+
+pj_all <- pj_all %>%
+  mutate(project_name_norm = str_squish(str_to_lower(project_name)),
+         project_code_norm = str_squish(str_to_lower(pj_code)))
+
+projects_norm <- projects %>%
+  mutate(
+    ProjectName_norm = str_squish(str_to_lower(ProjectName)),
+    ProjectCode_norm = str_squish(str_to_lower(ProjectCode))
+  )
+
+match_by_name <- projects_norm %>%
+  left_join(
+    pj_all %>% select(pj_code, project_name_norm),
+    by = c("ProjectName_norm" = "project_name_norm")
+  )
+
+match_by_code <- match_by_name %>%
+  left_join(
+    pj_all %>% select(pj_code, project_name_norm),
+    by = c("ProjectCode_norm" = "project_name_norm"),
+    suffix = c("", "_codeMatch")
+  )
+
+sum(!is.na(match_by_name$pj_code))
+sum(!is.na(match_by_code$pj_code))
+
+head(projects_norm %>% select(ProjectName, ProjectName_norm, ProjectCode, ProjectCode_norm))
+head(pj_all %>% select(project_name, project_name_norm))
+
+intersect(projects_norm$ProjectName_norm, pj_all$project_name_norm)
+intersect(projects_norm$ProjectCode_norm, pj_all$project_name_norm)
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
 plots_LT$real_latitude <- plots_merged$real_latitude
