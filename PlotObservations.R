@@ -1004,19 +1004,19 @@ match_by_name <- projects_norm %>%
 
 match_by_code <- match_by_name %>%
   left_join(
-    pj_all %>% select(pj_code, project_name_norm),
-    by = c("ProjectCode_norm" = "project_name_norm"),
-    suffix = c("", "_codeMatch")
+    pj_all %>% select(pj_code, project_code_norm),
+    by = c("ProjectCode_norm" = "project_code_norm"),
+    suffix = c("", "_fromCode")
   )
 
 sum(!is.na(match_by_name$pj_code))
-sum(!is.na(match_by_code$pj_code))
+sum(!is.na(match_by_code$pj_code_fromCode))
 
 head(projects_norm %>% select(ProjectName, ProjectName_norm, ProjectCode, ProjectCode_norm))
-head(pj_all %>% select(project_name, project_name_norm))
+head(pj_all %>% select(project_name, project_name_norm, pj_code, project_code_norm))
 
 intersect(projects_norm$ProjectName_norm, pj_all$project_name_norm)
-intersect(projects_norm$ProjectCode_norm, pj_all$project_name_norm)
+intersect(projects_norm$ProjectCode_norm, pj_all$project_code_norm)
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
 plots_LT$real_latitude <- plots_merged$real_latitude
