@@ -229,21 +229,6 @@ projects <- projects %>%
     contributor_type = "Project"
   )
 
-# Assigning columns to loader table ---------------------------------------
-party_LT$user_py_code <- projects$user_py_code
-party_LT$surname <- projects$LastName
-party_LT$organization_name <- projects$ContactOrg
-party_LT$given_name <- projects$FirstName
-party_LT$email <- projects$ContactEmail
-party_LT$middle_name <- projects$MiddleName
-
-contributor_LT$user_py_code <- projects$user_py_code
-contributor_LT$role <- projects$RoleCode
-contributor_LT$contributor_type <- projects$contributor_type
-contributor_LT$recordIdentifier <- projects$ProjectCode
-
-# -------------------------------------------------------------------------
-
 ### vb_py_code (Contributor) ###
 # If the person matches, turn user_py_code into vb_py_code
 
@@ -297,6 +282,9 @@ df1 <- df1 %>%
                                               as.integer(str_remove(user_py_code, 
                                                                     "^ca_")))))
 
+# Check for matching names across data sets -> No matching!
+matching_names <- intersect(df1$full_name, df2$full_name)
+
 # Pick the first user_py_code per full_name key for df1
 vb_code_lookup <- df1 %>%
   group_by(full_name) %>%
@@ -313,36 +301,28 @@ vb_code_lookup2 <- df2 %>%
 # Combine full_name
 combined_df <- bind_rows(df1, df2)
 
-# After figuring out the py_code format, change df1 to combined_df
-# Group by full_name and combine code
-combined_unique <- df1 %>% 
-  group_by(full_name) %>% 
-  summarise(
-    given_name = first(na.omit(given_name)),
-    middle_name = first(na.omit(middle_name)),
-    surname = first(na.omit(surname)),
-    vb_py_code = first(na.omit(user_py_code)),
-    .groups = "drop"
-  )
+# Combine user_py_code (df1) and py_code (df2) into vb_py_code
+combined_df <- combined_df %>% 
+  mutate(vb_py_code = coalesce(py_code, user_py_code))
 
-# Join the consistent vb_py_code to df3
-df3 <- df1 %>%
-   left_join(vb_code_lookup, by = "full_name")
-# df3 <- df2 %>% 
-#   left_join(vb_code_lookup2, by = "full_name")
+# Error: combined_df has 163 entries but contributor_LT has 63 entries
+# Plan: Let user_py_code get created, establish party_vegbank at the top,
+# copy the rest of the code for the other variables
+# Question: What is the difference between user_py_code and vb_py_code?
+# Maybe I have to turn py_code into user_py_code
 
-# Join combined_df to full data
-# You can uncomment after we figure out py_code format
-# vb_lookup <- combined_df %>% 
-#   group_by(full_name) %>% 
-#   summarise(vb_py_code = first(na.omit(user_py_code)), .groups = "drop")
-# final_df <- combined_df %>% 
-#   left_join(vb_lookup, by = "full_name")
-# 
-# # Only one row per person from join to full data
-# final_df <- final_df %>% 
-#   distinct(full_name, .keep_all = TRUE)
+# Assigning columns to loader table ---------------------------------------
+party_LT$user_py_code <- projects$user_py_code
+party_LT$surname <- projects$LastName
+party_LT$organization_name <- projects$ContactOrg
+party_LT$given_name <- projects$FirstName
+party_LT$email <- projects$ContactEmail
+party_LT$middle_name <- projects$MiddleName
 
-# Match and assign
-df3 <- df3 %>%
-  mutate(vb_py_code = py_code_lookup[full_name])
+# contributor_LT$vb_py_code <- combined_df$vb_py_code
+contributor_LT$user_py_code <- projects$user_py_code
+contributor_LT$role <- projects$RoleCode
+contributor_LT$contributor_type <- projects$contributor_type
+contributor_LT$recordIdentifier <- projects$ProjectCode
+
+# -------------------------------------------------------------------------
