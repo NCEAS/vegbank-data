@@ -234,14 +234,23 @@ projects <- projects %>%
 
 # Turn get_all_parties() output into a dataframe
 vegbankr::set_vb_base_url("https://api-dev.vegbank.org")
-party_vegbank <- as.data.frame(vegbankr::get_all_parties())
+party_vegbank <- as.data.frame(vegbankr::get_all_parties(limit = 3066))
+
 # Note: I am getting a warning message suddenly now for saying there is
 # In canonicalize_names(vb_data):
 # Unmatched names: given_name, middle_name, organization_name, contact_instructions
 # I'm going to ignore this for now
 
 # Create a "full_name" key in both data frames
-df1 <- party_LT %>% 
+df1 <- projects %>% 
+  mutate(
+    full_name = pmap_chr(
+      list(FirstName, MiddleName, LastName),
+      ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
+    )
+  )
+
+df2 <- party_vegbank %>%
   mutate(
     full_name = pmap_chr(
       list(given_name, middle_name, surname),
@@ -249,67 +258,28 @@ df1 <- party_LT %>%
     )
   )
 
-df2 <- party_vegbank %>% 
-  mutate(
-    full_name = pmap_chr(
-      list(given_name, middle_name, surname),
-      ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
-    )
-  )
-
-# Create named vector from df1 for fast lookup
-py_code_lookup <- setNames(df1$user_py_code, df1$full_name)
-
-# Count how many times each name appears
-name_counts <- df1 %>% 
-  count(full_name, name = "name_count")
-name_counts2 <- df2 %>% 
-  count(full_name, name = "name_count")
-
-# Join name_counts to df1
-df1 <- df1 %>%
-  left_join(name_counts, by = "full_name")
-# Join name_counts2 to df2
-df2 <- df2 %>% 
-  left_join(name_counts2, by = "full_name")
-
-# Transform user_py_code format to patch py_code format
-# ca_055 -> py.055
-# Update after Maggie confirms
-# Leading zeroes?
-df1 <- df1 %>%
-  mutate(user_py_code = paste0("py.", sprintf("%03d", 
-                                              as.integer(str_remove(user_py_code, 
-                                                                    "^ca_")))))
-
-# Check for matching names across data sets -> No matching!
+# Check for matching names across data sets -> 6 matches
+# rosie yacoub, kendra sikes, todd-keeler-wolf, brian kreb, rachelle boul,
+# jason schwenkler
 matching_names <- intersect(df1$full_name, df2$full_name)
 
-# Pick the first user_py_code per full_name key for df1
-vb_code_lookup <- df1 %>%
-  group_by(full_name) %>%
-  summarise(vb_py_code = first(user_py_code), .groups = "drop")
+# Keep 63 entries; keep party_LT; keep df1
+# Check if the person matches from party_LT to party_vegbank
+# If there is a match between people names from party_LT and party_vegbank,
+# then save py_code as vb_py_code. Otherwise, leave it as NA
 
-# Pick the first user_py_code per full_name key for df2
-vb_code_lookup2 <- df2 %>% 
-  group_by(full_name) %>% 
-  summarise(vb_py_code = first(py_code), .groups = "drop")
+# df2 subset
+df2_subset <- df2 %>% 
+  select(full_name, py_code) %>% 
+  distinct(full_name, .keep_all = TRUE)
 
-# Question: py_code is in a different format than user_py_code. Which format?
-# Assuming py_code is in py.4317 format
+# Left join to get vb_py_code
+df1 <- df1 %>% 
+  left_join(df2_subset, by = "full_name")
 
-# Combine full_name
-combined_df <- bind_rows(df1, df2)
-
-# Combine user_py_code (df1) and py_code (df2) into vb_py_code
-combined_df <- combined_df %>% 
-  mutate(vb_py_code = coalesce(py_code, user_py_code))
-
-# Error: combined_df has 163 entries but contributor_LT has 63 entries
-# Plan: Let user_py_code get created, establish party_vegbank at the top,
-# copy the rest of the code for the other variables
-# Question: What is the difference between user_py_code and vb_py_code?
-# Maybe I have to turn py_code into user_py_code
+# df1 <- df1 %>%
+#   mutate(vb_py_code = if_else(full_name %in% matching_names, py_code,
+#                               NA_character_))
 
 # Assigning columns to loader table ---------------------------------------
 party_LT$user_py_code <- projects$user_py_code
@@ -319,10 +289,14 @@ party_LT$given_name <- projects$FirstName
 party_LT$email <- projects$ContactEmail
 party_LT$middle_name <- projects$MiddleName
 
-# contributor_LT$vb_py_code <- combined_df$vb_py_code
+contributor_LT$vb_py_code <- df1$py_code
 contributor_LT$user_py_code <- projects$user_py_code
 contributor_LT$role <- projects$RoleCode
 contributor_LT$contributor_type <- projects$contributor_type
 contributor_LT$recordIdentifier <- projects$ProjectCode
+
+# saved filled in loader table --------------------------------------------
+write_csv(party_LT, here('loader_tables', 'Party_LT.csv'))
+write_csv(contributor_LT, here('loader_tables', 'Contributor_LT.csv'))
 
 # -------------------------------------------------------------------------
