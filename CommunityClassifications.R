@@ -25,7 +25,7 @@ projects <- projects %>%
 community_template_fields <- build_loader_table(
   sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
   sheet = "CommunityClassifications",
-  source_df = projects
+  source_df = classification
 )
 
 community_LT <- community_template_fields$template
@@ -177,10 +177,13 @@ classification_norm <- classification %>%
     CaCode_norm = str_squish(str_to_lower(CaCode))
   )
 
+classification_norm$CaCode_norm
+
 cc_lookup <- cc_current %>%
   mutate(
-    ca_code_norm = str_squish(str_to_lower(comm_code))
+    ca_code_norm = str_squish(str_to_lower(as.character(comm_code)))
   ) %>%
+  filter(!is.na(ca_code_norm), ca_code_norm != "") %>%
   select(cc_code, ca_code_norm)
 
 class_with_cc <- classification_norm %>%
@@ -192,15 +195,29 @@ class_with_cc <- classification_norm %>%
     vb_cc_code = cc_code
   )
 
-table(is.na(class_with_cc$vb_cc_code))
 class_with_cc
+table(is.na(class_with_cc$vb_cc_code))
+      
+class_cc_proj <- class_with_cc %>%
+  left_join(
+    projects %>%
+      select(
+        ProjectCode,
+        ClassificationTool,
+        inspectionText,
+        multivariateAnalysisText,
+        class_confidence
+        ),
+    by = "ProjectCode"
+    )
 
 # Assigning columns to loader table ---------------------------------------
 
-community_LT$expert_system <- projects$ClassificationTool
-community_LT$inspection <- projects$inspectionText
-community_LT$multivariate_analysis <- projects$multivariateAnalysisText
-community_LT$class_confidence <- projects$class_confidence
+community_LT$expert_system <- class_cc_proj$ClassificationTool
+community_LT$inspection <- class_cc_proj$inspectionText
+community_LT$multivariate_analysis <- class_cc_proj$multivariateAnalysisText
+community_LT$class_confidence <- class_cc_proj$class_confidence
+community_LT$vb_cc_code <- class_cc_proj$CaCode_norm
 
 # All variables besides expertSystem, inspection, multivariateAnalysis, and tableAnalysis were not matched and are left as 'NA'
 write_csv(community_LT, here('loader_tables', 'CommunityClassificationsLT.csv'))
