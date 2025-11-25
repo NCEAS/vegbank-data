@@ -11,6 +11,7 @@ folder <- 'data'
 plots <- read_csv(here(folder, 'RAPlots.csv'), 
                   col_types = cols(.default = col_guess(), 
                                    `PlotOther5` = col_character()))
+classification <- read_csv(here(folder, "RAClassification.csv"), show_col_types = FALSE)
 
 # creating loader table ---------------------------------------------------
 
@@ -90,6 +91,109 @@ projects <- projects %>%
       TRUE ~ NA_character_
     )
   )
+
+# vb_cc_code
+
+# set_vb_base_url("https://api-dev.vegbank.org")
+
+# saved as csv so commented the code
+
+# page_init  <- 5000   # starting page size (can shrink if error)
+# page_min   <- 500    # don't go smaller than this
+# max_pages  <- 500    # hard stop
+# sleep_sec  <- 0.05   # brief pause to avoid error
+# checkpoint <- "cc_all_checkpoint.rds" # just in case something fails
+# save_every <- 10
+
+# out        <- list()
+# seen_codes <- character(0)
+# limit      <- page_init
+
+# for (i in seq_len(max_pages)) {
+#   offset <- (i - 1L) * limit
+#   message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
+  
+#   chunk <- tryCatch(
+#     get_all_community_concepts(limit = limit, offset = offset),
+#     error = function(e) {
+#       message("  Request failed: ", conditionMessage(e))
+#       limit <<- max(page_min, floor(limit / 2))
+#       message("  Reducing limit and retrying with limit = ", limit)
+#       tryCatch(
+#         get_all_community_concepts(limit = limit, offset = offset),
+#         error = function(e2) {
+#           message("  Retry failed."); 
+#           NULL
+#         }
+#      )
+#     }
+#   )
+  
+#   if (is.null(chunk) || !nrow(chunk)) {
+#     message("  No rows returned; stopping.")
+#     break
+#   }
+#   
+#   if ("cc_code" %in% names(chunk)) {
+#     new <- !chunk$cc_code %in% seen_codes
+#     if (!any(new)) {
+#       message("  All rows seen already; stopping.")
+#       break
+#    }
+#     seen_codes <- c(seen_codes, chunk$cc_code[new])
+#     chunk <- chunk[new, , drop = FALSE]
+#   }
+  
+#   out[[length(out) + 1L]] <- chunk
+#   total <- sum(vapply(out, nrow, integer(1)))
+#   message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
+  
+#   if (nrow(chunk) < limit) {
+#     message("  Short page; done.")
+#     break
+#   }
+  
+#   if (save_every > 0 && (i %% save_every == 0)) {
+#     tmp <- bind_rows(out) %>% distinct()
+#     saveRDS(tmp, checkpoint)
+#     message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
+#   }
+  
+#   if (sleep_sec > 0) Sys.sleep(sleep_sec)
+# }
+
+# cc_all <- bind_rows(out) %>% distinct()
+# message(sprintf("Finished. Total community concepts: %d", nrow(cc_all)))
+
+# write_csv(cc_all, here("data", "cc_all.csv"))
+
+cc_all <- read_csv(here("data", "cc_all.csv"), show_col_types = FALSE)
+
+cc_current <- cc_all %>%
+  filter(current_accepted == TRUE)
+
+classification_norm <- classification %>%
+  mutate(
+    CaCode_norm = str_squish(str_to_lower(CaCode))
+  )
+
+cc_lookup <- cc_current %>%
+  mutate(
+    ca_code_norm = str_squish(str_to_lower(comm_code))
+  ) %>%
+  select(cc_code, ca_code_norm)
+
+class_with_cc <- classification_norm %>%
+  left_join(
+    cc_lookup,
+    by = c("CaCode_norm" = "ca_code_norm")
+  ) %>%
+  mutate(
+    vb_cc_code = cc_code
+  )
+
+table(is.na(class_with_cc$vb_cc_code))
+class_with_cc
 
 # Assigning columns to loader table ---------------------------------------
 
