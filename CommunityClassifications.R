@@ -16,12 +16,6 @@ classification <- read_csv(here(folder, "RAClassification.csv"), show_col_types 
 # creating loader table ---------------------------------------------------
 
 
-# RAPlots and RAProjects needs to be merged
-plots_merged <- plots
-
-projects <- projects %>% 
-  left_join(plots_merged, by = "ProjectCode")
-
 community_template_fields <- build_loader_table(
   sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
   sheet = "CommunityClassifications",
@@ -29,6 +23,7 @@ community_template_fields <- build_loader_table(
 )
 
 community_LT <- community_template_fields$template
+
 # Checking values ---------------------------------------------------------
 
 # ClassificationDescription (RAProjects) - inspection (CommunityClassifications) + multivariateAnalysis (CommunityClassifications) + tableAnalysis (CommunityClassifications)
@@ -43,8 +38,8 @@ class(plots$Confidence_ID) # character
 
 # Tidying CDFW data -------------------------------------------------------
 
-### inspection (CommunityClassifications) + multivariateAnalysis (CommunityClassifications) + tableAnalysis (CommunityClassifications ###
-# Manually assigning ClassificationDescription values to inspection, multivariateAnalysis, or tableAnalysis based on the described methods.
+### inspection (CommunityClassifications) + multivariateAnalysis (CommunityClassifications)
+# Manually assigning ClassificationDescription values to inspection or multivariateAnalysis
 # None mapped to tableAnalysis
 
 text_map <- c(
@@ -59,7 +54,7 @@ text_map <- c(
   )
 )
 
-projects <- projects %>%
+projects_proj <- projects %>%
   mutate(
     inspectionText = if_else(
       coalesce(str_detect(ClassificationDescription, text_map["inspectionText"]), FALSE),
@@ -69,27 +64,35 @@ projects <- projects %>%
       coalesce(str_detect(ClassificationDescription, text_map["multivariateAnalysisText"]), FALSE),
       ClassificationDescription, NA_character_
     )
+  ) %>%
+  group_by(ProjectCode) %>%
+  summarise(
+    ClassificationTool       = first(ClassificationTool),
+    inspectionText           = first(inspectionText),
+    multivariateAnalysisText = first(multivariateAnalysisText),
+    .groups = "drop"
   )
 
 # Confidence_ID (RAPlots) - class_confidence (CommunityClassifications)
 # Convert L, M, H to Low, Medium, High
 # Convert Not recorded to NA
 
-projects <- projects %>% 
-  mutate(
+plots_conf <- plots %>%
+  transmute(
+    SurveyID,
     class_confidence = case_when(
-      
-      # NA Values
       Confidence_ID == "Not recorded" ~ "",
-      is.na(Confidence_ID) ~ "",
-      
-      # Standard Values
-      Confidence_ID == "H" ~ "High",
-      Confidence_ID == "M" ~ "Medium",
-      Confidence_ID == "L" ~ "Low",
-      
-      TRUE ~ NA_character_
+      is.na(Confidence_ID)            ~ "",
+      Confidence_ID == "H"            ~ "High",
+      Confidence_ID == "M"            ~ "Medium",
+      Confidence_ID == "L"            ~ "Low",
+      TRUE                            ~ NA_character_
     )
+  ) %>%
+  group_by(SurveyID) %>%
+  summarise(
+    class_confidence = first(class_confidence),
+    .groups = "drop"
   )
 
 # vb_cc_code
@@ -197,19 +200,17 @@ class_with_cc <- classification_norm %>%
 
 class_with_cc
 table(is.na(class_with_cc$vb_cc_code))
+
+# Join classification with plots and projects
       
-class_cc_proj <- class_with_cc %>%
+class_with_cc_conf <- class_with_cc %>%
+  left_join(plots_conf, by = "SurveyID")
+
+class_cc_proj <- class_with_cc_conf %>%
   left_join(
-    projects %>%
-      select(
-        ProjectCode,
-        ClassificationTool,
-        inspectionText,
-        multivariateAnalysisText,
-        class_confidence
-        ),
+    projects_proj,
     by = "ProjectCode"
-    )
+  )
 
 # Assigning columns to loader table ---------------------------------------
 
@@ -217,7 +218,6 @@ community_LT$expert_system <- class_cc_proj$ClassificationTool
 community_LT$inspection <- class_cc_proj$inspectionText
 community_LT$multivariate_analysis <- class_cc_proj$multivariateAnalysisText
 community_LT$class_confidence <- class_cc_proj$class_confidence
-community_LT$vb_cc_code <- class_cc_proj$CaCode_norm
+community_LT$vb_cc_code <- class_cc_proj$vb_cc_code
 
-# All variables besides expertSystem, inspection, multivariateAnalysis, and tableAnalysis were not matched and are left as 'NA'
 write_csv(community_LT, here('loader_tables', 'CommunityClassificationsLT.csv'))
