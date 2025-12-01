@@ -11,7 +11,7 @@ plants <- read_csv(csv_path, show_col_types = FALSE)
 
 # loading CA lookup tables
 csv_path <- here("data", "USDA_PLANTS.csv")
-plants_lookup <- read_csv(csv_path, show_col_types = FALSE)
+plants_lookup <- read_csv(csv_path, show_col_types = FALSE) # ignore parsing issue
 
 # creating loader table ---------------------------------------------------
 
@@ -103,27 +103,27 @@ set_vb_base_url("https://api-dev.vegbank.org")    # (Run this before running fun
 # message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
 # 
 # write_csv(pc_all, here("data", "pc_all.csv"))
-
-pc_lookup <- pc_all %>%
-  mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
-  separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
-  mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
-  filter(plant_name_norm != "") %>%
-  group_by(plant_name_norm) %>%
-  summarise(pc_code = first(pc_code), .groups = "drop")
-
-mapping_values <- plants %>%
-  mutate(
-    authorPlantName = str_squish(coalesce(SpeciesName, "")),
-    author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
-  ) %>%
-  left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
-  transmute(
-    authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
-    vb_pc_code = pc_code
-  )
-
-nrow(mapping_values) == nrow(plants)
+# 
+# pc_lookup <- pc_all %>%
+#   mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
+#   separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
+#   mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
+#   filter(plant_name_norm != "") %>%
+#   group_by(plant_name_norm) %>%
+#   summarise(pc_code = first(pc_code), .groups = "drop")
+# 
+# mapping_values <- plants %>%
+#   mutate(
+#     authorPlantName = str_squish(coalesce(SpeciesName, "")),
+#     author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
+#   ) %>%
+#   left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
+#   transmute(
+#     authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
+#     vb_pc_code = pc_code
+#   )
+# 
+# nrow(mapping_values) == nrow(plants)
 
 # read in csv
 csv_path <- here("data", "pc_all.csv")
@@ -134,12 +134,19 @@ pc_current <- pc_all %>%
   filter(current_accepted == TRUE)
 
 # match records of pc_current with mapping_values' vb_pc_code
+# creating a column where it marks TRUE for a match
+mapping_values <- mapping_values %>% 
+  mutate(match_flag = authorPlantName %in% pc_current$plant_name)
+
+# if match_flag == false, turn vb_pc_code into NA
+mapping_values <- mapping_values %>% 
+  mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
 
 # Assigning columns to loader table ---------------------------------------
 
 strata_cover_LT$user_sr_code <- plants$Stratum
 strata_cover_LT$authorPlantName <- plants$SpeciesName
 strata_cover_LT$cover <- plants$Species_cover
-strata_cover_LT$vb_pc_code <- mapping_values$vb_pc_code
+strata_cover_LT$vb_pc_code <- mapping_values$vb_pc_code2
 
 # All variables besides authorPlantName, cover, and user_sre_code were not matched and are left as 'NA'
