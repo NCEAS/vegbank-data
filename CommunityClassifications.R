@@ -212,6 +212,44 @@ class_cc_proj <- class_with_cc_conf %>%
     by = "ProjectCode"
   )
 
+# Exploring unmatched values
+
+unmatched <- class_with_cc %>%
+  filter(is.na(vb_cc_code))
+
+nrow(unmatched)
+
+# number of unmatched rows that dont have CaCode
+unmatched %>%
+  count(is.na(CaCode), name = "n_rows")
+
+# only rows that have a CaCode
+unmatched_nonmissing <- unmatched %>%
+  filter(!is.na(CaCode) & CaCode != "")
+
+nrow(unmatched_nonmissing)
+
+# each CaCode and how much unmathched rows it created
+unmatched_nonmissing %>%
+  count(CaCode, sort = TRUE)
+
+unmatched_nonmissing %>%
+  count(CaCode_norm, sort = TRUE)
+
+unmatched_with_context <- class_cc_proj %>%
+  filter(is.na(vb_cc_code)) %>%
+  select(
+    SurveyID,
+    ProjectCode,
+    CaCode,
+    CaCode_norm,
+    ClassificationTool,
+    inspectionText,
+    multivariateAnalysisText
+  )
+
+head(unmatched_with_context, 20)
+
 # Assigning columns to loader table ---------------------------------------
 
 community_LT$expert_system <- class_cc_proj$ClassificationTool
