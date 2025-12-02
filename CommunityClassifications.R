@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(stringr)
+library(googlesheets4)
 source("Build_Loader_Table.R")
 
 # load in CDFW data -------------------------------------------------------
@@ -172,27 +173,49 @@ plots_conf <- plots %>%
 
 cc_all <- read_csv(here("data", "cc_all.csv"), show_col_types = FALSE)
 
+cacode_sheet_url <- "https://docs.google.com/spreadsheets/d/1LsDQL3NxRjJ32eyRuVPyjtQgq8cqcyhjAIZiw9MYg-0/edit?gid=755803824#gid=755803824"
+
+cacode_map_raw <- read_sheet(
+  cacode_sheet_url,
+  sheet = 1
+)
+
+cacode_map <- cacode_map_raw %>%
+  mutate(
+    CaCode_norm = str_squish(str_to_lower(CaCode)),
+    NVC_norm    = str_squish(str_to_lower(as.character(`2009/NVC_Code`)))
+  ) %>%
+  filter(!is.na(CaCode_norm), CaCode_norm != "", !is.na(NVC_norm), NVC_norm != "")
+
 cc_current <- cc_all %>%
   filter(current_accepted == TRUE)
 
 classification_norm <- classification %>%
   mutate(
     CaCode_norm = str_squish(str_to_lower(CaCode))
+  ) %>%
+  left_join(
+    cacode_map %>% select(CaCode_norm, NVC_norm),
+    by = "CaCode_norm"
   )
 
 classification_norm$CaCode_norm
 
 cc_lookup <- cc_current %>%
   mutate(
-    ca_code_norm = str_squish(str_to_lower(as.character(comm_code)))
+    comm_code_norm = str_squish(str_to_lower(as.character(comm_code)))
   ) %>%
-  filter(!is.na(ca_code_norm), ca_code_norm != "") %>%
-  select(cc_code, ca_code_norm)
+  filter(!is.na(comm_code_norm), comm_code_norm != "") %>%
+  select(cc_code, comm_code_norm)
+
 
 class_with_cc <- classification_norm %>%
+  mutate(
+    comm_code_norm = NVC_norm
+  ) %>%
   left_join(
     cc_lookup,
-    by = c("CaCode_norm" = "ca_code_norm")
+    by = "comm_code_norm"
   ) %>%
   mutate(
     vb_cc_code = cc_code
@@ -212,43 +235,6 @@ class_cc_proj <- class_with_cc_conf %>%
     by = "ProjectCode"
   )
 
-# Exploring unmatched values
-
-unmatched <- class_with_cc %>%
-  filter(is.na(vb_cc_code))
-
-nrow(unmatched)
-
-# number of unmatched rows that dont have CaCode
-unmatched %>%
-  count(is.na(CaCode), name = "n_rows")
-
-# only rows that have a CaCode
-unmatched_nonmissing <- unmatched %>%
-  filter(!is.na(CaCode) & CaCode != "")
-
-nrow(unmatched_nonmissing)
-
-# each CaCode and how much unmathched rows it created
-unmatched_nonmissing %>%
-  count(CaCode, sort = TRUE)
-
-unmatched_nonmissing %>%
-  count(CaCode_norm, sort = TRUE)
-
-unmatched_with_context <- class_cc_proj %>%
-  filter(is.na(vb_cc_code)) %>%
-  select(
-    SurveyID,
-    ProjectCode,
-    CaCode,
-    CaCode_norm,
-    ClassificationTool,
-    inspectionText,
-    multivariateAnalysisText
-  )
-
-head(unmatched_with_context, 20)
 
 # Assigning columns to loader table ---------------------------------------
 
