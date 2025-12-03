@@ -32,7 +32,7 @@ alt_strata <- read_csv(here(folder, 'AltStrata.csv'))
 classification <- read_csv(here(folder, 'RAClassification.csv'))
 projects <- read_csv(here(folder, "RAProjects.csv"))
 
-# loading CA lookup tables
+# read in CDFW lookup tables
 confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
 height_lookup <- read_csv(here(folder, 'LHeight.csv'))
 standsize_lookup <- read_csv(here(folder, 'LStandSize.csv'))
@@ -41,7 +41,7 @@ macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
 slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
 survey_lookup <- read_csv(here(folder, 'LSurveyType.csv'))
 
-# create blank data frame -----------------------------------------------------
+# create blank Loader Table dataframe -----------------------------------------------------
 
 plots_template_fields <- build_loader_table(
   sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
