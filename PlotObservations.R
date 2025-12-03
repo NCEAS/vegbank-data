@@ -132,17 +132,17 @@ unique(plots$Survey_Type)
 
 # tidying CDFW data -----------------------------------------------------------
 
-### author_plot_code ###
-
 # join AltPlots and AltStrata with RAPlots
 plots_merged <- plots %>% 
   left_join(alt_plots, by = "SurveyID") %>% 
   left_join(alt_strata, by = "SurveyID") %>% 
   select(where(~!all(is.na(.x)))) # dropping columns that are filled with NA values
   
-### location_accuracy (PlotObservations) ###
-# ErrorMeasurement + ErrorUnits (RAPlots)
-# Numbers should be converted to their unit of measurement in ErrorUnits
+### location_accuracy ###
+# ErrorMeasurement and ErrorUnits in  RAPlots
+# If measurements are not in meters, needs to be converted
+unique(plots_merged$ErrorUnits)
+# need to figure out what to do with the values PDOP and Laptop
 plots_merged <- plots_merged %>% 
   mutate(
     ErrorMeasurement = case_when(
@@ -151,23 +151,24 @@ plots_merged <- plots_merged %>%
     )
   )
 
-### real_longitude (PlotObservations) ###
-### real_latitude (PlotObservations) ###
-# UTME_final (RAPlots) and UTMN_final (RAPlots)
+### real_longitude & real_latitude ###
+# use UTME_final and UTMN_final in RAPlots.csv
 # Convert UTM to lat long
-# Possibly switch to UTME instead of UTME_final?
 # Two total zones: 10 and 11
-# I will split by zone, convert, then merge them back together
+# First split by zone, convert to lat/long, then merge them back together
 # It keeps removing NA values by default and I am trying to keep them
 # New Version (To not affect row numbers)
-plots_merged <- plots_merged %>%
-  mutate(
-    .row_id = row_number(),
-    UTM_zone_chr = str_to_upper(str_squish(as.character(UTM_zone)))
-  )
 
-df_10N <- plots_merged %>%
-  filter(UTM_zone_chr == "10",
+# still need to account for differences in datum (current code assumes NAD893)
+unique(plots_merged$GPS_datum)
+
+plots_UTM <- plots_merged %>%
+  mutate(
+    .row_id = row_number()) # creates new column called .row_id
+
+# converting zome 10 to lat/long
+df_10N <- plots_UTM %>%
+  filter(UTM_zone == 10,
          !is.na(UTME_final), !is.na(UTMN_final)) %>%
   st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26910, na.fail = FALSE) %>%
   st_transform(4326) %>%
@@ -178,8 +179,9 @@ df_10N <- plots_merged %>%
   st_drop_geometry() %>%
   select(.row_id, real_longitude, real_latitude)
 
-df_11N <- plots_merged %>%
-  filter(UTM_zone_chr == "11",
+# converting zome 11 to lat/long
+df_11N <- plots_UTM %>%
+  filter(UTM_zone == 11,
          !is.na(UTME_final), !is.na(UTMN_final)) %>%
   st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26911, na.fail = FALSE) %>%
   st_transform(4326) %>%
@@ -194,9 +196,9 @@ df_11N <- plots_merged %>%
 df_N_all <- bind_rows(df_10N, df_11N)
 
 # merge
-plots_merged <- plots_merged %>%
+plots_merged <- plots_UTM %>%
   left_join(df_N_all, by = ".row_id") %>%
-  select(-.row_id, -UTM_zone_chr)
+  select(-.row_id)
 
 ### county (PlotObservations) ###
 ### stateProvince (PlotObservations) ###
