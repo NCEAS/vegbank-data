@@ -132,18 +132,14 @@ unique(plots$Survey_Type)
 
 # tidying CDFW data -----------------------------------------------------------
 
-plots_merged <- plots
+### author_plot_code ###
 
-### author_plot_code (PlotObservations) ###
-# AltPlots can be joined with RAPlots
-plots_merged <- plots_merged %>% 
-  left_join(alt_plots, by = "SurveyID")
-# AltStrata can be joined with RAPlots
-plots_merged <- plots_merged %>% 
-  left_join(alt_strata, by = "SurveyID")
-# Very empty
-# SurveyPoints can be joined but there is nothing in it
-
+# join AltPlots and AltStrata with RAPlots
+plots_merged <- plots %>% 
+  left_join(alt_plots, by = "SurveyID") %>% 
+  left_join(alt_strata, by = "SurveyID") %>% 
+  select(where(~!all(is.na(.x)))) # dropping columns that are filled with NA values
+  
 ### location_accuracy (PlotObservations) ###
 # ErrorMeasurement + ErrorUnits (RAPlots)
 # Numbers should be converted to their unit of measurement in ErrorUnits
