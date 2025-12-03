@@ -22,24 +22,12 @@ project_LT <- project_template_fields$template
 
 # checking values -------------------------------------------------------------
 
-
 # ProjectStartDate and ProjectEndDate in RAProjects.csv has time
 # Start_date and stop_date in the Projects loader table is date only
 head(projects$ProjectStartDate)
 head(projects$ProjectEndDate)
 
 # tidying CDFW data -----------------------------------------------------------
-
-### user_pj_code (Projects) ###
-# Confirming values of the correct form (4 characters)
-# Some values are not exactly 4 digits, but are still character codes
-
-invalid_codes <- projects %>%
-  mutate(ProjectCode = str_squish(ProjectCode)) %>%
-  filter(!str_detect(ProjectCode, "^[A-Z0-9]{4}$"))
-
-# View all unique invalids
-unique(invalid_codes$ProjectCode)
 
 ### start_date (Project) + stop_date (Project) ###
 # Converting Start Date and End Time to just Dates
