@@ -22,17 +22,11 @@ project_LT <- project_template_fields$template
 
 # checking values -------------------------------------------------------------
 
-# ProjectCode (RAProjects) - user_pj_code (Projects)
-# ProjectCode should be a 4 digit character code
-unique(projects$ProjectCode)
-class(projects$ProjectCode) # character
 
-# ProjectStartDate (RAProjects) + ProjectEndDate (RAProjects) - start_date (Projects) + stop_date (Projects)
-# Start Date and End Date should have the time removed from them
-unique(projects$ProjectStartDate)
-unique(projects$ProjectEndDate)
-class(projects$ProjectStartDate) # character
-class(projects$ProjectEndDate) # character
+# ProjectStartDate and ProjectEndDate in RAProjects.csv has time
+# Start_date and stop_date in the Projects loader table is date only
+head(projects$ProjectStartDate)
+head(projects$ProjectEndDate)
 
 # tidying CDFW data -----------------------------------------------------------
 
