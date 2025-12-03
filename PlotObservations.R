@@ -171,7 +171,7 @@ df_10N <- plots_UTM %>%
   filter(UTM_zone == 10,
          !is.na(UTME_final), !is.na(UTMN_final)) %>%
   st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26910, na.fail = FALSE) %>%
-  st_transform(4326) %>%
+  st_transform(4326) %>% # need to convert all to WGS84
   mutate(
     real_longitude = st_coordinates(geometry)[, 1],  # lon
     real_latitude = st_coordinates(geometry)[, 2]   # lat
@@ -184,7 +184,7 @@ df_11N <- plots_UTM %>%
   filter(UTM_zone == 11,
          !is.na(UTME_final), !is.na(UTMN_final)) %>%
   st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26911, na.fail = FALSE) %>%
-  st_transform(4326) %>%
+  st_transform(4326) %>% # need to convert all to WGS84
   mutate(
     real_longitude = st_coordinates(geometry)[, 1],
     real_latitude = st_coordinates(geometry)[, 2]
@@ -200,11 +200,7 @@ plots_merged <- plots_UTM %>%
   left_join(df_N_all, by = ".row_id") %>%
   select(-.row_id)
 
-### county (PlotObservations) ###
-### stateProvince (PlotObservations) ###
-### country (PlotObservations) ###
-### continent (PlotsObservations) ###
-
+### Getting county, stateProvince, country, and continent from lat/lon ###
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
 # add stable row id once
@@ -212,10 +208,10 @@ if (!".row_id" %in% names(plots_merged)) {
   plots_merged <- plots_merged %>% mutate(.row_id = row_number())
 }
 
-# build sf points
+# create sf points
 points <- plots_merged %>%
-  filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
-  st_as_sf(coords = c("real_longitude", "real_latitude"),
+  filter(!is.na(real_longitude), !is.na(real_latitude)) %>% # remove NA values for lat/lon
+  st_as_sf(coords = c("real_longitude", "real_latitude"), # convert to 
            crs = 4326, remove = FALSE)
 
 # load boundaries (try 2024, else 2023)
