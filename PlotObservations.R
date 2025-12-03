@@ -53,47 +53,24 @@ plots_LT <- plots_template_fields$template
 
 # checking values -------------------------------------------------------------
 
-# SurveyID (RAPlots) - author_plot_code (PlotObservations)
-# AltPlots can be joined with RAPlots
-intersect(plots$SurveyID, alt_plots$SurveyID)
-setdiff(alt_plots$SurveyID, plots$SurveyID)
-# SurveyPoints can be joined with RAPlots
-intersect(plots$SurveyID, survey_points$SurveyID) # Empty SurveyPoints
-# RAClassification can be joined with RAPlots
-intersect(plots$SurveyID, classification$SurveyID)
-# AltStrata can be joined with RAPlots
-intersect(plots$SurveyID, alt_strata$SurveyID) # Almost Empty AltStrata
-setdiff(alt_strata$SurveyID, plots$SurveyID)
-
-# ErrorMeasurement (RAPlots) + ErrorUnits (RAPlots) - location_accuracy (PlotObservations)
-# Numbers should be converted to their unit of measurement as stated in
-# ErrorUnits
-unique(plots$ErrorMeasurement)
+# ErrorMeasurement in RAPlots will be mapped to 'location_accuracy'
+# Values will be converted to their unit of measurement as stated in ErrorUnits
 unique(plots$ErrorUnits)
-class(plots$ErrorMeasurement) # numeric
-class(plots$ErrorUnits) # character
 # ErrorUnits also contains PDOP and Laptop. What to do with those?
 
-# SurveyDate (RAPlots) - obsStartDate (plots)
-# Time should be removed
-unique(plots$SurveyDate)
-class(plots$SurveyDate) # character
+# SurveyDate  in RAPlots will be mampped to obsStartDate'
+# Time needs to should be removed
+head(plots$SurveyDate)
 
-# Elevation (RAPlots) related to ft_mElevation (RAPlots) - elevation (plots)
-# Numbers should be converted to their unit of measurement as stated in
-# ft_mElevation
-unique(plots$Elevation)
+# Elevation in RAPlots will be mapped to 'elevation' related to ft_mElevation (RAPlots) - elevation (plots)
+# Values will be converted to their unit of measurement as stated in the column ft_mElevation
 unique(plots$ft_mElevation)                       
-class(plots$Elevation) # numeric
-class(plots$ft_mElevation) # character
 
-# Substrate (RAPlots) - rock_type (plots)
-# LSubstrate
+# Substrate  in RAPlots will be mapped to 'rock_type'
+# Using the LSubstrate lookup table
 # GitHub Issue #3: CA currently uses its own classifications (LSubstrate)
 # We need to determine if CA classifications can be mapped onto FGCD standards
 unique(plots$Substrate)
-class(plots$Substrate) # character
-# Ask what this means
 
 # Aspect_actual (RAPlots) to Aspect_gen (RAPlots)? - slope_aspect (plots)
 # GitHub Issue #4: Apply the codes from the PlotObservations slope_aspect to
@@ -104,10 +81,8 @@ class(plots$Substrate) # character
 # Reference: Aspect_gen (RAPlots)
 # Variable: NA
 # Which one is irregular?
-unique(plots$Aspect_actual)
+head(plots$Aspect_actual)
 unique(plots$Aspect_gen)
-class(plots$Aspect_actual) # numeric
-class(plots$Aspect_gen) # character
 
 # Slope_actual (RAPlots) to Slope_gen (RAPlots)? - slope_gradient (plots)
 # Code if irregular to determine as well? Along with 0, 999, NA values
@@ -116,143 +91,44 @@ class(plots$Aspect_gen) # character
 # degrees, in values ">25 degrees" and "> 25 Degrees". Merge? GitHub Issue
 # If Slope_actual is missing, take the midpoint of Slope_gen
 # If Slope_gen > 25, use value 35
-unique(plots$Slope_actual)
+head(plots$Slope_actual)
 unique(plots$Slope_gen)
-class(plots$Slope_actual) # numeric
-class(plots$Slope_gen) # character
 
-# Stand_Size (RAPlots) - stand_size (plots)
-# LStandSize
-# Numbers will be matched to their code in LStandSize
+# Stand_Size in RAPlots will be mapped to 'stand_size'
+# Using the LStandSize lookup table
 # Actually, thinking this doesn't need any tidying
 unique(plots$Stand_Size)
 unique(standsize_lookup$Stand_Size)
 unique(standsize_lookup$StandSizeNum)
-class(plots$Stand_Size) # character
-class(standsize_lookup$Stand_Size) # character
-class(standsize_lookup$StandSizeNum) # numeric
 
-# PlotArea (RAPlots) - area (plots)
+# PlotArea in RAPlots will be mapped to 'area'
 # -1 indicates plot has no boundaries
 # Data shows inconsistencies, there are different units and missing units
 unique(plots$PlotArea)
-class(plots$PlotArea) # character
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
 unique(plots$ViewRadius)
 unique(plots$SurveyDimensions)
-class(plots$ViewRadius) # numeric
-class(plots$SurveyDimensions) # character
 
-# PlotShape (RAPlots) - shape (plots)
+# PlotShape in RAPlots will be mapped to 'shape'
 # Data is not all shapes. There are measurements as well
 unique(plots$PlotShape)
-class(plots$PlotShape) # character
 
-# Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
-# Need to combine 4 columns into one
-unique(plots$Boulders)
-unique(plots$Stones)
-unique(plots$Cobbles)
-unique(plots$Gravels)
-class(plots$Boulders) # numeric
-class(plots$Stones) # numeric
-class(plots$Cobbles) # numeric
-class(plots$Gravels) # numeric
-
-# Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
-# Need to combine 3 columns into one
-# UnderTree_cover is missing values, so it will not be included
-unique(plots$Conif_cover)
-unique(plots$Hdwd_cover)
-unique(plots$RegenTree_cover)
-class(plots$Conif_cover) # numeric
-class(plots$Hdwd_cover) # numeric
-class(plots$RegenTree_cover) # numeric
-
-# UTME_final/UTMN_final (RAPlots) - real_longitude/real_latitude (PlotObservations) + author_e/author_n (PlotObservations) + county, stateProvince, country, continent (PlotObservations)
-# Map UTME_final/UTMN_final to author_e and author_n as is
-# Convert UTME_final/UTMN_final to lat/long and map to real_longitude/real_latitude
-# Use real_longitude/real_latitude to find county/stateProvince/country/continent
-unique(plots$UTME_final)
-class(plots$UTME_final) # numeric
-unique(plots$UTMN_final)
-class(plots$UTMN_final) # numeric
-
-# GPS_datum (RAPlots) - author_datum (PlotObservations)
-# Formatting is all over the place. Does VegBank want these to be changed to
-# consistent formatting?
-unique(plots$GPS_datum)
-class(plots$GPS_datum) # character
-
-# When assigning columns to loader table, column types are all changed to
-# numeric.
-
-# MacroTopo (RAPlots) - topo_position (PlotObservations)
-# Looks like there are some messy values, like "upper" and "6"
-unique(plots$MacroTopo)
-class(plots$MacroTopo) # character
-
-# Trend (AltPlots) - successionalStatus (PlotObservations)
-# Looks fine
-unique(alt_plots$Trend)
-class(alt_plots$Trend) # character
-
-# BasalStem (RAPlots) - basalArea (PlotObservations)
-unique(plots$BasalStem)
-class(plots$BasalStem) # numeric
-
-# Upl_Wet_text (RAPlots) - hydrologicRegime (PlotObservations)
-# Looks fine
-unique(plots$Upl_Wet_text)
-class(plots$Upl_Wet_text) # character
-
-# Gravels (RAPlots) - percentRockGravel (PlotObservations)
-# May need to get combined with the other percents
-unique(plots$Gravels)
-class(plots$Gravels) # numeric
-
-# Boulders, Stones, Cobbles (RAPlots) - percentOther (PlotObservations)
-# Combine
-# Mapping may change
-unique(plots$Boulders)
-unique(plots$Stones)
-unique(plots$Cobbles)
-class(plots$Boulders) # numeric
-class(plots$Stones) # numeric
-class(plots$Cobbles) # numeric
-
-# Conif_ht2, Hdwd_ht2, UnderTree_ht2, RegenTree_ht2 (RAPlots), OverstoryTree_Ht, EmergentTree_Ht (AltStrata) - treeHt (PlotObservations)
-# long explanation
-unique(plots$Conif_ht2)
-unique(plots$Hdwd_ht2)
-unique(plots$RegenTree_ht2)
-unique(alt_strata$OverstoryTree_Ht) # AltStrata has no values
-unique(alt_strata$EmergentTree_Ht) # AltStrata has no values
-class(plots$Conif_ht2) # character
-class(plots$Hdwd_ht2) # character
-class(plots$RegenTree_ht2) # character
-
-# Shrub_ht2 (RAPlots), LoTreeTallShrub_Ht, LoMidShrub_Ht, DwarfShrub_Ht (AltStrata) - shrubHt (PlotObservations)
+# Shrub_ht2 in RAPlots and will be mapped to 'shrubHt'
+# LoTreeTallShrub_Ht, LoMidShrub_Ht, and DwarfShrub_Ht in AltStrata.csv is empty, so will not combine
 # Also not sure if we grab the maximum height and then combine
-# AltStrata has missing values again. I don't think we combine?
-# May also need to convert to numeric
 unique(plots$Shrub_ht2)
 unique(alt_strata$LoTreeTallShrub_Ht) # NA
 unique(alt_strata$LoMidShrub_Ht) # NA
 unique(alt_strata$DwarfShrub_Ht) # NA
-class(plots$Shrub_ht2) # character
 
-# Herb_ht2 (RAPlots) - fieldHt (PlotObservations)
+# Herb_ht2 in RAPlots will be mapped to 'fieldHt'
 # Also not sure if we grab the maximum height and then combine
-# May also need to convert to numeric
 unique(plots$Herb_ht2)
-class(plots$Herb_ht2) # character
 
 # Survey_Type (RAPlots) & AdditionalNotes (AltPlots) - methodNarrative (PlotObservations)
 # Reference: LSurveyType.csv
 # Capitalize entries
 unique(plots$Survey_Type) 
-class(plots$Survey_Type) # character
 
 # tidying CDFW data -----------------------------------------------------------
 
