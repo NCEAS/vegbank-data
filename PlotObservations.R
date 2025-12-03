@@ -138,7 +138,7 @@ plots_merged <- plots %>%
   left_join(alt_strata, by = "SurveyID") %>% 
   select(where(~!all(is.na(.x)))) # dropping columns that are filled with NA values
   
-### location_accuracy ###
+# location_accuracy -------------------------------------------------------
 # ErrorMeasurement and ErrorUnits in  RAPlots
 # If measurements are not in meters, needs to be converted
 unique(plots_merged$ErrorUnits)
@@ -151,7 +151,8 @@ plots_merged <- plots_merged %>%
     )
   )
 
-### real_longitude & real_latitude ###
+
+# real_longitude & real_latitude ------------------------------------------
 # use UTME_final and UTMN_final in RAPlots.csv
 # Convert UTM to lat long
 # Two total zones: 10 and 11
@@ -200,7 +201,8 @@ plots_merged <- plots_UTM %>%
   left_join(df_N_all, by = ".row_id") %>%
   select(-.row_id)
 
-### Getting county, stateProvince, country, and continent from lat/lon ###
+
+# county, stateProvince, country, continent -------------------------------
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
 # add stable row id once
@@ -323,9 +325,11 @@ plots_merged <- plots_merged %>%
   )
 # Use author_datum to assign column to loader table
 
-### area (PlotObservations) ### !!!PROBLEM!!!
-# PlotArea (RAPlots) and ViewRadius (RAPlots)
-# Units will be removed
+
+# area --------------------------------------------------------------------
+#!!!PROBLEM!!!
+# Using PlotArea and ViewRadius from RAPlots
+# Units will be removed; VegBank assumes units are m2
 plots_merged <- plots_merged %>% 
   mutate(PlotArea = str_remove(PlotArea, 
                                " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"))
