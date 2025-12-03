@@ -4,13 +4,11 @@ source("Build_Loader_Table.R")
 
 # load in CDFW data -----------------------------------------------------------
 
-# set folder where data is saved
+# set folder where data is stored
 folder <- 'data'
 
-# RAProjects
+# read in RAProjects
 projects <- read_csv(here(folder, 'RAProjects.csv'))
-
-# no CA lookup table
 
 # creating loader table -------------------------------------------------------
 
