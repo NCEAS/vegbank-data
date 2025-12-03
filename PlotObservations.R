@@ -22,11 +22,9 @@ source("Build_Loader_Table.R")
 # set folder where data is saved
 folder <- 'data'
 
-# RAPlots
-# Column 84 was set to character due to parsing issue
+# read in CDFW data
 plots <- read_csv(here(folder, 'RAPlots.csv'), 
-                  col_types = cols(.default = col_guess(), 
-                                   `PlotOther5` = col_character()))
+                  col_types = cols( `PlotOther5` = col_character())) # PlotOther5 manually set to character due to parsing issue
 alt_plots <- read_csv(here(folder, 'AltPlots.csv'))
 survey_points <- read_csv(here(folder, 'SurveyPoints.csv'))
 impacts <- read_csv(here(folder, 'RAImpacts.csv'))
