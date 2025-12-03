@@ -331,9 +331,9 @@ plots_merged <- plots_merged %>%
 # Using PlotArea and ViewRadius from RAPlots
 # Units will be removed; VegBank assumes units are m2
 plots_merged <- plots_merged %>% 
-  mutate(PlotArea = str_remove(PlotArea, 
-                               " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"))
-# There is a value here that looks like "~700". Should we remove the "~"?
+  mutate(
+    PlotArea = str_remove(PlotArea, "^~ ?"), # removing leading ~ from '~700' record
+    PlotArea = str_remove(PlotArea, " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"))
 
 # -1 indicates plot has no boundaries
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
