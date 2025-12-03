@@ -29,8 +29,7 @@ head(projects$ProjectEndDate)
 
 # tidying CDFW data -----------------------------------------------------------
 
-### start_date (Project) + stop_date (Project) ###
-# Converting Start Date and End Time to just Dates
+### Converting Start Date and End Time to just Dates ###
 # Start Date
 projects$ProjectStartDate <- as_date(mdy_hms(projects$ProjectStartDate))
 projects$ProjectStartDate
