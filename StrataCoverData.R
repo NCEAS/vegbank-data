@@ -2,6 +2,8 @@ library(tidyverse)
 library(here)
 library(stringr)
 library(vegbankr)
+library(stringdist)
+library(fuzzyjoin)
 source('Build_Loader_Table.R')
 
 # load in CDFW data -------------------------------------------------------
@@ -123,7 +125,7 @@ set_vb_base_url("https://api-dev.vegbank.org")    # (Run this before running fun
 #     vb_pc_code = pc_code
 #   )
 # 
-# nrow(mapping_values) == nrow(plants)
+# nrow(mapping_values) == nrow(plants) # end of commenting
 
 # read in csv
 csv_path <- here("data", "pc_all.csv")
@@ -141,6 +143,34 @@ mapping_values <- mapping_values %>%
 # if match_flag == false, turn vb_pc_code into NA
 mapping_values <- mapping_values %>% 
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
+
+# troubleshooting false matches
+# making a cross-join comparison table
+# make all names lowercase and trimmed
+mapping_values_clean <- mapping_values %>% 
+  mutate(mapping_values_index = row_number()) %>% 
+  mutate(authorPlantName = str_trim(tolower(authorPlantName))) %>% 
+  select(mapping_values_name = authorPlantName, mapping_values_index)
+pc_current_clean <- pc_current %>% 
+  mutate(pc_current_index = row_number()) %>% 
+  mutate(plant_name = str_trim(tolower(plant_name))) %>% 
+  select(pc_current_name = plant_name, pc_current_index)
+
+# cross join
+comparison_table <- stringdist_inner_join(
+  mapping_values_clean,
+  pc_current_clean,
+  by = c("mapping_values_name" = "pc_current_name"),
+  method = "cosine",
+  max_dist = 0.1,
+  distance_col = "similarity",
+) %>% 
+  mutate(similarity = 1 - similarity) %>% 
+  filter(similarity < 1) %>% 
+  arrange(desc(similarity)) %>% 
+  distinct(pc_current_index, .keep_all = TRUE)
+
+# turn comparison_table$pc_current_name into a text file?
 
 # Assigning columns to loader table ---------------------------------------
 
