@@ -235,6 +235,25 @@ class_cc_proj <- class_with_cc_conf %>%
     by = "ProjectCode"
   )
 
+nrow(classification)
+nrow(classification_norm)
+nrow(class_with_cc)
+nrow(class_cc_proj)
+nrow(community_LT)
+
+cacode_map %>%
+  count(CaCode_norm) %>%
+  filter(n > 1) %>%
+  arrange(desc(n))
+
+duplicate_cacodes_raw <- cacode_map_raw %>%
+  group_by(CaCode) %>%
+  filter(!is.na(CaCode), CaCode != "", n() > 1) %>%
+  arrange(CaCode)
+
+duplicate_cacodes_raw <- duplicate_cacodes_raw %>%
+  filter(Inactivated == FALSE) %>%
+  print(n = 86)
 
 # Assigning columns to loader table ---------------------------------------
 

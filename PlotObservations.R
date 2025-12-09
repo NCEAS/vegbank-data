@@ -151,6 +151,22 @@ plots_merged <- plots_merged %>%
     )
   )
 
+### author_datum (PlotObservations) ###
+# GPS_datum (RAPlots)
+# Inconsistent Formatting. Does VegBank need these changed?
+# May delete this, if unnecessary
+# Also, what is the correct format? "NAD83"?
+plots_merged <- plots_merged %>% 
+  mutate(
+    author_datum = case_when(
+      GPS_datum %in% c("Nad83", "NAD 83", "NAD83") ~ "NAD83",
+      GPS_datum %in% c("WGS84", "WGS 84") ~ "WGS84",
+      GPS_datum %in% c("NAD 27") ~ "NAD27",
+      TRUE ~ GPS_datum
+    )
+  )
+
+# Use author_datum to assign column to loader table
 
 # real_longitude & real_latitude ------------------------------------------
 # use UTME_final and UTMN_final in RAPlots.csv
@@ -167,38 +183,76 @@ plots_UTM <- plots_merged %>%
   mutate(
     .row_id = row_number()) # creates new column called .row_id
 
-# converting zome 10 to lat/long
-df_10N <- plots_UTM %>%
-  filter(UTM_zone == 10,
-         !is.na(UTME_final), !is.na(UTMN_final)) %>%
-  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26910, na.fail = FALSE) %>%
-  st_transform(4326) %>% # need to convert all to WGS84
-  mutate(
-    real_longitude = st_coordinates(geometry)[, 1],  # lon
-    real_latitude = st_coordinates(geometry)[, 2]   # lat
+convert_to_ll <- function(df, crs_utm) {
+  st_as_sf(
+    df,
+    coords = c("UTME_final", "UTMN_final"),
+    crs    = crs_utm,
+    na.fail = FALSE
   ) %>%
-  st_drop_geometry() %>%
-  select(.row_id, real_longitude, real_latitude)
+    st_transform(4326) %>%  # WGS84
+    mutate(
+      real_longitude = st_coordinates(geometry)[, 1],  # lon
+      real_latitude  = st_coordinates(geometry)[, 2]   # lat
+    ) %>%
+    st_drop_geometry() %>%
+    select(.row_id, real_longitude, real_latitude)
+}
 
-# converting zome 11 to lat/long
-df_11N <- plots_UTM %>%
-  filter(UTM_zone == 11,
-         !is.na(UTME_final), !is.na(UTMN_final)) %>%
-  st_as_sf(coords = c("UTME_final", "UTMN_final"), crs = 26911, na.fail = FALSE) %>%
-  st_transform(4326) %>% # need to convert all to WGS84
-  mutate(
-    real_longitude = st_coordinates(geometry)[, 1],
-    real_latitude = st_coordinates(geometry)[, 2]
-  ) %>%
-  st_drop_geometry() %>%
-  select(.row_id, real_longitude, real_latitude)
+# Build lat/long for each (zone, datum) combo we care about
+df_coords <- bind_rows(
+  # NAD83 (EPSG 26910, 26911)
+  convert_to_ll(
+    plots_UTM %>%
+      filter(UTM_zone == 10,
+             author_datum == "NAD83",
+             !is.na(UTME_final), !is.na(UTMN_final)),
+    26910
+  ),
+  convert_to_ll(
+    plots_UTM %>%
+      filter(UTM_zone == 11,
+             author_datum == "NAD83",
+             !is.na(UTME_final), !is.na(UTMN_final)),
+    26911
+  ),
+  
+  # WGS84 (EPSG 32610, 32611)
+  convert_to_ll(
+    plots_UTM %>%
+      filter(UTM_zone == 10,
+             author_datum == "WGS84",
+             !is.na(UTME_final), !is.na(UTMN_final)),
+    32610
+  ),
+  convert_to_ll(
+    plots_UTM %>%
+      filter(UTM_zone == 11,
+             author_datum == "WGS84",
+             !is.na(UTME_final), !is.na(UTMN_final)),
+    32611
+  ),
+  
+  # NAD27 (EPSG 26710, 26711)
+  convert_to_ll(
+    plots_UTM %>%
+      filter(UTM_zone == 10,
+             author_datum == "NAD27",
+             !is.na(UTME_final), !is.na(UTMN_final)),
+    26710
+  ),
+  convert_to_ll(
+    plots_UTM %>%
+      filter(UTM_zone == 11,
+             author_datum == "NAD27",
+             !is.na(UTME_final), !is.na(UTMN_final)),
+    26711
+  )
+)
 
-# combine computed coords and join back to FULL dataset (preserves row count)
-df_N_all <- bind_rows(df_10N, df_11N)
-
-# merge
+# Join back to full dataset
 plots_merged <- plots_UTM %>%
-  left_join(df_N_all, by = ".row_id") %>%
+  left_join(df_coords, by = ".row_id") %>%
   select(-.row_id)
 
 
@@ -308,22 +362,6 @@ cat("With lon/lat:", sum(!is.na(plots_merged$real_longitude) & !is.na(plots_merg
 cat("Missing state/county (with lon/lat):", nrow(missing_us_admin), "\n")
 
 missing_us_admin
-
-### author_datum (PlotObservations) ###
-# GPS_datum (RAPlots)
-# Inconsistent Formatting. Does VegBank need these changed?
-# May delete this, if unnecessary
-# Also, what is the correct format? "NAD83"?
-plots_merged <- plots_merged %>% 
-  mutate(
-    author_datum = case_when(
-      GPS_datum %in% c("Nad83", "NAD 83", "NAD83") ~ "NAD83",
-      GPS_datum %in% c("WGS84", "WGS 84") ~ "WGS84",
-      GPS_datum %in% c("NAD 27") ~ "NAD27",
-      TRUE ~ GPS_datum
-    )
-  )
-# Use author_datum to assign column to loader table
 
 
 # area --------------------------------------------------------------------
