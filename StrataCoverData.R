@@ -4,6 +4,7 @@ library(stringr)
 library(vegbankr)
 library(stringdist)
 library(fuzzyjoin)
+library(taxize)
 source('Build_Loader_Table.R')
 
 # load in CDFW data -------------------------------------------------------
@@ -170,7 +171,41 @@ comparison_table <- stringdist_inner_join(
   arrange(desc(similarity)) %>% 
   distinct(pc_current_index, .keep_all = TRUE)
 
-# turn comparison_table$pc_current_name into a text file?
+# turn comparison_table$pc_current_name into a text data frame
+comparison_table_words <- comparison_table %>% 
+  select(pc_current_name) %>% 
+  mutate(name_words = str_split(pc_current_name, pattern = " "))
+comparison_table_words <- comparison_table_words %>% 
+  mutate(name_words = sapply(name_words, paste, collapse = ", "))
+write.csv(comparison_table_words, "data/plant_names_strata.csv",
+          row.names = FALSE)
+comparison_table_words <- read_csv((here("data", "plant_names_strata.csv")),
+                                   show_col_types = FALSE)
+
+# checking comparison table for 100% similarity
+comparison_table2 <- stringdist_inner_join(
+  mapping_values_clean,
+  pc_current_clean,
+  by = c("mapping_values_name" = "pc_current_name"),
+  method = "cosine",
+  max_dist = 0.1,
+  distance_col = "similarity",
+)
+
+# collect similar names per mapping_values_name
+similar_matches <- stringdist_inner_join(
+  mapping_values_clean,
+  pc_current_clean,
+  by = c("mapping_values_name" = "pc_current_name"),
+  method = "cosine",
+  max_dist = 0.1,
+  distance_col = "similarity"
+) %>% 
+  mutate(similarity = 1 - similarity) %>% 
+  filter(similarity > 0)
+
+# get as list instead maybe?
+
 
 # Assigning columns to loader table ---------------------------------------
 
