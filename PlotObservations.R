@@ -162,7 +162,18 @@ plots_merged <- plots_merged %>%
       GPS_datum %in% c("Nad83", "NAD 83", "NAD83") ~ "NAD83",
       GPS_datum %in% c("WGS84", "WGS 84") ~ "WGS84",
       GPS_datum %in% c("NAD 27") ~ "NAD27",
-      TRUE ~ GPS_datum
+      TRUE ~ NA_real_
+    )
+  ) %>% 
+  mutate(
+    crs = case_when(
+      datum == "WGS84" & zone == 10 ~ 32610,
+      datum == "WGS84" & zone == 11 ~ 32611,
+      datum == "NAD83" & zone == 10 ~ 26910,
+      datum == "NAD83" & zone == 11 ~ 26911,
+      datum == "NAD27" & zone == 10 ~ 26710,
+      datum == "NAD27" & zone == 11 ~ 26711,
+      TRUE ~ NA_real_
     )
   )
 
@@ -171,13 +182,14 @@ plots_merged <- plots_merged %>%
 # real_longitude & real_latitude ------------------------------------------
 # use UTME_final and UTMN_final in RAPlots.csv
 # Convert UTM to lat long
-# Two total zones: 10 and 11
+# Three reference systems: NAD83, NAD27, WGS83; Two zones: 10 and 11
 # First split by zone, convert to lat/long, then merge them back together
 # It keeps removing NA values by default and I am trying to keep them
 # New Version (To not affect row numbers)
 
-# still need to account for differences in datum (current code assumes NAD893)
+# 
 unique(plots_merged$GPS_datum)
+unique(plots_merged$author_datum)
 
 plots_UTM <- plots_merged %>%
   mutate(
