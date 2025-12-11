@@ -162,17 +162,17 @@ plots_merged <- plots_merged %>%
       GPS_datum %in% c("Nad83", "NAD 83", "NAD83") ~ "NAD83",
       GPS_datum %in% c("WGS84", "WGS 84") ~ "WGS84",
       GPS_datum %in% c("NAD 27") ~ "NAD27",
-      TRUE ~ NA_real_
+      TRUE ~ NA_character_
     )
   ) %>% 
   mutate(
     crs = case_when(
-      datum == "WGS84" & zone == 10 ~ 32610,
-      datum == "WGS84" & zone == 11 ~ 32611,
-      datum == "NAD83" & zone == 10 ~ 26910,
-      datum == "NAD83" & zone == 11 ~ 26911,
-      datum == "NAD27" & zone == 10 ~ 26710,
-      datum == "NAD27" & zone == 11 ~ 26711,
+      GPS_datum == "WGS84" & UTM_zone == 10 ~ 32610,
+      GPS_datum == "WGS84" & UTM_zone == 11 ~ 32611,
+      GPS_datum == "NAD83" & UTM_zone == 10 ~ 26910,
+      GPS_datum == "NAD83" & UTM_zone == 11 ~ 26911,
+      GPS_datum == "NAD27" & UTM_zone == 10 ~ 26710,
+      GPS_datum == "NAD27" & UTM_zone == 11 ~ 26711,
       TRUE ~ NA_real_
     )
   )
