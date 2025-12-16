@@ -19,27 +19,51 @@ source("Build_Loader_Table.R")
 
 # load in CDFW data -----------------------------------------------------------
 
-# set folder where data is saved
-folder <- 'data'
+# read in RARevele CDFW data
+folder <- 'data/RAReleve'
 
-# read in CDFW data
-plots <- read_csv(here(folder, 'RAPlots.csv'), 
+plots_1 <- read_csv(here(folder, 'RAPlots.csv'), 
                   col_types = cols( `PlotOther5` = col_character())) # PlotOther5 manually set to character due to parsing issue
-alt_plots <- read_csv(here(folder, 'AltPlots.csv'))
+alt_plots_1 <- read_csv(here(folder, 'AltPlots.csv')) %>% 
+  mutate(AltPlotsID = NA,
+         inVegBank = NA)
 survey_points <- read_csv(here(folder, 'SurveyPoints.csv'))
-impacts <- read_csv(here(folder, 'RAImpacts.csv'))
-alt_strata <- read_csv(here(folder, 'AltStrata.csv'))
-classification <- read_csv(here(folder, 'RAClassification.csv'))
-projects <- read_csv(here(folder, "RAProjects.csv"))
+impacts_1 <- read_csv(here(folder, 'RAImpacts.csv'))
+alt_strata_1 <- read_csv(here(folder, 'AltStrata.csv')) %>% 
+  mutate(AltStrataID = NA,
+         InVegBank = NA ) # adding columns present in alt_plots_2
+classification_1 <- read_csv(here(folder, 'RAClassification.csv'))
+projects_1 <- read_csv(here(folder, "RAProjects.csv"))
+
+# read in AARecon data
+folder_2 <- 'data/AARecon'
+
+plots_2 <- read_csv(here(folder_2, 'RAPlots.csv'), 
+                    col_types = cols( `PlotOther5` = col_character())) %>% 
+  mutate('locfixed' = NA) # missing a column present in RAReleve's RAPlots.csv
+alt_plots_2 <- read_csv(here(folder_2, 'AltPlots.csv'))
+impacts_2 <- read_csv(here(folder_2, 'RAImpacts.csv'))
+alt_strata_2 <- read_csv(here(folder_2, 'AltStrata.csv'))
+classification_2 <- read_csv(here(folder_2, 'RAClassification.csv'))
+projects_2 <- read_csv(here(folder_2, "RAProjects.csv"))
+
+
+# merging together RAReleve and AARecon
+plots <- rbind(plots_1, plots_2)
+alt_plots <- rbind(alt_plots_1, alt_plots_2)
+impacts <- rbind(impacts_1, impacts_2)
+alt_strata <- rbind(alt_strata_1, alt_strata_2)
 
 # read in CDFW lookup tables
-confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
-height_lookup <- read_csv(here(folder, 'LHeight.csv'))
-standsize_lookup <- read_csv(here(folder, 'LStandSize.csv'))
-substrate_lookup <- read_csv(here(folder, 'LSubstrate.csv'))
-macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
-slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
-survey_lookup <- read_csv(here(folder, 'LSurveyType.csv'))
+# confidentiality_lookup <- read_csv(here(folder, 'LConfidentiality.csv'))
+# height_lookup <- read_csv(here(folder, 'LHeight.csv'))
+# standsize_lookup <- read_csv(here(folder, 'LStandSize.csv'))
+# substrate_lookup <- read_csv(here(folder, 'LSubstrate.csv'))
+# macrotopo_lookup <- read_csv(here(folder, 'LMacroTopo.csv'))
+# slope_lookup <- read_csv(here(folder, 'LSlope.csv'))
+# survey_lookup <- read_csv(here(folder, 'LSurveyType.csv'))
+
+
 
 # create blank Loader Table dataframe -----------------------------------------------------
 
