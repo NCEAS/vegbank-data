@@ -287,7 +287,7 @@ plots$merged$continent <- "North America"
 #!!!PROBLEM!!!
 # Using PlotArea and ViewRadius from RAPlots
 
-# Units will be removed; VegBank assumes units are m2
+# Removing units from values (VegBank assumes square meters)
 plots_merged <- plots_merged %>% 
   mutate(
     PlotArea = str_remove(PlotArea, "^~ ?"), # removing leading ~ from '~700' record
@@ -297,16 +297,18 @@ plots_merged <- plots_merged %>%
 # Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
 # 5 parsing failures
 plots_merged <- plots_merged %>%
-  mutate(PlotArea_num = parse_number(as.character(PlotArea), na = c("NA","na","Not recorded","not recorded")),
+  mutate(PlotArea_num = parse_number(as.character(PlotArea), na = c("NA","na","Not recorded","not recorded")), # changing PlotArea to number, combining NAs
          dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
          SurveyLength = suppressWarnings(as.numeric(map_chr(dims, 1, .default = NA))),
          SurveyWidth  = suppressWarnings(as.numeric(map_chr(dims, 2, .default = NA))),
-         area_from_radius = if_else(!is.na(ViewRadius), pi * (as.numeric(ViewRadius)^2), NA_real_),
+         # ADD: if PlotShape = 'circle' & is.na(radius). then calculate the are
+         # area_from_radius = if_else(!is.na(ViewRadius), pi * (as.numeric(ViewRadius)^2), NA_real_),
          area_from_dims   = if_else(!is.na(SurveyLength) & !is.na(SurveyWidth),
                                     SurveyLength * SurveyWidth, NA_real_),
          PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
   )
 
+# filling in the columns that are missing or incorrect in the PlotShape column
 plots_merged <- plots_merged %>% 
   mutate(
     PlotShape = case_when(
@@ -317,14 +319,7 @@ plots_merged <- plots_merged %>%
       TRUE ~ PlotShape
     )
   )
-# PlotShape will be entered in as-is except for 10m x 10m = square, 12x9 =
-# rectangle, 20x5 = rectangle, and the two blank rows in PlotShape where
-# SurveyDimensions is equal to 10mx10m will be changed to Square in PlotShape
 
-### shape (PlotObservations) ###
-# PlotShape (RAPlots)
-# I'll convert 10x10 to square, 12x9 to rect, 20x5 to rect, and the 
-# surveydimensions' 10x10 to square
 plots_merged <- plots_merged %>%
   mutate(
     .tol = pmax(SurveyLength, SurveyWidth, na.rm = TRUE) * 0.02,
@@ -341,7 +336,7 @@ plots_merged <- plots_merged %>%
       TRUE                                  ~ NA_character_
     )
   )
-# plots_merged$shape
+
 
 ### elevation (PlotObservations) ###
 # Elevation (RAPlots) related to ft_mElevation (RAPlots)
