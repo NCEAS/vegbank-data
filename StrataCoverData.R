@@ -48,86 +48,87 @@ set_vb_base_url("https://api-dev.vegbank.org")    # (Run this before running fun
 
 # Adaptive, resumable pager for VegBank plant concepts
 
-page_init <- 5000 # shrink this if there is an error
-page_min <- 500 # don't go smaller than this
-max_pages <- 500 # hard stop
-sleep_sec <- 0.05 # brief pause to avoid error
-keep_cols <- c("pc_code","plant_name", "current_accepted")
-checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
-save_every <- 10
+# page_init <- 5000 # shrink this if there is an error
+# page_min <- 500 # don't go smaller than this
+# max_pages <- 500 # hard stop
+# sleep_sec <- 0.05 # brief pause to avoid error
+# keep_cols <- c("pc_code","plant_name", "current_accepted")
+# checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
+# save_every <- 10
+# 
+# out <- list()
+# seen_codes <- character(0)
+# limit <- page_init
+# 
+# for (i in seq_len(max_pages)) {
+#   offset <- (i - 1L) * limit
+#   message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
+# 
+# #  try once; on failure (e.g., 504), halve the limit and retry
+#   chunk <- tryCatch(
+#     get_all_plant_concepts(limit = limit, offset = offset),
+#     error = function(e) {
+#       message("  Request failed: ", conditionMessage(e))
+#       limit <<- max(page_min, floor(limit/2))
+#       message("  Reducing limit and retrying with limit=", limit)
+#       tryCatch(get_all_plant_concepts(limit = limit, offset = offset),
+#                error = function(e2) { message("  Retry failed."); NULL })
+#     }
+#   )
+#   if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
+# 
+#   keep <- intersect(keep_cols, names(chunk))
+#   if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
+# 
+#   if ("pc_code" %in% names(chunk)) {
+#     new <- !chunk$pc_code %in% seen_codes
+#     if (!any(new)) { message("  All rows seen already; stopping."); break }
+#     seen_codes <- c(seen_codes, chunk$pc_code[new])
+#     chunk <- chunk[new, , drop = FALSE]
+#   }
+# 
+#   out[[length(out) + 1L]] <- chunk
+#   total <- sum(vapply(out, nrow, integer(1)))
+#   message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
+# 
+#   if (nrow(chunk) < limit) { message("  Short page; done."); break }
+# 
+#   if (save_every > 0 && (i %% save_every == 0)) {
+#     tmp <- dplyr::bind_rows(out) %>% distinct()
+#     saveRDS(tmp, checkpoint)
+#     message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
+#   }
+# 
+#   if (sleep_sec > 0) Sys.sleep(sleep_sec)
+# }
+# 
+# pc_all <- bind_rows(out) %>% distinct()
+# message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
+# 
+# write_csv(pc_all, here("data", "pc_all.csv"))
+# 
+# pc_lookup <- pc_all %>%
+#   mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
+#   separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
+#   mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
+#   filter(plant_name_norm != "") %>%
+#   group_by(plant_name_norm) %>%
+#   summarise(pc_code = first(pc_code), .groups = "drop")
+# 
+# mapping_values <- plants %>%
+#   mutate(
+#     authorPlantName = str_squish(coalesce(SpeciesName, "")),
+#     author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
+#   ) %>%
+#   left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
+#   transmute(
+#     authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
+#     vb_pc_code = pc_code
+#   )
+# 
+# nrow(mapping_values) == nrow(plants) # end of commenting
 
-out <- list()
-seen_codes <- character(0)
-limit <- page_init
-
-for (i in seq_len(max_pages)) {
-  offset <- (i - 1L) * limit
-  message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
-
-#  try once; on failure (e.g., 504), halve the limit and retry
-  chunk <- tryCatch(
-    get_all_plant_concepts(limit = limit, offset = offset),
-    error = function(e) {
-      message("  Request failed: ", conditionMessage(e))
-      limit <<- max(page_min, floor(limit/2))
-      message("  Reducing limit and retrying with limit=", limit)
-      tryCatch(get_all_plant_concepts(limit = limit, offset = offset),
-               error = function(e2) { message("  Retry failed."); NULL })
-    }
-  )
-  if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
-
-  keep <- intersect(keep_cols, names(chunk))
-  if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-
-  if ("pc_code" %in% names(chunk)) {
-    new <- !chunk$pc_code %in% seen_codes
-    if (!any(new)) { message("  All rows seen already; stopping."); break }
-    seen_codes <- c(seen_codes, chunk$pc_code[new])
-    chunk <- chunk[new, , drop = FALSE]
-  }
-
-  out[[length(out) + 1L]] <- chunk
-  total <- sum(vapply(out, nrow, integer(1)))
-  message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
-
-  if (nrow(chunk) < limit) { message("  Short page; done."); break }
-
-  if (save_every > 0 && (i %% save_every == 0)) {
-    tmp <- dplyr::bind_rows(out) %>% distinct()
-    saveRDS(tmp, checkpoint)
-    message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
-  }
-
-  if (sleep_sec > 0) Sys.sleep(sleep_sec)
-}
-
-pc_all <- bind_rows(out) %>% distinct()
-message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
-
-write_csv(pc_all, here("data", "pc_all.csv"))
-
-pc_lookup <- pc_all %>%
-  mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
-  separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
-  mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
-  filter(plant_name_norm != "") %>%
-  group_by(plant_name_norm) %>%
-  summarise(pc_code = first(pc_code), .groups = "drop")
-
-mapping_values <- plants %>%
-  mutate(
-    authorPlantName = str_squish(coalesce(SpeciesName, "")),
-    author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
-  ) %>%
-  left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
-  transmute(
-    authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
-    vb_pc_code = pc_code
-  )
-
-nrow(mapping_values) == nrow(plants) # end of commenting
-
+# ----------------------- vb_pc_code -----------------------------------------
 # read in csv
 csv_path <- here("data", "pc_all.csv")
 pc_all <- read_csv(csv_path, show_col_types = FALSE)
@@ -144,6 +145,8 @@ mapping_values <- mapping_values %>%
 # if match_flag == false, turn vb_pc_code into NA
 mapping_values <- mapping_values %>% 
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
+
+# ----------------------------------------------------------------------------
 
 # troubleshooting false matches
 # making a cross-join comparison table
@@ -171,41 +174,6 @@ comparison_table <- stringdist_inner_join(
   arrange(desc(similarity)) %>%
   distinct(pc_current_index, .keep_all = TRUE)
 
-# # turn comparison_table$pc_current_name into a text data frame
-# comparison_table_words <- comparison_table %>% 
-#   select(pc_current_name) %>% 
-#   mutate(name_words = str_split(pc_current_name, pattern = " "))
-# comparison_table_words <- comparison_table_words %>% 
-#   mutate(name_words = sapply(name_words, paste, collapse = ", "))
-# write.csv(comparison_table_words, "data/plant_names_strata.csv",
-#           row.names = FALSE)
-# comparison_table_words <- read_csv((here("data", "plant_names_strata.csv")),
-#                                    show_col_types = FALSE)
-# 
-# # checking comparison table for 100% similarity
-# comparison_table2 <- stringdist_inner_join(
-#   mapping_values_clean,
-#   pc_current_clean,
-#   by = c("mapping_values_name" = "pc_current_name"),
-#   method = "cosine",
-#   max_dist = 0.1,
-#   distance_col = "similarity",
-# )
-# 
-# # collect similar names per mapping_values_name
-# similar_matches <- stringdist_inner_join(
-#   mapping_values_clean,
-#   pc_current_clean,
-#   by = c("mapping_values_name" = "pc_current_name"),
-#   method = "cosine",
-#   max_dist = 0.1,
-#   distance_col = "similarity"
-# ) %>% 
-#   mutate(similarity = 1 - similarity) %>% 
-#   filter(similarity != 0.9)
-
-# get as list instead maybe?
-
 # trying different approach
 # find closest matches using fuzzy matching
 find_matches <- function(wrong_name, correct_list, max_distance = 3) {
@@ -219,12 +187,6 @@ find_matches <- function(wrong_name, correct_list, max_distance = 3) {
   )
 }
 
-# pairwise string distances
-# do not do this it will break
-# dist_matrix <- stringdistmatrix(pc_current$plant_name,
-#                                 mapping_values$authorPlantName,
-#                                 method = "jw")
-
 # get unmatched plant names
 unmatched_plants <- mapping_values %>% 
   filter(is.na(vb_pc_code) | match_flag == FALSE) %>% 
@@ -234,13 +196,13 @@ unmatched_plants <- mapping_values %>%
 reference_names <- pc_current$plant_name
 
 # function for finding the closest names
-find_closest_matches <- function(name_to_match, reference_list, top_n = 3) {
+find_closest_matches <- function(name_to_match, reference_list, top_n = 2) {
   
   # calculate string distances
   distances <- stringdist(name_to_match, reference_list, method = "jw")
   
   # get top 3 closest matches
-  top_indices <- order(distances)[1:3]
+  top_indices <- order(distances)[1:2]
   
   data.frame(
     unmatched_name = name_to_match,
@@ -254,8 +216,64 @@ find_closest_matches <- function(name_to_match, reference_list, top_n = 3) {
 all_suggestions <- do.call(rbind, lapply(unmatched_plants$authorPlantName,
                                          find_closest_matches,
                                          reference_names))
-# next step: change to top 2 or 1
 
+# filter similarity (change the number according to your need)
+# 0.9259259 has been suggested for spelling errors
+# manual troubleshooting
+high_similarity <- all_suggestions %>% 
+  filter(similarity_score >= 0.9259259) %>% 
+  arrange(unmatched_name, desc(similarity_score))
+
+# uploading new plant concepts
+low_similarity <- all_suggestions %>% 
+  filter(similarity_score < 0.9259259) %>% 
+  arrange(unmatched_name)
+
+# function to detect localized differences
+has_minor_differences <- function(str1, str2, max_consecutive_diff = 2) {
+  
+  # use stringdist with method "lv" to get edit operations
+  dist <- stringdist(str1, str2, method = "lv")
+  
+  if (dist > 3) return (FALSE)
+  
+  # check character-by-character alignment
+  chars1 <- strsplit(str1, "")[[1]]
+  chars2 <- strsplit(str2, "")[[2]]
+  
+  # for different lengths, pad the shorter one
+  max_len <- max(length(chars1), length(chars2))
+  if (length(chars1) < max_len) chars1 <- c(chars1,
+                                            rep("", max_len - length(chars1)))
+  if (length(chars2) < max_len) chars2 <- c(chars2,
+                                            rep("", max_len - length(chars2)))
+  
+  # find positions where characters differ
+  diffs <- which(chars1 != chars2)
+  
+  if (length(diffs) == 0) return (TRUE)
+  
+  # check if differences are consecutive (indicating substring replacement)
+  consecutive_diffs <- max(diff(diffs) == 1)
+  max_consecutive <- max(rle(diff(diffs) == 1)$lengths[rle(diff(diffs) == 1)$values], 0)
+  
+  # return TRUE if differences are not in long consecutive streaks
+  return(max_consecutive <= max_consecutive_diff)
+}
+
+# create correction mapping
+corrections <- high_similarity %>% 
+  group_by(unmatched_name) %>% 
+  slice_max(similarity_score, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(unmatched_name, suggested_match, similarity_score) %>% 
+  mutate(
+    length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
+    is_minor_diff = mapply(has_minor_differences, unmatched_name, suggested_match)
+  ) %>% 
+  filter(length_diff <= 2, is_minor_diff == TRUE)
+
+# next step: fix function
 
 # Assigning columns to loader table ---------------------------------------
 
