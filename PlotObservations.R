@@ -187,7 +187,14 @@ plots_merged <- plots_merged %>%
 # New Version (To not affect row numbers)
 
 plots_UTM <- plots_merged %>%
-  mutate(.row_id = row_number()) # adding row id
+  mutate(.row_id = row_number()) %>% # adding row id
+  mutate(UTME_final = case_when( # if UTME_final is NA, use UTME column
+    is.na(UTME_final) ~ UTME,
+    TRUE ~ UTME_final)) %>% 
+  mutate(UTMN_final = case_when( # if UTMN_final is NA, use UTMN column
+    is.na(UTMN_final) ~ UTMN,
+    TRUE ~ UTMN_final
+  )) 
 
 convert_to_ll <- function(df_group) {
   crs_utm <- unique(df_group$crs)
@@ -216,152 +223,64 @@ df_coords <- plots_UTM %>%
   map_dfr(convert_to_ll)
 
 plots_merged <- plots_UTM %>%
-  left_join(df_coords, by = ".row_id") %>%
-  select(-.row_id)
+  left_join(df_coords, by = ".row_id") 
+# %>% select(-.row_id)
 
 
 # county, stateProvince, country, continent -------------------------------
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
-# helper to count NA values
-count_missing_admin <- function(df, label) {
-  n <- df %>%
-    filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
-    filter(is.na(stateProvince) | is.na(county)) %>%
-    nrow()
-  cat(label, "- rows with lon/lat but missing state or county:", n, "\n")
-}
+# getting state boundaries
+states_sf <- tigris::states() %>% 
+  st_transform(4326)
 
-# add stable row id once
-if (!".row_id" %in% names(plots_merged)) {
-  plots_merged <- plots_merged %>% mutate(.row_id = row_number())
-}
+# getting courty boundaries
+counties_sf <- tigris::counties() %>% 
+  st_transform(4326)
 
-# create sf points
-points <- plots_merged %>%
-  filter(!is.na(real_longitude), !is.na(real_latitude)) %>% # remove NA values for lat/lon
-  st_as_sf(coords = c("real_longitude", "real_latitude"), # convert to 
-           crs = 4326, remove = FALSE)
-
-# load boundaries (try 2024, else 2023)
-get_states  <- function(y) states(cb = TRUE, year = y)
-get_counties <- function(y) counties(cb = TRUE, year = y)
-
-us_states <- tryCatch(get_states(2024),  error = function(e) get_states(2023)) %>%  st_transform(4326)
-us_counties <- tryCatch(get_counties(2024), error = function(e) get_counties(2023)) %>% st_transform(4326)
-
-# join state & county
-points_sc <- points %>%
-  st_join(us_states["NAME"], join = st_within, left = TRUE) %>% 
+state_county_points <- plots_merged %>% 
+  select(".row_id", "real_longitude", "real_latitude") %>% 
+  drop_na() %>% 
+  st_as_sf(coords = c("real_longitude", "real_latitude"),
+           crs = 4326, remove = FALSE) %>% 
+  st_join(states_sf, join = st_intersects) %>% 
   rename(stateProvince = NAME) %>%
-  st_join(us_counties["NAME"], join = st_within, left = TRUE) %>% 
+  st_join(counties_sf, join = st_intersects) %>%
   rename(county = NAME) %>%
-  mutate(state_source = if_else(is.na(stateProvince), NA_character_, "intersect"),
-         county_source= if_else(is.na(county),        NA_character_, "intersect"))
+  select(".row_id", "stateProvince", "county") %>% 
+  st_drop_geometry()
 
-count_missing_admin(points_sc, "After intersects")
 
-albers <- 5070
-buf_m <- 50 # 50 m buffer (can tweak if needed)
+# Add back to data by row id
+plots_merged <- plots_merged %>% 
+  left_join(state_county_points, by = ".row_id")
 
-points_m <- st_transform(points, albers)
-states_m <- st_transform(us_states,   albers)
-counties_m <- st_transform(us_counties, albers)
 
-# buffer only rows that are still NA
-need_state_buf <- is.na(points_sc$stateProvince)
-need_county_buf <- is.na(points_sc$county)
+# Troubleshooting rows with missing spatial information -------------------
+# View(plots_merged[is.na(plots_merged$county), ])
 
-if (any(need_state_buf)) {
-  st_buf <- st_buffer(points_m[need_state_buf, ], dist = buf_m)
-  hit <- st_join(st_buf, states_m["NAME"], left = TRUE)
-  points_sc$stateProvince[need_state_buf] <- hit$NAME
-  points_sc$state_source [need_state_buf & !is.na(hit$NAME)] <- "buffer50m"
-}
-
-if (any(need_county_buf)) {
-  ct_buf <- st_buffer(points_m[need_county_buf, ], dist = buf_m)
-  hit <- st_join(ct_buf, counties_m["NAME"], left = TRUE)
-  points_sc$county[need_county_buf] <- hit$NAME
-  points_sc$county_source[need_county_buf & !is.na(hit$NAME)] <- "buffer50m"
-}
-
-count_missing_admin(points_sc, "After 50m buffer")
-
-# nearest fallback (for any that are still NA after buffer)
-max_nearest_m <- 5000  # cap assignment to features within 5 km (can adjust as needed)
-
-# states
-need_state_near <- is.na(points_sc$stateProvince)
-if (any(need_state_near)) {
-  idx <- st_nearest_feature(points_m[need_state_near, ], states_m)
-  dists <- as.numeric(st_distance(points_m[need_state_near, ], states_m[idx, ], by_element = TRUE))
-  ok <- dists <= max_nearest_m
-  points_sc$stateProvince[need_state_near][ok] <- states_m$NAME[idx[ok]]
-  points_sc$state_source [need_state_near][ok] <- paste0("nearest_", max_nearest_m, "m")
-}
-
-# counties
-need_county_near <- is.na(points_sc$county)
-if (any(need_county_near)) {
-  idx <- st_nearest_feature(points_m[need_county_near, ], counties_m)
-  dists <- as.numeric(st_distance(points_m[need_county_near, ], counties_m[idx, ], by_element = TRUE))
-  ok <- dists <= max_nearest_m
-  points_sc$county[need_county_near][ok] <- counties_m$NAME[idx[ok]]
-  points_sc$county_source[need_county_near][ok] <- paste0("nearest_", max_nearest_m, "m")
-}
-
-count_missing_admin(points_sc, "After nearest within 5km")
-
-# Drop geometry
-points_sc <- points_sc %>%
-  st_drop_geometry() %>%
-  select(.row_id, stateProvince, county, state_source, county_source)
-
-# Merge back & add country/continent
 plots_merged <- plots_merged %>%
-  left_join(points_sc, by = ".row_id") %>%
   mutate(
-    country = if_else(!is.na(stateProvince), "United States", NA_character_),
-    continent = if_else(!is.na(stateProvince), "North America", NA_character_)
+    county = case_when(
+      is.na(county) &
+        str_detect(
+          Location_name,
+          "Big Basin State Park|Quail Hollow Quarry Conservation Areas|Schwann Lake, Twin Lakes"
+        ) ~ "Santa Cruz",
+      TRUE ~ county
+    ),
+    stateProvince = case_when(
+      is.na(stateProvince) &
+        str_detect(
+          Location_name,
+          "Big Basin State Park|Quail Hollow Quarry Conservation Areas|Henry Coe State Park|Schwann Lake, Twin Lakes"
+        ) ~ "California",
+      TRUE ~ stateProvince
+    )
   )
 
-# Exploring NA values 
-# Originally 32 rows with NA for stateProvince and county
-# After 50m buffer, only 9 rows
-# After nearest within 5km, no rows are NA
-
-# Rows that HAVE lon/lat but are missing one or more admin fields
-missing_us_admin <- plots_merged %>%
-  filter(!is.na(real_longitude), !is.na(real_latitude)) %>%
-  filter(is.na(stateProvince) | is.na(county) | is.na(country)) %>%
-  select(
-    .row_id,
-    real_longitude, real_latitude,
-    stateProvince, county, country, continent,
-    state_source, county_source,
-    GPS_datum, author_datum, UTM_zone,
-    everything()
-  )
-
-# Quick counts
-cat("Total rows:                         ", nrow(plots_merged), "\n")
-cat("With lon/lat:                       ",
-    sum(!is.na(plots_merged$real_longitude) & !is.na(plots_merged$real_latitude)), "\n")
-
-cat("Missing stateProvince (with lon/lat): ",
-    sum(!is.na(plots_merged$real_longitude) & !is.na(plots_merged$real_latitude) &
-          is.na(plots_merged$stateProvince)), "\n")
-
-cat("Missing county (with lon/lat):        ",
-    sum(!is.na(plots_merged$real_longitude) & !is.na(plots_merged$real_latitude) &
-          is.na(plots_merged$county)), "\n")
-
-cat("Missing country (with lon/lat):       ",
-    sum(!is.na(plots_merged$real_longitude) & !is.na(plots_merged$real_latitude) &
-          is.na(plots_merged$country)), "\n")
-
-missing_us_admin
+plots_merged$country <- "USA"
+plots$merged$continent <- "North America"
 
 
 # area --------------------------------------------------------------------
