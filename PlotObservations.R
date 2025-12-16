@@ -177,7 +177,6 @@ plots_merged <- plots_merged %>%
     )
   )
 
-# Use author_datum to assign column to loader table
 
 # real_longitude & real_latitude ------------------------------------------
 # use UTME_final and UTMN_final in RAPlots.csv
@@ -188,7 +187,7 @@ plots_merged <- plots_merged %>%
 # New Version (To not affect row numbers)
 
 plots_UTM <- plots_merged %>%
-  mutate(.row_id = row_number())
+  mutate(.row_id = row_number()) # adding row id
 
 convert_to_ll <- function(df_group) {
   crs_utm <- unique(df_group$crs)
