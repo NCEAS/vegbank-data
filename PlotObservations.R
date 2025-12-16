@@ -175,6 +175,17 @@ plots_merged <- plots_merged %>%
       GPS_datum == "NAD27" & UTM_zone == 11 ~ 26711,
       TRUE ~ NA_real_
     )
+  ) %>% 
+  mutate(
+    crs = case_when(
+      author_datum == "WGS84" & UTM_zone == 10 ~ 32610,
+      author_datum == "WGS84" & UTM_zone == 11 ~ 32611,
+      author_datum == "NAD83" & UTM_zone == 10 ~ 26910,
+      author_datum == "NAD83" & UTM_zone == 11 ~ 26911,
+      author_datum == "NAD27" & UTM_zone == 10 ~ 26710,
+      author_datum == "NAD27" & UTM_zone == 11 ~ 26711,
+      TRUE ~ NA_real_
+    )
   )
 
 # Use author_datum to assign column to loader table
@@ -192,77 +203,34 @@ unique(plots_merged$GPS_datum)
 unique(plots_merged$author_datum)
 
 plots_UTM <- plots_merged %>%
-  mutate(
-    .row_id = row_number()) # creates new column called .row_id
+  mutate(.row_id = row_number())
 
-convert_to_ll <- function(df, crs_utm) {
+convert_to_ll <- function(df_group) {
+  crs_utm <- unique(df_group$crs)
+  if (length(crs_utm) != 1 || is.na(crs_utm)) return(NULL)
+  
   st_as_sf(
-    df,
+    df_group,
     coords = c("UTME_final", "UTMN_final"),
-    crs    = crs_utm,
+    crs = crs_utm,
     na.fail = FALSE
   ) %>%
-    st_transform(4326) %>%  # WGS84
+    st_transform(4326) %>%
     mutate(
-      real_longitude = st_coordinates(geometry)[, 1],  # lon
-      real_latitude  = st_coordinates(geometry)[, 2]   # lat
+      real_longitude = st_coordinates(geometry)[, 1],
+      real_latitude = st_coordinates(geometry)[, 2]
     ) %>%
     st_drop_geometry() %>%
     select(.row_id, real_longitude, real_latitude)
 }
 
-# Build lat/long for each (zone, datum) combo we care about
-df_coords <- bind_rows(
-  # NAD83 (EPSG 26910, 26911)
-  convert_to_ll(
-    plots_UTM %>%
-      filter(UTM_zone == 10,
-             author_datum == "NAD83",
-             !is.na(UTME_final), !is.na(UTMN_final)),
-    26910
-  ),
-  convert_to_ll(
-    plots_UTM %>%
-      filter(UTM_zone == 11,
-             author_datum == "NAD83",
-             !is.na(UTME_final), !is.na(UTMN_final)),
-    26911
-  ),
-  
-  # WGS84 (EPSG 32610, 32611)
-  convert_to_ll(
-    plots_UTM %>%
-      filter(UTM_zone == 10,
-             author_datum == "WGS84",
-             !is.na(UTME_final), !is.na(UTMN_final)),
-    32610
-  ),
-  convert_to_ll(
-    plots_UTM %>%
-      filter(UTM_zone == 11,
-             author_datum == "WGS84",
-             !is.na(UTME_final), !is.na(UTMN_final)),
-    32611
-  ),
-  
-  # NAD27 (EPSG 26710, 26711)
-  convert_to_ll(
-    plots_UTM %>%
-      filter(UTM_zone == 10,
-             author_datum == "NAD27",
-             !is.na(UTME_final), !is.na(UTMN_final)),
-    26710
-  ),
-  convert_to_ll(
-    plots_UTM %>%
-      filter(UTM_zone == 11,
-             author_datum == "NAD27",
-             !is.na(UTME_final), !is.na(UTMN_final)),
-    26711
-  )
-)
+df_coords <- plots_UTM %>%
+  filter(!is.na(UTME_final),
+         !is.na(UTMN_final),
+         !is.na(crs)) %>%
+  group_split(crs) %>%
+  map_dfr(convert_to_ll)
 
-# Join back to full dataset
 plots_merged <- plots_UTM %>%
   left_join(df_coords, by = ".row_id") %>%
   select(-.row_id)

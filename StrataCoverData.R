@@ -128,6 +128,7 @@ set_vb_base_url("https://api-dev.vegbank.org")    # (Run this before running fun
 # 
 # nrow(mapping_values) == nrow(plants) # end of commenting
 
+# ----------------------- vb_pc_code -----------------------------------------
 # read in csv
 csv_path <- here("data", "pc_all.csv")
 pc_all <- read_csv(csv_path, show_col_types = FALSE)
@@ -144,6 +145,8 @@ mapping_values <- mapping_values %>%
 # if match_flag == false, turn vb_pc_code into NA
 mapping_values <- mapping_values %>% 
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
+
+# ----------------------------------------------------------------------------
 
 # troubleshooting false matches
 # making a cross-join comparison table
@@ -165,47 +168,112 @@ comparison_table <- stringdist_inner_join(
   method = "cosine",
   max_dist = 0.1,
   distance_col = "similarity",
-) %>% 
-  mutate(similarity = 1 - similarity) %>% 
-  filter(similarity < 1) %>% 
-  arrange(desc(similarity)) %>% 
+) %>%
+  mutate(similarity = 1 - similarity) %>%
+  filter(similarity < 1) %>%
+  arrange(desc(similarity)) %>%
   distinct(pc_current_index, .keep_all = TRUE)
 
-# turn comparison_table$pc_current_name into a text data frame
-comparison_table_words <- comparison_table %>% 
-  select(pc_current_name) %>% 
-  mutate(name_words = str_split(pc_current_name, pattern = " "))
-comparison_table_words <- comparison_table_words %>% 
-  mutate(name_words = sapply(name_words, paste, collapse = ", "))
-write.csv(comparison_table_words, "data/plant_names_strata.csv",
-          row.names = FALSE)
-comparison_table_words <- read_csv((here("data", "plant_names_strata.csv")),
-                                   show_col_types = FALSE)
+# trying different approach
+# find closest matches using fuzzy matching
+find_matches <- function(wrong_name, correct_list, max_distance = 3) {
+  distances <- stringdist(wrong_name, correct_list, method = "lv")
+  top_matches <- order(distances)[1:5]
+  
+  data.frame(
+    original = wrong_name,
+    suggested_match = correct_list[top_matches],
+    distance = distances[top_matches]
+  )
+}
 
-# checking comparison table for 100% similarity
-comparison_table2 <- stringdist_inner_join(
-  mapping_values_clean,
-  pc_current_clean,
-  by = c("mapping_values_name" = "pc_current_name"),
-  method = "cosine",
-  max_dist = 0.1,
-  distance_col = "similarity",
-)
+# get unmatched plant names
+unmatched_plants <- mapping_values %>% 
+  filter(is.na(vb_pc_code) | match_flag == FALSE) %>% 
+  distinct(authorPlantName)
 
-# collect similar names per mapping_values_name
-similar_matches <- stringdist_inner_join(
-  mapping_values_clean,
-  pc_current_clean,
-  by = c("mapping_values_name" = "pc_current_name"),
-  method = "cosine",
-  max_dist = 0.1,
-  distance_col = "similarity"
-) %>% 
-  mutate(similarity = 1 - similarity) %>% 
-  filter(similarity > 0)
+# reference list
+reference_names <- pc_current$plant_name
 
-# get as list instead maybe?
+# function for finding the closest names
+find_closest_matches <- function(name_to_match, reference_list, top_n = 2) {
+  
+  # calculate string distances
+  distances <- stringdist(name_to_match, reference_list, method = "jw")
+  
+  # get top 3 closest matches
+  top_indices <- order(distances)[1:2]
+  
+  data.frame(
+    unmatched_name = name_to_match,
+    suggested_match = reference_list[top_indices], 
+    similarity_score = 1 - distances[top_indices],
+    stringsAsFactors = FALSE
+  )
+}
 
+# apply to all unmatched names
+all_suggestions <- do.call(rbind, lapply(unmatched_plants$authorPlantName,
+                                         find_closest_matches,
+                                         reference_names))
+
+# filter similarity (change the number according to your need)
+# 0.9259259 has been suggested for spelling errors
+# manual troubleshooting
+high_similarity <- all_suggestions %>% 
+  filter(similarity_score >= 0.9259259) %>% 
+  arrange(unmatched_name, desc(similarity_score))
+
+# uploading new plant concepts
+low_similarity <- all_suggestions %>% 
+  filter(similarity_score < 0.9259259) %>% 
+  arrange(unmatched_name)
+
+# function to detect localized differences
+has_minor_differences <- function(str1, str2, max_consecutive_diff = 2) {
+  
+  # use stringdist with method "lv" to get edit operations
+  dist <- stringdist(str1, str2, method = "lv")
+  
+  if (dist > 3) return (FALSE)
+  
+  # check character-by-character alignment
+  chars1 <- strsplit(str1, "")[[1]]
+  chars2 <- strsplit(str2, "")[[2]]
+  
+  # for different lengths, pad the shorter one
+  max_len <- max(length(chars1), length(chars2))
+  if (length(chars1) < max_len) chars1 <- c(chars1,
+                                            rep("", max_len - length(chars1)))
+  if (length(chars2) < max_len) chars2 <- c(chars2,
+                                            rep("", max_len - length(chars2)))
+  
+  # find positions where characters differ
+  diffs <- which(chars1 != chars2)
+  
+  if (length(diffs) == 0) return (TRUE)
+  
+  # check if differences are consecutive (indicating substring replacement)
+  consecutive_diffs <- max(diff(diffs) == 1)
+  max_consecutive <- max(rle(diff(diffs) == 1)$lengths[rle(diff(diffs) == 1)$values], 0)
+  
+  # return TRUE if differences are not in long consecutive streaks
+  return(max_consecutive <= max_consecutive_diff)
+}
+
+# create correction mapping
+corrections <- high_similarity %>% 
+  group_by(unmatched_name) %>% 
+  slice_max(similarity_score, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(unmatched_name, suggested_match, similarity_score) %>% 
+  mutate(
+    length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
+    is_minor_diff = mapply(has_minor_differences, unmatched_name, suggested_match)
+  ) %>% 
+  filter(length_diff <= 2, is_minor_diff == TRUE)
+
+# next step: fix function
 
 # Assigning columns to loader table ---------------------------------------
 
