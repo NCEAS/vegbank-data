@@ -167,17 +167,6 @@ plots_merged <- plots_merged %>%
   ) %>% 
   mutate(
     crs = case_when(
-      GPS_datum == "WGS84" & UTM_zone == 10 ~ 32610,
-      GPS_datum == "WGS84" & UTM_zone == 11 ~ 32611,
-      GPS_datum == "NAD83" & UTM_zone == 10 ~ 26910,
-      GPS_datum == "NAD83" & UTM_zone == 11 ~ 26911,
-      GPS_datum == "NAD27" & UTM_zone == 10 ~ 26710,
-      GPS_datum == "NAD27" & UTM_zone == 11 ~ 26711,
-      TRUE ~ NA_real_
-    )
-  ) %>% 
-  mutate(
-    crs = case_when(
       author_datum == "WGS84" & UTM_zone == 10 ~ 32610,
       author_datum == "WGS84" & UTM_zone == 11 ~ 32611,
       author_datum == "NAD83" & UTM_zone == 10 ~ 26910,
@@ -197,10 +186,6 @@ plots_merged <- plots_merged %>%
 # First split by zone, convert to lat/long, then merge them back together
 # It keeps removing NA values by default and I am trying to keep them
 # New Version (To not affect row numbers)
-
-# 
-unique(plots_merged$GPS_datum)
-unique(plots_merged$author_datum)
 
 plots_UTM <- plots_merged %>%
   mutate(.row_id = row_number())
