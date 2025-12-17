@@ -1,6 +1,6 @@
 library(tidyverse)
 library(here)
-source("Build_Loader_Table.R")
+source("R/build_loader_table.R")
 
 # load in CDFW data -----------------------------------------------------------
 

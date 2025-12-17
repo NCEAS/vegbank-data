@@ -4,7 +4,7 @@ library(sf)
 library(tigris)
 library(rnaturalearth)
 library(vegbankr)
-source("Build_Loader_Table.R")
+source("R/build_loader_table.R")
 
 # Remaining Issues (Wait for Update):
 # location_accuracy
