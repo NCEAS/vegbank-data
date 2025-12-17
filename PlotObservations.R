@@ -77,11 +77,6 @@ plots_LT <- plots_template_fields$template
 
 # checking values -------------------------------------------------------------
 
-# ErrorMeasurement in RAPlots will be mapped to 'location_accuracy'
-# Values will be converted to their unit of measurement as stated in ErrorUnits
-unique(plots$ErrorUnits)
-# ErrorUnits also contains PDOP and Laptop. What to do with those?
-
 # SurveyDate  in RAPlots will be mampped to obsStartDate'
 # Time needs to should be removed
 head(plots$SurveyDate)
@@ -166,11 +161,11 @@ plots_merged <- plots %>%
 # ErrorMeasurement and ErrorUnits in  RAPlots
 # If measurements are not in meters, needs to be converted
 unique(plots_merged$ErrorUnits)
-# need to figure out what to do with the values PDOP and Laptop
+# need to figure out what to do with the values PDOP, pdop and Laptop
 plots_merged <- plots_merged %>% 
   mutate(
     ErrorMeasurement = case_when(
-      ErrorUnits %in% c("F", "ft", "ft.") ~ ErrorMeasurement * 0.3048,
+      ErrorUnits %in% c("F", "ft", "ft.", 'feet') ~ ErrorMeasurement * 0.3048,
       TRUE ~ ErrorMeasurement
     )
   )
@@ -180,10 +175,11 @@ plots_merged <- plots_merged %>%
 # Inconsistent Formatting. Does VegBank need these changed?
 # May delete this, if unnecessary
 # Also, what is the correct format? "NAD83"?
+unique(plots_merged$GPS_datum)
 plots_merged <- plots_merged %>% 
   mutate(
     author_datum = case_when(
-      GPS_datum %in% c("Nad83", "NAD 83", "NAD83") ~ "NAD83",
+      GPS_datum %in% c("Nad83", "NAD 83", "NAD83", "nad83") ~ "NAD83",
       GPS_datum %in% c("WGS84", "WGS 84") ~ "WGS84",
       GPS_datum %in% c("NAD 27") ~ "NAD27",
       TRUE ~ NA_character_
@@ -197,9 +193,13 @@ plots_merged <- plots_merged %>%
       author_datum == "NAD83" & UTM_zone == 11 ~ 26911,
       author_datum == "NAD27" & UTM_zone == 10 ~ 26710,
       author_datum == "NAD27" & UTM_zone == 11 ~ 26711,
+      # if there are UTME & UTMN and zones, but now datum, we are going to assume that it is 'NAD83'
+      # the difference between NAD83 and WGS84 is 1-2 meters, so hopefully irrelevant
+      is.na(author_datum) & UTM_zone == 10 ~ 26910,
+      is.na(author_datum) & UTM_zone == 11 ~ 26911,
       TRUE ~ NA_real_
     )
-  )
+ ) 
 
 
 # real_longitude & real_latitude ------------------------------------------
@@ -274,14 +274,17 @@ state_county_points <- plots_merged %>%
   select(".row_id", "stateProvince", "county") %>% 
   st_drop_geometry()
 
-
 # Add back to data by row id
 plots_merged <- plots_merged %>% 
   left_join(state_county_points, by = ".row_id")
 
 
 # Troubleshooting rows with missing spatial information -------------------
-# View(plots_merged[is.na(plots_merged$county), ])
+missing_county <- plots_merged[is.na(plots_merged$county), ] # what to do with areas that could be in multiple states?
+unique(missing_county$Location_name)
+
+missing_state <- plots_merged[is.na(plots_merged$stateProvince), ]
+unique(missing_state$Location_name)
 
 plots_merged <- plots_merged %>%
   mutate(
@@ -289,7 +292,7 @@ plots_merged <- plots_merged %>%
       is.na(county) &
         str_detect(
           Location_name,
-          "Big Basin State Park|Quail Hollow Quarry Conservation Areas|Schwann Lake, Twin Lakes"
+          "Quail Hollow Quarry Conservation Areas|Schwann Lake, Twin Lakes"
         ) ~ "Santa Cruz",
       TRUE ~ county
     ),
@@ -297,7 +300,7 @@ plots_merged <- plots_merged %>%
       is.na(stateProvince) &
         str_detect(
           Location_name,
-          "Big Basin State Park|Quail Hollow Quarry Conservation Areas|Henry Coe State Park|Schwann Lake, Twin Lakes"
+          "Quail Hollow Quarry Conservation Areas|Schwann Lake, Twin Lakes|Carrizo|Los Angeles Department of Water and Power - Fish Slough|BLM - Fish Slough|Fish Slough Ecological Reserve|Pickel Meadows|Pickel Meadow|Millie Lake|anta Clara River"
         ) ~ "California",
       TRUE ~ stateProvince
     )
