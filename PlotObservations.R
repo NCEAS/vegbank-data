@@ -32,10 +32,13 @@ impacts_1 <- read_csv(here(folder, 'RAImpacts.csv'))
 alt_strata_1 <- read_csv(here(folder, 'AltStrata.csv')) %>% 
   mutate(AltStrataID = NA,
          InVegBank = NA ) # adding columns present in alt_plots_2
+  mutate('AdditionalNotes' = NA,
+        'inVegBank' = NA ) # adding columns present in alt_plots_2
 classification_1 <- read_csv(here(folder, 'RAClassification.csv'))
 projects_1 <- read_csv(here(folder, "RAProjects.csv"))
 
 # read in AARecon data
+
 folder_2 <- 'data/AARecon'
 
 plots_2 <- read_csv(here(folder_2, 'RAPlots.csv'), 
@@ -47,11 +50,11 @@ alt_strata_2 <- read_csv(here(folder_2, 'AltStrata.csv'))
 classification_2 <- read_csv(here(folder_2, 'RAClassification.csv'))
 projects_2 <- read_csv(here(folder_2, "RAProjects.csv"))
 
-
 # merging together RAReleve and AARecon
 plots <- rbind(plots_1, plots_2)
 alt_plots <- rbind(alt_plots_1, alt_plots_2)
 impacts <- rbind(impacts_1, impacts_2)
+
 alt_strata <- rbind(alt_strata_1, alt_strata_2)
 
 # read in CDFW lookup tables
