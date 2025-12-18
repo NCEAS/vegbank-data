@@ -22,10 +22,46 @@ Project loader table data is extracted from `RAProjects` files. The following va
 | start_date          | ProjectStartDate   |
 | stop_date           | ProjectEndDate     |
 
-The project start and stop dates are converted from date-time formats to date formats (dropping the time). Values are checked to ensure they are reasonable.
+The project start and stop dates are converted from date-time formats to date formats (dropping the time). Date values are checked to ensure they are reasonable.
 
 ```{r}
-in_path <- '/var/data/curation/vegbank/'
-out_path <- 'data/loader-tables/projectLT.csv'
-project_loader(in_path, out_path)
+in_dir <- '/var/data/curation/vegbank/'
+out_dir <- 'data/loader-tables'
+project_loader(in_dir, out_dir)
 ```
+
+## Party and Contributor
+
+The two loader tables for Party and Contributor are both extracted from `RAProjects` files. The variable mappings are given below:
+
+### Party Loader Mapping
+
+| Loader Table      | Source Data                            |
+|-------------------|----------------------------------------|
+| user_py_code      | N/A\*                                  |
+| surname           | DataContactName, DataContactName2...   |
+| organization_name | DataContactOrg, DataContactOrg2...     |
+| given_name        | DataContactName, DataContactName2...   |
+| email             | DataContactEmail, DataContactEmail2... |
+| middle_name       | DataContactName, DataContactName2...   |
+
+### Contributor Loader Mapping
+
+| Loader Table     | Source Data                          |
+|------------------|--------------------------------------|
+| vb_py_code       | N/A\*                                |
+| user_py_code     | N/A\*                                |
+| role             | DataContactRole, DataContactRole2... |
+| contributor_type | N/A\*                                |
+| recordIdentifier | ProjectCode                          |
+
+The source data is normalized, moving from wide to long format so that each individual in `DataContact*{n}` columns is in their own row. Emails are checked to ensure they appear valid. Names are then split using whitespace into `given_name`, `middle_name`, and `sur_name`. Unique party codes are generated for each individual (`user_py_code`). Additionally, all unique individuals already in vegbank are retrieved, along with their project codes. Individuals in the source data are matched to existing vegbank parties, and if any are found the existing vegbank identifier is assigned to `vb_py_code`.
+
+`role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. A mapping of role text to role codes can be found within the `party_contributor_loader` function. If no role is found in the source data, the code `ar.46` is assigned. The `contributor_type` field is given a value of "Project" for all rows.
+
+```{r}
+in_dir <- '/var/data/curation/vegbank/'
+out_dir <- 'data/loader-tables'
+party_contributor_loader(in_dir, out_dir)
+```
+
