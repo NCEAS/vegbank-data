@@ -10,9 +10,9 @@ source("R/build_loader_table.R")
 #' @export
 #'
 #' @examples
-project_loader <- function(in_path, out_path){
+project_loader <- function(in_dir, out_dir){
   
-  sub_folders <- dir(in_path, full.names = TRUE) %>%
+  sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
   
   # read in RAProjects
@@ -70,6 +70,8 @@ project_loader <- function(in_path, out_path){
   project_LT$stop_date <- projects$ProjectEndDate
   
   # save filled in loader table
+  out_path <- file.path(out_dir, "projectLT.csv")
+  message(paste("Writing output to:", out_path))
   write_csv(project_LT, out_path)
   
 }
