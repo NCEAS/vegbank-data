@@ -189,7 +189,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # If the person matches, turn user_py_code into vb_py_code
   
   # Turn get_all_parties() output into a dataframe
-  SuppressMessages(vegbankr::vb_set_base_url("https://api-dev.vegbank.org"))
+  suppressMessages(vegbankr::vb_set_base_url("https://api-dev.vegbank.org"))
   party_vegbank <- as.data.frame(vegbankr::vb_get_parties(limit = 5000))
   
   # Create a "full_name" key in both data frames
