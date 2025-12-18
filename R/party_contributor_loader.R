@@ -62,7 +62,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   
   if (any(name_count$word_count > 2)){
     names <- name_count$ContactName[which(name_count$word_count > 2)]
-    warning(glue("Some ContactName entries contain more than two words. The loader table does not accept middle names. The following names may need special attention to ensure correct parsing: {names}"))
+    #warning(glue("Some ContactName entries contain more than two words. The loader table does not accept middle names. The following names may need special attention to ensure correct parsing: {names}"))
   }
   
   # Email should be a valid email address
