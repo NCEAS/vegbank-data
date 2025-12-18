@@ -231,49 +231,136 @@ low_similarity <- all_suggestions %>%
 
 # function to detect localized differences
 has_minor_differences <- function(str1, str2, max_consecutive_diff = 2) {
+
+  # handle NA or empty strings
+  if (is.na(str1) || is.na(str2) || str1 == "" || str2 == "") return (FALSE)
   
-  # use stringdist with method "lv" to get edit operations
+  # use stringdist with method "lv" to get edit distance
   dist <- stringdist(str1, str2, method = "lv")
   
+  # if edit distance is large, likely not minor
   if (dist > 3) return (FALSE)
   
   # check character-by-character alignment
   chars1 <- strsplit(str1, "")[[1]]
-  chars2 <- strsplit(str2, "")[[2]]
+  chars2 <- strsplit(str2, "")[[1]]
   
   # for different lengths, pad the shorter one
   max_len <- max(length(chars1), length(chars2))
-  if (length(chars1) < max_len) chars1 <- c(chars1,
-                                            rep("", max_len - length(chars1)))
-  if (length(chars2) < max_len) chars2 <- c(chars2,
-                                            rep("", max_len - length(chars2)))
+  if (length(chars1) < max_len) chars1 <- c(chars1, rep("", max_len - length(chars1)))
+  if (length(chars2) < max_len) chars2 <- c(chars2, rep("", max_len - length(chars2)))
   
   # find positions where characters differ
   diffs <- which(chars1 != chars2)
   
   if (length(diffs) == 0) return (TRUE)
+  if (length(diffs) == 1) return (TRUE)
   
   # check if differences are consecutive (indicating substring replacement)
-  consecutive_diffs <- max(diff(diffs) == 1)
-  max_consecutive <- max(rle(diff(diffs) == 1)$lengths[rle(diff(diffs) == 1)$values], 0)
+  consecutive_runs <- rle(diff(diffs) == 1)
+  if (any(consecutive_runs$values)) {
+    max_consecutive <- max(consecutive_runs$lengths[consecutive_runs$values])
+  } else {
+    max_consecutive <- 0
+  }
   
   # return TRUE if differences are not in long consecutive streaks
   return(max_consecutive <= max_consecutive_diff)
 }
 
 # create correction mapping
-corrections <- high_similarity %>% 
-  group_by(unmatched_name) %>% 
-  slice_max(similarity_score, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>% 
-  select(unmatched_name, suggested_match, similarity_score) %>% 
+corrections <- high_similarity %>%
+  group_by(unmatched_name) %>%
+  slice_max(similarity_score, n = 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  select(unmatched_name, suggested_match, similarity_score) %>%
   mutate(
     length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
     is_minor_diff = mapply(has_minor_differences, unmatched_name, suggested_match)
-  ) %>% 
+  ) %>%
   filter(length_diff <= 2, is_minor_diff == TRUE)
 
-# next step: fix function
+# changing high_similarity$unmatched_name into a vector
+high_unmatched <- high_similarity %>%
+  pull(unmatched_name)
+
+# verifying names
+verified_names <- gna_verifier(high_unmatched)
+
+# filtering verified_names
+verified_names <- verified_names %>%
+  select(submittedName, matchedName, currentName, currentCanonicalSimple,
+         currentCanonicalFull)
+
+# extract verified corrections
+verified_corrections <- verified_names %>%
+  filter(!is.na(currentCanonicalFull)) %>%
+  select(unmatched_name = submittedName,
+         verified_name = currentCanonicalFull)
+
+# # check if verified names exist in pc_current (reference)
+# valid_corrections <- verified_names %>% 
+#   inner_join(
+#     pc_current %>% select(plant_name, pc_code),
+#     by = c("currentCanonicalFull" = "plant_name")
+#   )
+
+# # merge back into mapping_values
+# mapping_values_updated <- mapping_values %>% 
+#   left_join(valid_corrections,
+#             by = c("authorPlantName" = "matchedName")) %>% 
+#   mutate(
+#     vb_pc_code3 = if_else(is.na(vb_pc_code) & !is.na(pc_code),
+#                           pc_code,
+#                           vb_pc_code),
+#     match_flag = !is.na(vb_pc_code)
+#   )
+
+# extract high_similarity$suggested_match
+fuzzy_correction <- high_similarity %>% 
+  select(unmatched_name, suggested_match)
+
+# cross-match verified_corrections and high_similarity$suggested_match
+cross_matched <- verified_corrections %>% 
+  inner_join(fuzzy_correction, by = "unmatched_name",
+             relationship = "many-to-many") %>% 
+  mutate(
+    matches_agree = (unmatched_name == verified_name),
+    matches_agree2 = (unmatched_name == suggested_match),
+    char_length = (nchar(unmatched_name) == nchar(verified_name)),
+    char_length2 = (nchar(unmatched_name) == nchar(suggested_match)),
+    length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
+    similar_length = (length_diff <= 2),
+    length_diff2 = abs(nchar(unmatched_name) == nchar(verified_name)),
+    similar_length2 = (length_diff <= 2)
+  )
+
+# if both agreed matches are FALSE and the character length matches, use that match
+# if both agreed matches are FALSE and no character length matches, do not change
+# if one is TRUE, use that match
+
+# reviewing if algorithm works
+review <- cross_matched %>% 
+  filter(matches_agree == FALSE,
+         matches_agree2 == FALSE,
+         char_length == FALSE,
+         char_length2 == FALSE,
+         length_diff <= 3,
+         length_diff2 <= 3)
+review2 <- cross_matched %>% 
+  filter(matches_agree == FALSE,
+         matches_agree2 == FALSE,
+         char_length == FALSE,
+         char_length2 == FALSE,
+         length_diff > 2)
+
+# if there is a suggested_match and it works, use it
+# if suggested_match and verified_name doesn't match, upload new plant concept
+
+# remaining problems:
+# not all taxize resolved names match
+# merging doesn't work
+  
 
 # Assigning columns to loader table ---------------------------------------
 
