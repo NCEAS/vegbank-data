@@ -1,7 +1,15 @@
 library(tidyverse)
 source("R/build_loader_table.R")
 
-# load in CDFW data -----------------------------------------------------------
+#' Extract project loader table data from CDFW project files
+#'
+#' @param in_path Directory of files to read from. Function will look for files called RAProjects.csv
+#' @param out_path Path to write output file to.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 project_loader <- function(in_path, out_path){
   
   sub_folders <- dir(in_path, full.names = TRUE) %>%
@@ -66,8 +74,4 @@ project_loader <- function(in_path, out_path){
   
 }
 
-# set folder where data is stored
-in_path <- '/var/data/curation/vegbank/'
-out_path <- 'data/loader-tables/projectLT.csv'
-project_loader(in_path, out_path)
 

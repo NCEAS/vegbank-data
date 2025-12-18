@@ -1,0 +1,31 @@
+---
+title: "Loader Table Workflow"
+format: html
+editor: visual
+---
+
+```{r}
+file_path <- "R"
+r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
+invisible(lapply(r_scripts_source, source))
+```
+
+## Projects
+
+Project loader table data is extracted from `RAProjects` files. The following variable mappings are used:
+
+| Loader Table        | Source Data        |
+|---------------------|--------------------|
+| user_pj_code        | ProjectCode        |
+| project_name        | ProjectName        |
+| project_description | ProjectDescription |
+| start_date          | ProjectStartDate   |
+| stop_date           | ProjectEndDate     |
+
+The project start and stop dates are converted from date-time formats to date formats (dropping the time). Values are checked to ensure they are reasonable.
+
+```{r}
+in_path <- '/var/data/curation/vegbank/'
+out_path <- 'data/loader-tables/projectLT.csv'
+project_loader(in_path, out_path)
+```
