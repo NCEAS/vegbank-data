@@ -24,12 +24,12 @@ build_loader_table <- function(
     clean      = TRUE
 ) {
   # read the column (no headers)
-  vars <- googlesheets4::read_sheet(
+  suppressMessages(vars <- googlesheets4::read_sheet(
     sheet_url,
     sheet     = sheet,
     range     = range,
     col_names = FALSE
-  )
+  ))
  
   if (ncol(vars) == 0 || nrow(vars) == 0) {
     stop("Selected range has no data. Check `sheet`/`range`.")
