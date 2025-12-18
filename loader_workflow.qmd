@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-```{r}
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "R"
 r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
 invisible(lapply(r_scripts_source, source))
@@ -64,4 +64,3 @@ in_dir <- '/var/data/curation/vegbank/'
 out_dir <- 'data/loader-tables'
 party_contributor_loader(in_dir, out_dir)
 ```
-
