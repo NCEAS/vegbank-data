@@ -19,7 +19,8 @@ project_loader <- function(in_dir, out_dir){
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = "RAProjects.csv", value = TRUE)
   
-  message(paste("Processing", length(project_files), "project tables:", paste(project_files, collapse = ", ")))
+  cli::cli_alert_info(paste("Processing", length(project_files), "people/contributor tables from:"))
+  cli::cli_ul(project_files)
   
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   
@@ -43,21 +44,21 @@ project_loader <- function(in_dir, out_dir){
   
   # warn if dates are before 1900
   if (any(projects$ProjectStartDate < as.Date("1900-01-01"), na.rm = TRUE)) {
-    warning("Some project start dates are before 1900.")
+    cli::cli_alert_warning("Some project start dates are before 1900.")
   }
   
   if (any(projects$ProjectEndDate < as.Date("1900-01-01"), na.rm = TRUE)) {
-    warning("Some project end dates are before 1900.")
+    cli::cli_alert_warning("Some project end dates are before 1900.")
   }
   
   today <- Sys.Date()
   
   if (any(projects$ProjectStartDate > today, na.rm = TRUE)) {
-    warning("Some project start dates are in the future.")
+    cli::cli_alert_warning("Some project start dates are in the future.")
   }
   
   if (any(projects$ProjectEndDate > today, na.rm = TRUE)) {
-    warning("Some project end dates are in the future.")
+    cli::cli_alert_warning("Some project end dates are in the future.")
   }
   
   # assigning columns to loader table -------------------------------------------
@@ -71,7 +72,7 @@ project_loader <- function(in_dir, out_dir){
   
   # save filled in loader table
   out_path <- file.path(out_dir, "projectLT.csv")
-  message(paste("Writing output to:", out_path))
+  cli::cli_alert_success("Writing output to: {out_path}")
   write_csv(project_LT, out_path)
   
 }

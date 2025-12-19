@@ -15,7 +15,8 @@ party_contributor_loader <- function(in_dir, out_dir){
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = "RAProjects.csv", value = TRUE)
   
-  message(paste("Processing", length(project_files), "people/contributor tables from:", paste(project_files, collapse = ", ")))
+  cli::cli_alert_info(paste("Processing", length(project_files), "people/contributor tables from:"))
+  cli::cli_ul(project_files)
   
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   projects <- do.call(bind_rows, projects_df_list)
@@ -72,7 +73,7 @@ party_contributor_loader <- function(in_dir, out_dir){
     filter(!str_detect(ContactEmail, email_pattern))
   
   if (nrow(invalid_emails) > 0){
-    warning(glue("Some email addresses appear to be invalid: {paste(invalid_emails$ContactEmail, collapse = ', ')}"))
+    cli::cli_alert_warning("Some email addresses appear to be invalid: {.emph {paste(invalid_emails$ContactEmail, collapse = ', ')}}")
   }
   
   # Adjusting number of rows in party_LT to account for pivot
@@ -172,7 +173,9 @@ party_contributor_loader <- function(in_dir, out_dir){
   
   if (!all(grepl("^ar\\.", projects$RoleCode))){
     uncat <- grep("^ar\\.", projects$RoleCode, value = TRUE, invert = TRUE)
-    warning(glue("The following project roles were not transformed into vegbank ar.* codes: {paste(uncat, collapse = ', ')}"))
+    cli::cli_alert_warning("The following project roles were not transformed into vegbank codes:")
+    cli::cli_h3("Uncategorized roles")
+    cli::cli_ul(uncat)
   }
   
   ### contributor_type (Contributor) ###
@@ -248,7 +251,8 @@ party_contributor_loader <- function(in_dir, out_dir){
   # saved filled in loader table --------------------------------------------
   out_path_party <- file.path(out_dir, "partyLT.csv")
   out_path_contributor <- file.path(out_dir, 'contributorLT.csv')
-  message(paste("Writing two output files to:", out_path_party, out_path_contributor))
+  cli::cli_alert_success("Writing two output files to:")
+  cli::cli_ul(c(out_path_party, out_path_contributor))
   
   write_csv(party_LT, out_path_party)
   write_csv(contributor_LT, out_path_contributor)
