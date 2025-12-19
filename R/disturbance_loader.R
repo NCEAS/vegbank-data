@@ -81,7 +81,7 @@ disturbance_loader <- function(in_dir, out_dir){
   
   # save filled in loader table
   out_path <- file.path(out_dir, "disturbanceLT.csv")
-  cli::cli_alert_success("Writing output files to:")
+  cli::cli_alert_success("Writing output file to:")
   cli::cli_ul(out_path)
   
   write_csv(disturb_LT, out_path)
