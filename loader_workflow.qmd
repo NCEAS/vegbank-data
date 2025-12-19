@@ -4,6 +4,10 @@ format: html
 editor: visual
 ---
 
+## Introduction
+
+This quarto document describes processing and quality assurance steps used to convert CDFW data into the format needed for ingest into vegbank. Each loader table has a function in the family `[table]_loader` which is run on input data and generates output files at the desired location. Messages from the loader functions indicate potential issues with input datasets.
+
 ```{r, echo = FALSE}
 googlesheets4::gs4_auth()
 ```
@@ -67,4 +71,26 @@ The source data is normalized, moving from wide to long format so that each indi
 in_dir <- '/var/data/curation/vegbank/'
 out_dir <- 'data/loader-tables'
 party_contributor_loader(in_dir, out_dir)
+```
+
+
+## Disturbance 
+
+Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table. Variable mappings are given below:
+
+| Loader Table     | Source Data                          |
+|------------------|--------------------------------------|
+| ob_code          | SurveyID                             |
+| disturbance_type | Impact type                      |
+| disturbance_comment   | Other      |
+| disturbance_intensity | Intensity                |
+| disturbance_age | N/A                          |
+| disturbance_extent | N/A                          |
+
+Intensity values are checked to ensure they are either 1, 2, or 3, and then these values are converted to low, medium, and high, respectively. Unknown intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field. Disturbance age and extent are not present in the CDFW data so are set to `NA` for all rows in the loader table.
+
+```{r}
+in_dir <- '/var/data/curation/vegbank/'
+out_dir <- 'data/loader-tables'
+disturbance_loader(in_dir, out_dir)
 ```
