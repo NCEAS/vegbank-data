@@ -176,212 +176,212 @@ mapping_values <- mapping_values %>%
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
 
 # # ----------------------------------------------------------------------------
-# 
-# # troubleshooting false matches
-# # making a cross-join comparison table
-# # make all names lowercase and trimmed
-# mapping_values_clean <- mapping_values %>% 
-#   mutate(mapping_values_index = row_number()) %>% 
-#   mutate(authorPlantName = str_trim(tolower(authorPlantName))) %>% 
-#   select(mapping_values_name = authorPlantName, mapping_values_index)
-# pc_current_clean <- pc_current %>% 
-#   mutate(pc_current_index = row_number()) %>% 
-#   mutate(plant_name = str_trim(tolower(plant_name))) %>% 
-#   select(pc_current_name = plant_name, pc_current_index)
-# 
-# # cross join
-# comparison_table <- stringdist_inner_join(
-#   mapping_values_clean,
-#   pc_current_clean,
-#   by = c("mapping_values_name" = "pc_current_name"),
-#   method = "cosine",
-#   max_dist = 0.1,
-#   distance_col = "similarity",
-# ) %>%
-#   mutate(similarity = 1 - similarity) %>%
-#   filter(similarity < 1) %>%
-#   arrange(desc(similarity)) %>%
-#   distinct(pc_current_index, .keep_all = TRUE)
-# 
-# # trying different approach
-# # find closest matches using fuzzy matching
-# find_matches <- function(wrong_name, correct_list, max_distance = 3) {
-#   distances <- stringdist(wrong_name, correct_list, method = "lv")
-#   top_matches <- order(distances)[1:5]
-#   
-#   data.frame(
-#     original = wrong_name,
-#     suggested_match = correct_list[top_matches],
-#     distance = distances[top_matches]
+
+# troubleshooting false matches
+# making a cross-join comparison table
+# make all names lowercase and trimmed
+mapping_values_clean <- mapping_values %>%
+  mutate(mapping_values_index = row_number()) %>%
+  mutate(authorPlantName = str_trim(tolower(authorPlantName))) %>%
+  select(mapping_values_name = authorPlantName, mapping_values_index)
+pc_current_clean <- pc_current %>%
+  mutate(pc_current_index = row_number()) %>%
+  mutate(plant_name = str_trim(tolower(plant_name))) %>%
+  select(pc_current_name = plant_name, pc_current_index)
+
+# cross join
+comparison_table <- stringdist_inner_join(
+  mapping_values_clean,
+  pc_current_clean,
+  by = c("mapping_values_name" = "pc_current_name"),
+  method = "cosine",
+  max_dist = 0.1,
+  distance_col = "similarity",
+) %>%
+  mutate(similarity = 1 - similarity) %>%
+  filter(similarity < 1) %>%
+  arrange(desc(similarity)) %>%
+  distinct(pc_current_index, .keep_all = TRUE)
+
+# trying different approach
+# find closest matches using fuzzy matching
+find_matches <- function(wrong_name, correct_list, max_distance = 3) {
+  distances <- stringdist(wrong_name, correct_list, method = "lv")
+  top_matches <- order(distances)[1:5]
+
+  data.frame(
+    original = wrong_name,
+    suggested_match = correct_list[top_matches],
+    distance = distances[top_matches]
+  )
+}
+
+# get unmatched plant names
+unmatched_plants <- mapping_values %>%
+  filter(is.na(vb_pc_code) | match_flag == FALSE) %>%
+  distinct(authorPlantName)
+
+# reference list
+reference_names <- pc_current$plant_name
+
+# function for finding the closest names
+find_closest_matches <- function(name_to_match, reference_list, top_n = 2) {
+
+  # calculate string distances
+  distances <- stringdist(name_to_match, reference_list, method = "jw")
+
+  # get top 3 closest matches
+  top_indices <- order(distances)[1:2]
+
+  data.frame(
+    unmatched_name = name_to_match,
+    suggested_match = reference_list[top_indices],
+    similarity_score = 1 - distances[top_indices],
+    stringsAsFactors = FALSE
+  )
+}
+
+# apply to all unmatched names
+all_suggestions <- do.call(rbind, lapply(unmatched_plants$authorPlantName,
+                                         find_closest_matches,
+                                         reference_names))
+
+# filter similarity (change the number according to your need)
+# 0.9259259 has been suggested for spelling errors
+# manual troubleshooting
+high_similarity <- all_suggestions %>%
+  filter(similarity_score >= 0.9259259) %>%
+  arrange(unmatched_name, desc(similarity_score))
+
+# uploading new plant concepts
+low_similarity <- all_suggestions %>%
+  filter(similarity_score < 0.9259259) %>%
+  arrange(unmatched_name)
+
+# function to detect localized differences
+has_minor_differences <- function(str1, str2, max_consecutive_diff = 2) {
+
+  # handle NA or empty strings
+  if (is.na(str1) || is.na(str2) || str1 == "" || str2 == "") return (FALSE)
+
+  # use stringdist with method "lv" to get edit distance
+  dist <- stringdist(str1, str2, method = "lv")
+
+  # if edit distance is large, likely not minor
+  if (dist > 3) return (FALSE)
+
+  # check character-by-character alignment
+  chars1 <- strsplit(str1, "")[[1]]
+  chars2 <- strsplit(str2, "")[[1]]
+
+  # for different lengths, pad the shorter one
+  max_len <- max(length(chars1), length(chars2))
+  if (length(chars1) < max_len) chars1 <- c(chars1, rep("", max_len - length(chars1)))
+  if (length(chars2) < max_len) chars2 <- c(chars2, rep("", max_len - length(chars2)))
+
+  # find positions where characters differ
+  diffs <- which(chars1 != chars2)
+
+  if (length(diffs) == 0) return (TRUE)
+  if (length(diffs) == 1) return (TRUE)
+
+  # check if differences are consecutive (indicating substring replacement)
+  consecutive_runs <- rle(diff(diffs) == 1)
+  if (any(consecutive_runs$values)) {
+    max_consecutive <- max(consecutive_runs$lengths[consecutive_runs$values])
+  } else {
+    max_consecutive <- 0
+  }
+
+  # return TRUE if differences are not in long consecutive streaks
+  return(max_consecutive <= max_consecutive_diff)
+}
+
+# create correction mapping
+corrections <- high_similarity %>%
+  group_by(unmatched_name) %>%
+  slice_max(similarity_score, n = 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  select(unmatched_name, suggested_match, similarity_score) %>%
+  mutate(
+    length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
+    is_minor_diff = mapply(has_minor_differences, unmatched_name, suggested_match)
+  ) %>%
+  filter(length_diff <= 2, is_minor_diff == TRUE)
+
+# changing high_similarity$unmatched_name into a vector
+high_unmatched <- high_similarity %>%
+  pull(unmatched_name)
+
+# verifying names
+verified_names <- gna_verifier(high_unmatched)
+
+# filtering verified_names
+verified_names <- verified_names %>%
+  select(submittedName, matchedName, currentName, currentCanonicalSimple,
+         currentCanonicalFull)
+
+# extract verified corrections
+verified_corrections <- verified_names %>%
+  filter(!is.na(currentCanonicalFull)) %>%
+  select(unmatched_name = submittedName,
+         verified_name = currentCanonicalFull)
+
+# # check if verified names exist in pc_current (reference)
+# valid_corrections <- verified_names %>%
+#   inner_join(
+#     pc_current %>% select(plant_name, pc_code),
+#     by = c("currentCanonicalFull" = "plant_name")
 #   )
-# }
-# 
-# # get unmatched plant names
-# unmatched_plants <- mapping_values %>% 
-#   filter(is.na(vb_pc_code) | match_flag == FALSE) %>% 
-#   distinct(authorPlantName)
-# 
-# # reference list
-# reference_names <- pc_current$plant_name
-# 
-# # function for finding the closest names
-# find_closest_matches <- function(name_to_match, reference_list, top_n = 2) {
-#   
-#   # calculate string distances
-#   distances <- stringdist(name_to_match, reference_list, method = "jw")
-#   
-#   # get top 3 closest matches
-#   top_indices <- order(distances)[1:2]
-#   
-#   data.frame(
-#     unmatched_name = name_to_match,
-#     suggested_match = reference_list[top_indices], 
-#     similarity_score = 1 - distances[top_indices],
-#     stringsAsFactors = FALSE
-#   )
-# }
-# 
-# # apply to all unmatched names
-# all_suggestions <- do.call(rbind, lapply(unmatched_plants$authorPlantName,
-#                                          find_closest_matches,
-#                                          reference_names))
-# 
-# # filter similarity (change the number according to your need)
-# # 0.9259259 has been suggested for spelling errors
-# # manual troubleshooting
-# high_similarity <- all_suggestions %>% 
-#   filter(similarity_score >= 0.9259259) %>% 
-#   arrange(unmatched_name, desc(similarity_score))
-# 
-# # uploading new plant concepts
-# low_similarity <- all_suggestions %>% 
-#   filter(similarity_score < 0.9259259) %>% 
-#   arrange(unmatched_name)
-# 
-# # function to detect localized differences
-# has_minor_differences <- function(str1, str2, max_consecutive_diff = 2) {
-#   
-#   # handle NA or empty strings
-#   if (is.na(str1) || is.na(str2) || str1 == "" || str2 == "") return (FALSE)
-#   
-#   # use stringdist with method "lv" to get edit distance
-#   dist <- stringdist(str1, str2, method = "lv")
-#   
-#   # if edit distance is large, likely not minor
-#   if (dist > 3) return (FALSE)
-#   
-#   # check character-by-character alignment
-#   chars1 <- strsplit(str1, "")[[1]]
-#   chars2 <- strsplit(str2, "")[[1]]
-#   
-#   # for different lengths, pad the shorter one
-#   max_len <- max(length(chars1), length(chars2))
-#   if (length(chars1) < max_len) chars1 <- c(chars1, rep("", max_len - length(chars1)))
-#   if (length(chars2) < max_len) chars2 <- c(chars2, rep("", max_len - length(chars2)))
-#   
-#   # find positions where characters differ
-#   diffs <- which(chars1 != chars2)
-#   
-#   if (length(diffs) == 0) return (TRUE)
-#   if (length(diffs) == 1) return (TRUE)
-#   
-#   # check if differences are consecutive (indicating substring replacement)
-#   consecutive_runs <- rle(diff(diffs) == 1)
-#   if (any(consecutive_runs$values)) {
-#     max_consecutive <- max(consecutive_runs$lengths[consecutive_runs$values])
-#   } else {
-#     max_consecutive <- 0
-#   }
-#   
-#   # return TRUE if differences are not in long consecutive streaks
-#   return(max_consecutive <= max_consecutive_diff)
-# }
-# 
-# # create correction mapping
-# corrections <- high_similarity %>%
-#   group_by(unmatched_name) %>%
-#   slice_max(similarity_score, n = 1, with_ties = FALSE) %>%
-#   ungroup() %>%
-#   select(unmatched_name, suggested_match, similarity_score) %>%
+
+# # merge back into mapping_values
+# mapping_values_updated <- mapping_values %>%
+#   left_join(valid_corrections,
+#             by = c("authorPlantName" = "matchedName")) %>%
 #   mutate(
-#     length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
-#     is_minor_diff = mapply(has_minor_differences, unmatched_name, suggested_match)
-#   ) %>%
-#   filter(length_diff <= 2, is_minor_diff == TRUE)
-# 
-# # changing high_similarity$unmatched_name into a vector
-# high_unmatched <- high_similarity %>%
-#   pull(unmatched_name)
-# 
-# # verifying names
-# verified_names <- gna_verifier(high_unmatched)
-# 
-# # filtering verified_names
-# verified_names <- verified_names %>%
-#   select(submittedName, matchedName, currentName, currentCanonicalSimple,
-#          currentCanonicalFull)
-# 
-# # extract verified corrections
-# verified_corrections <- verified_names %>%
-#   filter(!is.na(currentCanonicalFull)) %>%
-#   select(unmatched_name = submittedName,
-#          verified_name = currentCanonicalFull)
-# 
-# # # check if verified names exist in pc_current (reference)
-# # valid_corrections <- verified_names %>% 
-# #   inner_join(
-# #     pc_current %>% select(plant_name, pc_code),
-# #     by = c("currentCanonicalFull" = "plant_name")
-# #   )
-# 
-# # # merge back into mapping_values
-# # mapping_values_updated <- mapping_values %>% 
-# #   left_join(valid_corrections,
-# #             by = c("authorPlantName" = "matchedName")) %>% 
-# #   mutate(
-# #     vb_pc_code3 = if_else(is.na(vb_pc_code) & !is.na(pc_code),
-# #                           pc_code,
-# #                           vb_pc_code),
-# #     match_flag = !is.na(vb_pc_code)
-# #   )
-# 
-# # extract high_similarity$suggested_match
-# fuzzy_correction <- high_similarity %>% 
-#   select(unmatched_name, suggested_match)
-# 
-# # cross-match verified_corrections and high_similarity$suggested_match
-# cross_matched <- verified_corrections %>% 
-#   inner_join(fuzzy_correction, by = "unmatched_name",
-#              relationship = "many-to-many") %>% 
-#   mutate(
-#     matches_agree = (unmatched_name == verified_name),
-#     matches_agree2 = (unmatched_name == suggested_match),
-#     char_length = (nchar(unmatched_name) == nchar(verified_name)),
-#     char_length2 = (nchar(unmatched_name) == nchar(suggested_match)),
-#     length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
-#     similar_length = (length_diff <= 2),
-#     length_diff2 = abs(nchar(unmatched_name) == nchar(verified_name)),
-#     similar_length2 = (length_diff <= 2)
+#     vb_pc_code3 = if_else(is.na(vb_pc_code) & !is.na(pc_code),
+#                           pc_code,
+#                           vb_pc_code),
+#     match_flag = !is.na(vb_pc_code)
 #   )
-# 
-# # if both agreed matches are FALSE and the character length matches, use that match
-# # if both agreed matches are FALSE and no character length matches, do not change
-# # if one is TRUE, use that match
-# 
-# # reviewing if algorithm works
-# review <- cross_matched %>% 
-#   filter(matches_agree == FALSE,
-#          matches_agree2 == FALSE,
-#          char_length == FALSE,
-#          char_length2 == FALSE,
-#          length_diff <= 3,
-#          length_diff2 <= 3)
-# review2 <- cross_matched %>% 
-#   filter(matches_agree == FALSE,
-#          matches_agree2 == FALSE,
-#          char_length == FALSE,
-#          char_length2 == FALSE,
-#          length_diff > 2)
+
+# extract high_similarity$suggested_match
+fuzzy_correction <- high_similarity %>%
+  select(unmatched_name, suggested_match)
+
+# cross-match verified_corrections and high_similarity$suggested_match
+cross_matched <- verified_corrections %>%
+  inner_join(fuzzy_correction, by = "unmatched_name",
+             relationship = "many-to-many") %>%
+  mutate(
+    matches_agree = (unmatched_name == verified_name),
+    matches_agree2 = (unmatched_name == suggested_match),
+    char_length = (nchar(unmatched_name) == nchar(verified_name)),
+    char_length2 = (nchar(unmatched_name) == nchar(suggested_match)),
+    length_diff = abs(nchar(unmatched_name) - nchar(suggested_match)),
+    similar_length = (length_diff <= 2),
+    length_diff2 = abs(nchar(unmatched_name) == nchar(verified_name)),
+    similar_length2 = (length_diff <= 2)
+  )
+
+# if both agreed matches are FALSE and the character length matches, use that match
+# if both agreed matches are FALSE and no character length matches, do not change
+# if one is TRUE, use that match
+
+# reviewing if algorithm works
+review <- cross_matched %>%
+  filter(matches_agree == FALSE,
+         matches_agree2 == FALSE,
+         char_length == FALSE,
+         char_length2 == FALSE,
+         length_diff <= 3,
+         length_diff2 <= 3)
+review2 <- cross_matched %>%
+  filter(matches_agree == FALSE,
+         matches_agree2 == FALSE,
+         char_length == FALSE,
+         char_length2 == FALSE,
+         length_diff > 2)
 
 # if there is a suggested_match and it works, use it
 # if suggested_match and verified_name doesn't match, upload new plant concept
@@ -411,7 +411,34 @@ result <- plants %>%
   # NA vb_pc_code
   filter(is.na(vb_pc_code))
 
-# next steps: check if there is typo in CodeSpecies
+# try comparison on SpeciesName with CodeSpecies
+small1 <- review %>% 
+  left_join(plants %>% select(CodeSpecies, SpeciesName) %>% distinct(),
+            by = c("unmatched_name" = "SpeciesName")) %>%
+  left_join(plants %>% select(CodeSpecies, SpeciesName) %>% distinct(),
+            by = c("suggested_match" = "SpeciesName")) %>% 
+  select(CodeSpecies.x, unmatched_name, CodeSpecies.y,
+         everything(), -verified_name)
+  
+# if there is a missing CodeSpecies.y or CodeSpecies.x and -.y match,
+# replace it as the original
+# filter out plants that are not in the review data set as well as the ones
+# that have a CodeSpecies in small1 and label them as plants that need new
+# plant concepts
+
+# missing CodeSpecies filter for manual evaluation of algorithm
+small1_missing_filter <- small1 %>% 
+  filter(!is.na(small1$CodeSpecies.y))
+
+# CodeSpecies algorithm
+small1_algo <- small1 %>% 
+  mutate(suggested_match = case_when(
+    is.na(CodeSpecies.y) ~ unmatched_name,
+    CodeSpecies.y == CodeSpecies.x ~ unmatched_name,
+    TRUE ~ suggested_match
+  ))
+
+# join with mapping_values
 
 
 # Assigning columns to loader table ---------------------------------------
