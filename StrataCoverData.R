@@ -175,6 +175,9 @@ mapping_values <- mapping_values %>%
 mapping_values <- mapping_values %>%
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
 
+# mapping_values5 <- mapping_values %>% 
+#   filter(!is.na(vb_pc_code2))
+
 # removing duplicates
 plants2 <- plants %>% 
   distinct(SpeciesName, .keep_all = TRUE)
@@ -182,7 +185,7 @@ plants2 <- plants %>%
 # join CodeSpecies to mapping_values
 mapping_values3 <- mapping_values %>% 
   left_join(plants2, by = c("authorPlantName" = "SpeciesName")) %>% 
-  select(CodeSpecies, authorPlantName, match_flag, vb_pc_code2) # error
+  select(CodeSpecies, authorPlantName, match_flag, vb_pc_code2)
 
 # # ----------------------------------------------------------------------------
 
@@ -403,6 +406,31 @@ review2 <- cross_matched %>%
 mapping_unique <- mapping_values %>% 
   filter(match_flag == TRUE)
 
+# matching to CodeSpecies ===================================================
+unmapped_code <- mapping_values3 %>% 
+  filter(is.na(vb_pc_code2))
+
+# filtering out authorPlantName NA for fuzzy matching
+unmapped_code_na <- mapping_values3 %>% 
+  filter(!is.na(authorPlantName) & is.na(vb_pc_code2))
+unmapped_code_na2 <- mapping_values3 %>% 
+  filter(!is.na(authorPlantName))
+
+# fuzzy matching with authorPlantName
+fuzzy_check <- unmapped_code_na %>% 
+  stringdist_inner_join(unmapped_code_na2,
+                        by = c("CodeSpecies" = "CodeSpecies"),
+                        max_dist = 2,
+                        method = "lv",
+                        distance_col = "distance") %>%
+  group_by(CodeSpecies.x) %>% 
+  slice_min(distance, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(CodeSpecies.x,
+         authorPlantName.x,
+         CodeSpecies.y,
+         authorPlantName.y)
+
 # USDA Troubleshooting
 result <- plants %>% 
   
@@ -488,8 +516,8 @@ strata_cover_LT2 <- strata_cover_LT %>%
   mutate(row_id_LT = row_number())
 mapping_values22 <- mapping_values2 %>% 
   mutate(row_id_map = row_number())
-extra_rows <- mapping_values22 %>% 
-  anti_join(strata_cover_LT, by = "authorPlantName")
+# extra_rows <- mapping_values22 %>% 
+#   anti_join(strata_cover_LT, by = "authorPlantName")
 
 
 # Assigning columns to loader table ---------------------------------------
@@ -497,7 +525,7 @@ extra_rows <- mapping_values22 %>%
 strata_cover_LT$user_sr_code <- plants$Stratum
 strata_cover_LT$authorPlantName <- plants$SpeciesName
 strata_cover_LT$cover <- plants$Species_cover
-strata_cover_LT$vb_pc_code <- mapping_values2$vb_pc_code2
+strata_cover_LT$vb_pc_code <- mapping_values3$vb_pc_code2
 
 # All variables besides authorPlantName, cover, and user_sre_code were not matched and are left as 'NA'
 # }
