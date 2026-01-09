@@ -610,72 +610,26 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- plots_merged %>% 
     mutate(SurveyDate = as_date(ymd(SurveyDate)))
   
-  
+  return(plots_merged)
 }
 
-
+# run googlesheets auth on first run
+# googlesheets4::gs4_auth()
+plots_merged <- plots_loader(
+  in_dir  = "/var/data/curation/vegbank/",
+  out_dir = "data/loader-tables"
+)
 
 # start here! work in progress
-plots_merged2 <- plots_merged %>% 
-  mutate(across(contains("_cover"),
-                ~ if_else(.x < 1, .x * 100, .x))) %>% 
+# can take max of confi/hdwd rather than formula
+plots_merged2 <- plots_merged %>%
+  mutate(across(contains("_cover"), ~ if_else(.x < 1, .x * 100, .x))) %>%
   mutate(
-    # Formula
-    conif_ratio = Conif_cover / (Conif_cover + Hdwd_cover)
-  ) %>% 
-  select(SurveyID, conif_ratio, Conif_cover, Hdwd_cover, Conif_ht22, Hdwd_ht22)
+    treeHt = pmax(Conif_ht22, Hdwd_ht22, na.rm = TRUE),
+    treeHt = if_else(is.infinite(treeHt), NA_real_, treeHt)
+  ) %>%
+  select(SurveyID, Conif_cover, Hdwd_cover, Conif_ht22, Hdwd_ht22, treeHt)
 
-#%>% 
-  
-  mutate(
-    treeHt = case_when(
-      
-      # Conif_ht2 has an observation but Hdwd_ht2 doesn't
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 7.5 ~ 7.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 0.75 ~ 0.75,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 12.5 ~ 12.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 3.5 ~ 3.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 27.5 ~ 27.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 17.5 ~ 17.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 42.5 ~ 42.5,
-      !is.na(Conif_ht22) & is.na(Hdwd_ht22) & Conif_ht22 == 1.5 ~ 1.5,
-      TRUE ~ NA_real_
-      )
-    ) %>% 
-  
-  mutate(
-    treeHt = case_when(
-      # Hdwd_ht2 has an observation but Conif_ht2 doesn't
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 3.5 ~ 3.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 1.5 ~ 1.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 0.75 ~ 0.75,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 17.5 ~ 17.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 7.5 ~ 7.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 12.5 ~ 12.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 27.5 ~ 27.5,
-      !is.na(Hdwd_ht22) & is.na(Conif_ht22) & Hdwd_ht22 == 42.5 ~ 42.5,
-      TRUE ~ NA_real_
-    )
-  ) %>% 
-  
-  mutate(
-    treeHt = case_when(
-      
-      # Both Hdwd_ht2 and Conif_ht2 has observations, >= 30%, Hdwd_ht2 is taller
-      !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio >= 0.30 
-      & Hdwd_ht22 > Conif_ht22 ~ Hdwd_ht22,
-      
-      # Both Hdwd_ht2 and Conif_ht2 has observations, >= 30%, Conif_ht2 is taller
-      !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio >= 0.30
-      & Conif_ht22 > Hdwd_ht22 ~ Conif_ht22,
-      
-      # Both Hdwd_ht2 and Conif_ht2 has observations, <30%
-      !is.na(Hdwd_ht22) & !is.na(Conif_ht22) & conif_ratio < 0.30
-      ~ Hdwd_ht22,
-      
-      TRUE ~ NA_real_
-    )
-  )
 
 ### growthform1/2Cover (PlotObservations) ###
 # Conif_ht2
