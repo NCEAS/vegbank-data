@@ -615,6 +615,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- calc_tree_cover(plots_merged)
   plots_merged <- calc_conif_height(plots_merged)
   plots_merged <- calc_hdwd_height(plots_merged)
+  plots_merged <- assign_tree_height(plots_merged)
 
 
   # previously this only assigned user_ob_code to the SurveyId if it existed in the classification table
