@@ -19,7 +19,27 @@ options(tigris_use_cache = TRUE, tigris_class = "sf")
 
 # load in CDFW data -----------------------------------------------------------
 
-plots_loader <- function(in_dir, out_dir){
+# convert a data frame with a crs (epsg code) and an easting/northing coordinate ("UTME_final", "UTMN_final") to lat/lon coordinates
+convert_to_ll <- function(df_group) {
+  crs_utm <- unique(df_group$crs)
+  if (length(crs_utm) != 1 || is.na(crs_utm)) return(NULL)
+  
+  df <- st_as_sf(df_group,
+                 coords = c("UTME_final", "UTMN_final"),
+                 crs = crs_utm,
+                 na.fail = FALSE
+  ) %>%
+    st_transform(4326) %>%
+    mutate(
+      real_longitude = st_coordinates(geometry)[, 1],
+      real_latitude = st_coordinates(geometry)[, 2]
+    ) %>%
+    st_drop_geometry() %>%
+    select(.row_id, real_longitude, real_latitude)
+}
+
+# read in files from input directory and join into one table
+load_files <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
@@ -38,7 +58,7 @@ plots_loader <- function(in_dir, out_dir){
     grep(pattern = 'RAClassification.csv', value = TRUE)
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'RAProjects.csv', value = TRUE)
-
+  
   
   plots_df_list <- lapply(plot_files, read_csv, progress = FALSE, show_col_types = FALSE, col_types = cols(`PlotOther5` = col_character()))
   plots <- do.call(bind_rows, plots_df_list)
@@ -53,8 +73,6 @@ plots_loader <- function(in_dir, out_dir){
   classification <- do.call(bind_rows, classification_df_list)
   project_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   projects <- do.call(bind_rows, project_df_list)
-  
-  # possibly read in lookups??
   
   # create blank Loader Table dataframe -----------------------------------------------------
   
@@ -83,6 +101,13 @@ plots_loader <- function(in_dir, out_dir){
     cli::cli_alert_warning("Some survey dates are in the future.")
   }
   
+  return(plots_merged)
+  
+}
+
+# normalize elevation with correct units, and error measurement
+normalize_elevation <- function(plots_merged){
+  
   ### elevation (PlotObservations) ###
   # Elevation (RAPlots) related to ft_mElevation (RAPlots)
   # Numbers should be converted to meters if the unit in ft_mElevation starts with f.
@@ -109,6 +134,14 @@ plots_loader <- function(in_dir, out_dir){
         TRUE ~ ErrorMeasurement
       )
     )
+  
+  return(plots_merged)
+  
+  
+}
+
+# normalize CRS and convert to lat/lon
+normalize_coordinates <- function(plots_merged){
   
   ### author_datum (PlotObservations) ###
   # GPS_datum (RAPlots)
@@ -167,14 +200,17 @@ plots_loader <- function(in_dir, out_dir){
   
   plots_merged <- plots_UTM %>%
     left_join(df_coords, by = ".row_id") 
-  
+  return(plots_merged)
+}
+
+assign_state_county <- function(plots_merged){
   # getting state boundaries
   suppressMessages(states_sf <- tigris::states(progress_bar = FALSE) %>% 
-    st_transform(4326))
+                     st_transform(4326))
   
   # getting courty boundaries
   suppressMessages(counties_sf <- tigris::counties(progress_bar = FALSE) %>% 
-    st_transform(4326))
+                     st_transform(4326))
   
   state_county_points <- plots_merged %>% 
     select(".row_id", "real_longitude", "real_latitude") %>% 
@@ -225,6 +261,11 @@ plots_loader <- function(in_dir, out_dir){
   
   plots_merged$country <- "USA"
   plots_merged$continent <- "North America"
+  return(plots_merged)
+}
+
+# TODO: fix this after feedback from CDFW. need to deal with rows that have % in them
+normalize_area_shape <- function(plots_merged){
   
   # area --------------------------------------------------------------------
   #!!!PROBLEM!!!
@@ -235,7 +276,7 @@ plots_loader <- function(in_dir, out_dir){
     mutate(
       PlotArea = str_remove(PlotArea, "^~ ?"), # removing leading ~ from '~700' record
       PlotArea = str_remove(PlotArea, " ?(m²|sq\\. ?m|sp\\. ?M|sq ?m|sq\\.? ?M)"),  # removing units
-  )
+    )
   
   # I know this is ugly, maybe better ways to do it, but we do have to separate out these rows somehow so I just decided to do by index  
   hec <- which(grepl("Hectare|Hectares", plots_merged$PlotArea, ignore.case = TRUE))
@@ -252,8 +293,8 @@ plots_loader <- function(in_dir, out_dir){
     cli::cli_alert_warning("Some values in the PlotArea column were not able to be converted to numbers. Here is a sample of some of the {length(odd_values)} unique values:")
     cli::cli_text("{odd_values}")
   }
-  
   plots_merged$PlotArea[pct] <- NA
+  # end TODO
   
   # -1 indicates plot has no boundaries (no area)
   plots_merged <- plots_merged %>%
@@ -297,291 +338,295 @@ plots_loader <- function(in_dir, out_dir){
     cli::cli_alert_warning("Some rows have a PlotArea value, but no PlotShape This affects rows with the following SurveyIds ({length(t)} rows): {plots_merged$SurveyID[t]}")
   }
   
+  return(plots_merged)
 }
 
-
-
-
-
-
-# checking values -------------------------------------------------------------
-
-
-
-# Substrate  in RAPlots will be mapped to 'rock_type'
-# Using the LSubstrate lookup table
-# GitHub Issue #3: CA currently uses its own classifications (LSubstrate)
-# We need to determine if CA classifications can be mapped onto FGCD standards
-unique(plots$Substrate)
-
-# Aspect_actual (RAPlots) to Aspect_gen (RAPlots)? - slope_aspect (plots)
-# GitHub Issue #4: Apply the codes from the PlotObservations slope_aspect to
-# RAPlots Aspect field
-# If too flat to determine: -1
-# If too irregular to determine: -2
-# Flat locations can be listed as 0, 999, or NA
-# Reference: Aspect_gen (RAPlots)
-# Variable: NA
-# Which one is irregular?
-head(plots$Aspect_actual)
-unique(plots$Aspect_gen)
-
-# Slope_actual (RAPlots) to Slope_gen (RAPlots)? - slope_gradient (plots)
-# Code if irregular to determine as well? Along with 0, 999, NA values
-# Looks like Reference is Slope_gen
-# Also, it looks like there are two categories for when the slope is over 25
-# degrees, in values ">25 degrees" and "> 25 Degrees". Merge? GitHub Issue
-# If Slope_actual is missing, take the midpoint of Slope_gen
-# If Slope_gen > 25, use value 35
-head(plots$Slope_actual)
-unique(plots$Slope_gen)
-
-# Stand_Size in RAPlots will be mapped to 'stand_size'
-# Using the LStandSize lookup table
-# Actually, thinking this doesn't need any tidying
-unique(plots$Stand_Size)
-unique(standsize_lookup$Stand_Size)
-unique(standsize_lookup$StandSizeNum)
-
-# PlotArea in RAPlots will be mapped to 'area'
-# -1 indicates plot has no boundaries
-# Data shows inconsistencies, there are different units and missing units
-unique(plots$PlotArea)
-# Also, combine PlotArea, ViewRadius, and SurveyDimensions together into area?
-unique(plots$ViewRadius)
-unique(plots$SurveyDimensions)
-
-# PlotShape in RAPlots will be mapped to 'shape'
-# Data is not all shapes. There are measurements as well
-unique(plots$PlotShape)
-
-# Shrub_ht2 in RAPlots and will be mapped to 'shrubHt'
-# LoTreeTallShrub_Ht, LoMidShrub_Ht, and DwarfShrub_Ht in AltStrata.csv is empty, so will not combine
-# Also not sure if we grab the maximum height and then combine
-unique(plots$Shrub_ht2)
-unique(alt_strata$LoTreeTallShrub_Ht) # NA
-unique(alt_strata$LoMidShrub_Ht) # NA
-unique(alt_strata$DwarfShrub_Ht) # NA
-
-# Herb_ht2 in RAPlots will be mapped to 'fieldHt'
-# Also not sure if we grab the maximum height and then combine
-unique(plots$Herb_ht2)
-
-# Survey_Type (RAPlots) & AdditionalNotes (AltPlots) - methodNarrative (PlotObservations)
-# Reference: LSurveyType.csv
-# Capitalize entries
-unique(plots$Survey_Type) 
-
-# tidying CDFW data -----------------------------------------------------------
-
-
-# convert a data frame with a crs (epsg code) and an easting/northing coordinate ("UTME_final", "UTMN_final") to lat/lon coordinates
-convert_to_ll <- function(df_group) {
-  crs_utm <- unique(df_group$crs)
-  if (length(crs_utm) != 1 || is.na(crs_utm)) return(NULL)
-  
-  df <- st_as_sf(df_group,
-    coords = c("UTME_final", "UTMN_final"),
-    crs = crs_utm,
-    na.fail = FALSE
-  ) %>%
-    st_transform(4326) %>%
+normalize_slope_aspect <- function(plots_merged){
+  ### slope_aspect (PlotObservations) ###
+  # Aspect_actual (RAPlots) to Aspect_gen (RAPlots)
+  # Flat: -1, Variable: -2
+  # 0 and 999, not sure yet
+  # Aspect_actual remains as is unless Aspect_gen is Flat or Variable
+  plots_merged <- plots_merged %>% 
     mutate(
-      real_longitude = st_coordinates(geometry)[, 1],
-      real_latitude = st_coordinates(geometry)[, 2]
+      Aspect_actual = case_when(
+        Aspect_gen == "Flat" ~ -1,
+        Aspect_gen == "Variable" ~ -2,
+        TRUE ~ Aspect_actual
+      )
+    )
+  
+  # Note: All flat locations have been changed to -1. This may be sensitive to
+  # change. GitHub Issue #4: "Currently, flat locations could be listed as 0,
+  # 999, or left blank." If a flat location was listed as 0, 999, or NA 
+  # beforehand, it has now been changed to -1.
+  
+  ### slope_gradient (PlotObservations) ###
+  # Slope_actual (RAPlots) to Slope_gen (RAPlots)
+  # Code -1 if irregular to determine
+  # # If Slope_actual is missing, take the midpoint of Slope_gen
+  # If Slope_gen > 25, use value 35
+  # assume 999 is a NULL value
+  plots_merged <- plots_merged %>%
+    mutate(Slope_actual = if_else(Slope_actual == 999, NA, Slope_actual)) %>% 
+    mutate(
+      .m = str_match(Slope_gen, "\\b(\\d+)\\s*[-–]\\s*(\\d+)\\b"),
+      .mid = ((as.numeric(.m[,2]) + as.numeric(.m[,3])) / 2),
+      
+      slope = coalesce(
+        Slope_actual,
+        if_else(str_detect(Slope_gen, ">\\s*25"), 35, NA_real_),
+        .mid
+      )
     ) %>%
-    st_drop_geometry() %>%
-    select(.row_id, real_longitude, real_latitude)
+    select(-.m, -.mid)
+  return(plots_merged)
+}
+
+normalize_methods <- function(plots_merged){
+  ### methodNarrative (PlotObservations) ###
+  # Survey_Type (RAPlots) and AdditionalNotes (AltPlots)
+  # AltPlots is empty
+  # Capitalizing entries
+  plots_merged <- plots_merged %>% 
+    mutate(
+      methodNarrative = tolower(Survey_Type)
+    )
+  return(plots_merged)
+}
+
+normalize_topo_position <- function(plots_merged){
+  ### topo_position (PlotObservations) ###
+  # MacroTopo (RAPlots)
+  # Convert to corresponding values in LMacroTopo.csv
+  
+  
+  lookup_plot_position <- tibble::tribble(
+    ~MacroTopo,                          ~topo_position,
+    "Bottom",                               "Basin floor",
+    "Lower 1/3 of slope",                   "Lowslope",
+    "Bottom to Lower 1/3 of slope",          "Lowslope",
+    "Bottom to Mid 1/3 of slope",            "Lowslope",
+    "Bottom to Upper 1/3 of slope",          "Midslope",
+    "Entire slope",                          "Midslope",
+    "Middle 1/3 of slope",                   "Midslope",
+    "Middle to Upper 1/3 of slope",          "Midslope",
+    "Lower to Middle 1/3 of slope",           "Midslope",
+    "Lower to Upper 1/3 of slope",            "Midslope",
+    "Upper 1/3 of slope",                    "High slope",
+    "Upper 1/3 of slope to Ridgetop",         "High slope",
+    "Middle 1/3 of slope to Ridgetop",        "High slope",
+    "Lower 1/3 of slope to Ridgetop",         "Midslope",
+    "Ridge top",                             "Interfluve",
+    "upper",                                "High slope",
+    "mid",                                  "Midslope",
+    "Bench",                                "Step in slope",
+    "Channel bed",                           "Channel bed",
+    "Lowslope",                              "Lowslope",
+    "6",                                    "Basin floor",
+    "Not recorded",                          NA_character_,
+    "<Null>",                               NA_character_
+  )
+  
+  
+  plots_merged <- plots_merged %>% 
+    left_join(lookup_plot_position, by = "MacroTopo")
+  
+  
+  diff <- setdiff(
+    unique(na.omit(plots_merged$MacroTopo)),
+    lookup_plot_position$MacroTopo
+  )
+  
+  if (length(diff) > 0){
+    cli::cli_alert_warning("Some values in the MacroTopo field are not present in the vegbank lookup table: {diff}")
+  }
+  return(plots_merged)
+}
+
+calc_percent_rock <- function(plots_merged){
+  ### percentOther (PlotObservations) ###
+  # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
+  # Boulders/Stones/Cobbles (RAPlots) - percentOther (PlotObservations)
+  # Gravels (RAPlots) - percentRockGravel (PlotObservations)
+  # Need to combine 4 columns into one
+  # CDFW unsure if we want Boulders/Stones/Cobbles with percentOther or
+  # percentRockGravel
+  # After exploratory tables, combine into percentRockGravel
+  plots_merged <- plots_merged %>% 
+    mutate(across(c(Boulders, Stones, Cobbles, Gravels), ~ na_if(.x, 999))) %>% 
+    mutate(
+      percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels), na.rm = TRUE)
+    )
+  
+  if (max(plots_merged$percentRockGravel, na.rm = T) > 100){
+    cli::cli_alert_warning("Some percent rock gravel values are greater than 100. Check input data.")
+  }
+  return(plots_merged)
+  
+}
+
+calc_tree_cover <- function(plots_merged){
+  # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
+  # Need to combine 3 columns into one
+  plots_merged <- plots_merged %>% 
+    mutate(across(c(Hdwd_cover, Conif_cover, RegenTree_cover), ~ na_if(.x, 999))) %>% 
+    mutate(
+      treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover), na.rm = TRUE)
+    )
+  
+  if (max(plots_merged$treeCover, na.rm = T) > 100){
+    cli::cli_alert_warning("Some tree cover values ({length(which(plots_merged$treeCover > 100))} rows) are greater than 100. Check input data.")
+  }
+  return(plots_merged)
+}
+
+calc_conif_height <- function(plots_merged){
+  ### treeHt (PlotObservations) ###_rat
+  # Conif_ht2 and Hdwd_ht2 (RAPlots)
+  # First, I need to convert Conif_ht2 and Hdwd_ht2 to numeric by taking the 
+  # midpoint
+  
+  # Conif_ht2
+  plots_merged <- plots_merged %>% 
+    mutate(
+      Conif_ht22 = case_when(
+        
+        # Midpoint Measurements
+        Conif_ht2 == "5-10 m" ~ 7.5,
+        Conif_ht2 == "0.5-1 m" ~ 0.75,
+        Conif_ht2 == "10-15 m" ~ 12.5,
+        Conif_ht2 == "2-5 m" ~ 3.5,
+        Conif_ht2 == "20-35m" ~ 27.5,
+        Conif_ht2 == "15-20 m" ~ 17.5,
+        Conif_ht2 == "35-50 m" ~ 42.5,
+        Conif_ht2 == "20-35 m" ~ 27.5,
+        Conif_ht2 == "5-10m" ~ 7.5,
+        Conif_ht2 == "10-15m" ~ 12.5,
+        Conif_ht2 == "15-20m" ~ 17.5,
+        Conif_ht2 == "35-50m" ~ 42.5,
+        Conif_ht2 == "2-5m" ~ 3.5,
+        Conif_ht2 == ".5-1m" ~ 0.75,
+        Conif_ht2 == "1-2 m" ~ 1.5,
+        Conif_ht2 == "1-2m" ~ 1.5,
+        
+        # Out of Range Measurements (Must Adjust! These are placeholders)
+        Conif_ht2 == "<0.5 m" ~ 0.25,
+        Conif_ht2 == "<.5m" ~ 0.25,
+        Conif_ht2 == ">50 m" ~ 55,
+        Conif_ht2 == ">50m" ~ 55,
+        
+        # Miscellaneous
+        Conif_ht2 == "0" ~ 0,
+        
+        # Missing Values
+        Conif_ht2 == "N/A" ~ NA,
+        Conif_ht2 == "Not recorded" ~ NA,
+        Conif_ht2 == "Not present" ~ NA,
+        Conif_ht2 == "<Null>" ~ NA,
+        
+        TRUE ~ NA_real_
+      )
+    )
+  
+  # make sure all values are accounted for
+  na_new <- which(is.na(plots_merged$Conif_ht22) & !(plots_merged$Conif_ht2 %in% c("<Null>", "N/A", "Not recorded", "Not present", NA)))
+  
+  if (length(na_new) > 0){
+    cli::cli_alert_warning("Some Conif_ht2 values were not able to be converted to numeric ({length(na_new)} rows). Check input data.")
+  }
+  return(plots_merged)
+  
+}
+
+calc_hdwd_height <- function(plots_merged){
+  # Hdwd_ht2
+  plots_merged <- plots_merged %>% 
+    mutate(
+      Hdwd_ht22 = case_when(
+        
+        # Midpoint Measurements
+        Hdwd_ht2 == "2-5 m" ~ 3.5,
+        Hdwd_ht2 == "1-2 m" ~ 1.5,
+        Hdwd_ht2 == "1-2m" ~ 1.5,
+        Hdwd_ht2 == "0.5-1 m" ~ 0.75,
+        Hdwd_ht2 == ".5-1m" ~ 0.75,
+        Hdwd_ht2 == "15-20 m" ~ 17.5,
+        Hdwd_ht2 == "5-10m" ~ 7.5,
+        Hdwd_ht2 == "10-15m" ~ 12.5,
+        Hdwd_ht2 == "2-5m" ~ 3.5,
+        Hdwd_ht2 == "20-35m" ~ 27.5,
+        Hdwd_ht2 == "15-20m" ~ 17.5,
+        Hdwd_ht2 == "35-50m" ~ 42.5,
+        
+        # Out of Range Measurements (Must Adjust! These are placeholders)
+        Hdwd_ht2 == "<.5m" ~ 0.25,
+        
+        # Miscellaneous
+        Hdwd_ht2 == "0" ~ 0,
+        
+        # Missing Values
+        Hdwd_ht2 == "N/A" ~ NA,
+        Hdwd_ht2 == "Not recorded" ~ NA,
+        Hdwd_ht2 == "Not present" ~ NA,
+        Hdwd_ht2 == "<Null>" ~ NA,
+        
+        TRUE ~ NA_real_
+      )
+    )
+  
+  # make sure all values are accounted for
+  na_new <- which(is.na(plots_merged$Hdwd_ht22) & !(plots_merged$Hdwd_ht2 %in% c("<Null>", "N/A", "Not recorded", "Not present", NA)))
+  
+  if (length(na_new) > 0){
+    cli::cli_alert_warning("Some Hdwd_ht2 values were not able to be converted to numeric ({length(na_new)} rows). Check input data.")
+  }
+  return(plots_merged)
+  
+}
+
+plots_loader <- function(in_dir, out_dir){
+  
+  # read in all the files and join to one table
+  plots_merged <- load_files(in_dir)
+  plots_merged <- normalize_elevation(plots_merged)
+  plots_merged <- normalize_coordinates(plots_merged)
+  plots_merged <- assign_state_county(plots_merged)
+  plots_merged <- normalize_area_shape(plots_merged)
+  plots_merged <- normalize_slope_aspect(plots_merged)
+  plots_merged <- normalize_methods(plots_merged)
+  plots_merged <- normalize_topo_position(plots_merged)
+  plots_merged <- calc_percent_rock(plots_merged)
+  plots_merged <- calc_tree_cover(plots_merged)
+  plots_merged <- calc_conif_height(plots_merged)
+  plots_merged <- calc_hdwd_height(plots_merged)
+
+
+  # previously this only assigned user_ob_code to the SurveyId if it existed in the classification table
+  plots_merged <- plots_merged %>% 
+    mutate(user_ob_code = SurveyID)
+  
+  # Time should be removed
+  plots_merged <- plots_merged %>% 
+    mutate(SurveyDate = as_date(ymd(SurveyDate)))
+  
+  
 }
 
 
 
 
+plots_merged2 <- plots_merged %>% 
+  mutate(across(contains("_cover"),
+                ~ if_else(.x < 1, .x * 100, .x))) %>% 
 
-
-
-### slope_aspect (PlotObservations) ###
-# Aspect_actual (RAPlots) to Aspect_gen (RAPlots)
-# Flat: -1, Variable: -2
-# 0 and 999, not sure yet
-# Aspect_actual remains as is unless Aspect_gen is Flat or Variable
-plots_merged <- plots_merged %>% 
-  mutate(
-    Aspect_actual = case_when(
-      Aspect_gen == "Flat" ~ -1,
-      Aspect_gen == "Variable" ~ -2,
-      TRUE ~ Aspect_actual
-    )
-  )
-# Note: All flat locations have been changed to -1. This may be sensitive to
-# change. GitHub Issue #4: "Currently, flat locations could be listed as 0,
-# 999, or left blank." If a flat location was listed as 0, 999, or NA 
-# beforehand, it has now been changed to -1.
-
-### slope_gradient (PlotObservations) ###
-# Slope_actual (RAPlots) to Slope_gen (RAPlots)
-# Code -1 if irregular to determine
-# # If Slope_actual is missing, take the midpoint of Slope_gen
-# If Slope_gen > 25, use value 35
-plots_merged <- plots_merged %>%
-  mutate(
-    .m = str_match(Slope_gen, "\\b(\\d+)\\s*[-–]\\s*(\\d+)\\b"),
-    .mid = ((as.numeric(.m[,2]) + as.numeric(.m[,3])) / 2),
-    
-    slope = coalesce(
-      Slope_actual,
-      if_else(str_detect(Slope_gen, ">\\s*25"), 35, NA_real_),
-      .mid
-    )
-  ) %>%
-  select(-.m, -.mid)
-
-### methodNarrative (PlotObservations) ###
-# Survey_Type (RAPlots) and AdditionalNotes (AltPlots)
-# AltPlots is empty
-# Capitalizing entries
-plots_merged <- plots_merged %>% 
-  mutate(
-    methodNarrative = case_when(
-      Survey_Type == "Rapid assessment" ~ "Rapid Assessment",
-      Survey_Type == "releve" ~ "Releve",
-      Survey_Type == "rapid assessment" ~ "Rapid Assessment"
-    )
-  )
-
-### topo_position (PlotObservations) ###
-# MacroTopo (RAPlots)
-# Convert to corresponding values in LMacroTopo.csv
-plots_merged <- plots_merged %>% 
-  mutate(
-    topo_position = case_when(
-      MacroTopo == "upper" ~ "Upper 1/3 of slope",
-      MacroTopo == "mid" ~ "Middle 1/3 of slope",
-      MacroTopo == "6" ~ "Bottom",
-      TRUE ~ MacroTopo
-    )
-  )
-
-### user_ob_code (PlotObservations) ###
-# SurveyID (RAClassifications)
-plots_merged <- plots_merged %>%
-  mutate(
-    user_ob_code = classification$SurveyID[match(SurveyID,
-                                                 classification$SurveyID)]
-  )
-
-### obsStartDate (PlotObservations) ###
-# SurveyDate (RAPlots)
-# Time should be removed
-plots_merged <- plots_merged %>% 
-  mutate(
-    SurveyDate = as_date(mdy_hms(SurveyDate))
-  )
-
-### percentOther (PlotObservations) ###
-# Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
-# Boulders/Stones/Cobbles (RAPlots) - percentOther (PlotObservations)
-# Gravels (RAPlots) - percentRockGravel (PlotObservations)
-# Need to combine 4 columns into one
-# CDFW unsure if we want Boulders/Stones/Cobbles with percentOther or
-# percentRockGravel
-# After exploratory tables, combine into percentRockGravel
-plots_merged <- plots_merged %>% 
-  mutate(
-    percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels))
-    )
-
-# Substrate (RAPlots) - rock_type (plots)
-# GitHub Issue #3 needs more clarification
-
-# Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
-# Need to combine 3 columns into one
-plots_merged <- plots_merged %>% 
-  mutate(
-    treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover))
-  )
-
-### treeHt (PlotObservations) ###
-# Conif_ht2 and Hdwd_ht2 (RAPlots)
-# First, I need to convert Conif_ht2 and Hdwd_ht2 to numeric by taking the 
-# midpoint
-
-# Conif_ht2
-plots_merged <- plots_merged %>% 
-  mutate(
-    Conif_ht22 = case_when(
-      
-      # Midpoint Measurements
-      Conif_ht2 == "5-10 m" ~ 7.5,
-      Conif_ht2 == "0.5-1 m" ~ 0.75,
-      Conif_ht2 == "10-15 m" ~ 12.5,
-      Conif_ht2 == "2-5 m" ~ 3.5,
-      Conif_ht2 == "20-35m" ~ 27.5,
-      Conif_ht2 == "15-20 m" ~ 17.5,
-      Conif_ht2 == "35-50 m" ~ 42.5,
-      Conif_ht2 == "20-35 m" ~ 27.5,
-      Conif_ht2 == "5-10m" ~ 7.5,
-      Conif_ht2 == "10-15m" ~ 12.5,
-      Conif_ht2 == "15-20m" ~ 17.5,
-      Conif_ht2 == "35-50m" ~ 42.5,
-      Conif_ht2 == "2-5m" ~ 3.5,
-      Conif_ht2 == ".5-1m" ~ 0.75,
-      Conif_ht2 == "1-2 m" ~ 1.5,
-      
-      # Out of Range Measurements (Must Adjust! These are placeholders)
-      Conif_ht2 == "<0.5 m" ~ 0.25,
-      Conif_ht2 == ">50 m" ~ 55,
-      Conif_ht2 == ">50m" ~ 55,
-      
-      # Miscellaneous
-      Conif_ht2 == "0" ~ 0,
-      
-      # Missing Values
-      Conif_ht2 == "N/A" ~ NA,
-      Conif_ht2 == "Not recorded" ~ NA,
-      Conif_ht2 == "Not present" ~ NA,
-      
-      TRUE ~ NA_real_
-    )
-  )
-
-# Hdwd_ht2
-plots_merged <- plots_merged %>% 
-  mutate(
-    Hdwd_ht22 = case_when(
-      
-      # Midpoint Measurements
-      Hdwd_ht2 == "2-5 m" ~ 3.5,
-      Hdwd_ht2 == "1-2 m" ~ 1.5,
-      Hdwd_ht2 == "0.5-1 m" ~ 0.75,
-      Hdwd_ht2 == "15-20 m" ~ 17.5,
-      Hdwd_ht2 == "5-10m" ~ 7.5,
-      Hdwd_ht2 == "10-15m" ~ 12.5,
-      Hdwd_ht2 == "2-5m" ~ 3.5,
-      Hdwd_ht2 == "20-35m" ~ 27.5,
-      Hdwd_ht2 == "15-20m" ~ 17.5,
-      Hdwd_ht2 == "35-50m" ~ 42.5,
-      
-      # Out of Range Measurements (Must Adjust! These are placeholders)
-      Hdwd_ht2 == "<.5m" ~ 0.25,
-      
-      # Miscellaneous
-      Hdwd_ht2 == "0" ~ 0,
-      
-      # Missing Values
-      Hdwd_ht2 == "N/A" ~ NA,
-      Hdwd_ht2 == "Not recorded" ~ NA,
-      Hdwd_ht2 == "Not present" ~ NA,
-      
-      TRUE ~ NA_real_
-    )
-  )
-
-plots_merged <- plots_merged %>% 
   mutate(
     # Formula
     conif_ratio = Conif_cover / (Conif_cover + Hdwd_cover)
   ) %>% 
+  select(SurveyID, conif_ratio, Conif_cover, Hdwd_cover, Conif_ht22, Hdwd_ht22)
+
+#%>% 
   
   mutate(
     treeHt = case_when(
