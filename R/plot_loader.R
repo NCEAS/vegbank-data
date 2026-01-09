@@ -615,11 +615,10 @@ plots_loader <- function(in_dir, out_dir){
 
 
 
-
+# start here! work in progress
 plots_merged2 <- plots_merged %>% 
   mutate(across(contains("_cover"),
                 ~ if_else(.x < 1, .x * 100, .x))) %>% 
-
   mutate(
     # Formula
     conif_ratio = Conif_cover / (Conif_cover + Hdwd_cover)
