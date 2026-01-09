@@ -585,6 +585,21 @@ calc_hdwd_height <- function(plots_merged){
   
 }
 
+assign_tree_height <- function(plots_merged){
+  ### treeHt (PlotObservations) ###
+  # can take max of hardwood and conifer
+  plots_merged <- plots_merged %>%
+    mutate(across(contains("_cover"), ~ if_else(.x < 1, .x * 100, .x))) %>%
+    mutate(
+      treeHt = pmax(Conif_ht22, Hdwd_ht22, na.rm = TRUE),
+      # case for both values being NA
+      treeHt = if_else(is.infinite(treeHt), NA_real_, treeHt)
+    ) %>%
+    select(SurveyID, Conif_cover, Hdwd_cover, Conif_ht22, Hdwd_ht22, treeHt)
+  
+  return(plots_merged)
+}
+
 plots_loader <- function(in_dir, out_dir){
   
   # read in all the files and join to one table
@@ -621,15 +636,6 @@ plots_merged <- plots_loader(
 )
 
 # start here! work in progress
-# can take max of confi/hdwd rather than formula
-plots_merged2 <- plots_merged %>%
-  mutate(across(contains("_cover"), ~ if_else(.x < 1, .x * 100, .x))) %>%
-  mutate(
-    treeHt = pmax(Conif_ht22, Hdwd_ht22, na.rm = TRUE),
-    treeHt = if_else(is.infinite(treeHt), NA_real_, treeHt)
-  ) %>%
-  select(SurveyID, Conif_cover, Hdwd_cover, Conif_ht22, Hdwd_ht22, treeHt)
-
 
 ### growthform1/2Cover (PlotObservations) ###
 # Conif_ht2
