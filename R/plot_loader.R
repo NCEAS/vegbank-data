@@ -585,6 +585,7 @@ calc_hdwd_height <- function(plots_merged){
   
 }
 
+# TODO: check with CDFW on this modification to cover
 assign_tree_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###
   # can take max of hardwood and conifer
