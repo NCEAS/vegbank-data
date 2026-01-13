@@ -64,15 +64,15 @@ load_files <- function(in_dir) {
   plots <- do.call(bind_rows, plots_df_list)
   alt_plots_df_list <- lapply(alt_plot_files, read_csv, progress = FALSE, show_col_types = FALSE)
   alt_plots <- do.call(bind_rows, alt_plots_df_list)
-  survey_points <- read_csv(survey_point_files, progress = FALSE, show_col_types = FALSE)
+  survey_points <<- read_csv(survey_point_files, progress = FALSE, show_col_types = FALSE)
   impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  impacts <- do.call(bind_rows, impacts_df_list)
+  impacts <<- do.call(bind_rows, impacts_df_list)
   alt_strata_df_list <- lapply(alt_strata_files, read_csv, progress = FALSE, show_col_types = FALSE)
   alt_strata <- do.call(bind_rows, alt_strata_df_list)
   classification_df_list <- lapply(classification_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  classification <- do.call(bind_rows, classification_df_list)
+  classification <<- do.call(bind_rows, classification_df_list)
   project_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  projects <- do.call(bind_rows, project_df_list)
+  projects <<- do.call(bind_rows, project_df_list)
   
   # create blank Loader Table dataframe -----------------------------------------------------
   
@@ -588,16 +588,113 @@ calc_hdwd_height <- function(plots_merged){
 assign_tree_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###
   # can take max of hardwood and conifer
-  plots_merged <- plots_merged %>%
+  plots_merged2 <- plots_merged %>%
     mutate(across(contains("_cover"), ~ if_else(.x < 1, .x * 100, .x))) %>%
     mutate(
       treeHt = pmax(Conif_ht22, Hdwd_ht22, na.rm = TRUE),
       # case for both values being NA
       treeHt = if_else(is.infinite(treeHt), NA_real_, treeHt)
-    ) %>%
-    select(SurveyID, Conif_cover, Hdwd_cover, Conif_ht22, Hdwd_ht22, treeHt)
+    )
   
   return(plots_merged)
+}
+
+assign_growth_form <- function(plots_merged){
+  ### growthform1/2Cover (PlotObservations) ###
+  # Conif_ht2
+  plots_merged <- plots_merged %>% 
+    mutate(
+      growthform1Cover = case_when(
+        
+        # Midpoint Measurements
+        Conif_ht2 == "5-10 m" ~ 7.5,
+        Conif_ht2 == "0.5-1 m" ~ 0.75,
+        Conif_ht2 == "10-15 m" ~ 12.5,
+        Conif_ht2 == "2-5 m" ~ 3.5,
+        Conif_ht2 == "20-35m" ~ 27.5,
+        Conif_ht2 == "15-20 m" ~ 17.5,
+        Conif_ht2 == "35-50 m" ~ 42.5,
+        Conif_ht2 == "20-35 m" ~ 27.5,
+        Conif_ht2 == "5-10m" ~ 7.5,
+        Conif_ht2 == "10-15m" ~ 12.5,
+        Conif_ht2 == "15-20m" ~ 17.5,
+        Conif_ht2 == "35-50m" ~ 42.5,
+        Conif_ht2 == "2-5m" ~ 3.5,
+        Conif_ht2 == ".5-1m" ~ 0.75,
+        Conif_ht2 == "1-2 m" ~ 1.5,
+        
+        # Out of Range Measurements (Must Adjust! These are placeholders)
+        Conif_ht2 == "<0.5 m" ~ 0.25,
+        Conif_ht2 == ">50 m" ~ 55,
+        Conif_ht2 == ">50m" ~ 55,
+        
+        # Miscellaneous
+        Conif_ht2 == "0" ~ 0,
+        
+        # Missing Values
+        Conif_ht2 == "N/A" ~ NA,
+        Conif_ht2 == "Not recorded" ~ NA,
+        Conif_ht2 == "Not present" ~ NA,
+        
+        TRUE ~ NA_real_
+      )
+    )
+  
+  # Hdwd_ht2
+  plots_merged <- plots_merged %>% 
+    mutate(
+      growthform2Cover = case_when(
+        
+        # Midpoint Measurements
+        Hdwd_ht2 == "2-5 m" ~ 3.5,
+        Hdwd_ht2 == "1-2 m" ~ 1.5,
+        Hdwd_ht2 == "0.5-1 m" ~ 0.75,
+        Hdwd_ht2 == "15-20 m" ~ 17.5,
+        Hdwd_ht2 == "5-10m" ~ 7.5,
+        Hdwd_ht2 == "10-15m" ~ 12.5,
+        Hdwd_ht2 == "2-5m" ~ 3.5,
+        Hdwd_ht2 == "20-35m" ~ 27.5,
+        Hdwd_ht2 == "15-20m" ~ 17.5,
+        Hdwd_ht2 == "35-50m" ~ 42.5,
+        
+        # Out of Range Measurements (Must Adjust! These are placeholders)
+        Hdwd_ht2 == "<.5m" ~ 0.25,
+        
+        # Miscellaneous
+        Hdwd_ht2 == "0" ~ 0,
+        
+        # Missing Values
+        Hdwd_ht2 == "N/A" ~ NA,
+        Hdwd_ht2 == "Not recorded" ~ NA,
+        Hdwd_ht2 == "Not present" ~ NA,
+        
+        TRUE ~ NA_real_
+      )
+    )
+  
+  ### growthform1/2Type (PlotObservations) ###
+  # growthform1Type
+  plots_merged <- plots_merged %>% 
+    mutate(
+      growthform1Type = case_when(
+        !is.na(growthform1Cover) ~ "Conifer Tree",
+        is.na(growthform1Cover) ~ NA,
+        
+        TRUE ~ NA_character_
+      )
+    )
+  
+  # growthform2Type
+  plots_merged <- plots_merged %>% 
+    mutate(
+      growthform2Type = case_when(
+        !is.na(growthform2Cover) ~ "Hardwood Tree",
+        is.na(growthform2Cover) ~ NA,
+        
+        TRUE ~ NA_character_
+      )
+    )
+  
 }
 
 plots_loader <- function(in_dir, out_dir){
@@ -616,6 +713,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- calc_conif_height(plots_merged)
   plots_merged <- calc_hdwd_height(plots_merged)
   plots_merged <- assign_tree_height(plots_merged)
+  plots_merged <- assign_growth_form(plots_merged)
 
 
   # previously this only assigned user_ob_code to the SurveyId if it existed in the classification table
@@ -636,268 +734,7 @@ plots_merged <- plots_loader(
   out_dir = "data/loader-tables"
 )
 
-# start here! work in progress
 
-### growthform1/2Cover (PlotObservations) ###
-# Conif_ht2
-plots_merged <- plots_merged %>% 
-  mutate(
-    growthform1Cover = case_when(
-      
-      # Midpoint Measurements
-      Conif_ht2 == "5-10 m" ~ 7.5,
-      Conif_ht2 == "0.5-1 m" ~ 0.75,
-      Conif_ht2 == "10-15 m" ~ 12.5,
-      Conif_ht2 == "2-5 m" ~ 3.5,
-      Conif_ht2 == "20-35m" ~ 27.5,
-      Conif_ht2 == "15-20 m" ~ 17.5,
-      Conif_ht2 == "35-50 m" ~ 42.5,
-      Conif_ht2 == "20-35 m" ~ 27.5,
-      Conif_ht2 == "5-10m" ~ 7.5,
-      Conif_ht2 == "10-15m" ~ 12.5,
-      Conif_ht2 == "15-20m" ~ 17.5,
-      Conif_ht2 == "35-50m" ~ 42.5,
-      Conif_ht2 == "2-5m" ~ 3.5,
-      Conif_ht2 == ".5-1m" ~ 0.75,
-      Conif_ht2 == "1-2 m" ~ 1.5,
-      
-      # Out of Range Measurements (Must Adjust! These are placeholders)
-      Conif_ht2 == "<0.5 m" ~ 0.25,
-      Conif_ht2 == ">50 m" ~ 55,
-      Conif_ht2 == ">50m" ~ 55,
-      
-      # Miscellaneous
-      Conif_ht2 == "0" ~ 0,
-      
-      # Missing Values
-      Conif_ht2 == "N/A" ~ NA,
-      Conif_ht2 == "Not recorded" ~ NA,
-      Conif_ht2 == "Not present" ~ NA,
-      
-      TRUE ~ NA_real_
-    )
-  )
-
-# Hdwd_ht2
-plots_merged <- plots_merged %>% 
-  mutate(
-    growthform2Cover = case_when(
-      
-      # Midpoint Measurements
-      Hdwd_ht2 == "2-5 m" ~ 3.5,
-      Hdwd_ht2 == "1-2 m" ~ 1.5,
-      Hdwd_ht2 == "0.5-1 m" ~ 0.75,
-      Hdwd_ht2 == "15-20 m" ~ 17.5,
-      Hdwd_ht2 == "5-10m" ~ 7.5,
-      Hdwd_ht2 == "10-15m" ~ 12.5,
-      Hdwd_ht2 == "2-5m" ~ 3.5,
-      Hdwd_ht2 == "20-35m" ~ 27.5,
-      Hdwd_ht2 == "15-20m" ~ 17.5,
-      Hdwd_ht2 == "35-50m" ~ 42.5,
-      
-      # Out of Range Measurements (Must Adjust! These are placeholders)
-      Hdwd_ht2 == "<.5m" ~ 0.25,
-      
-      # Miscellaneous
-      Hdwd_ht2 == "0" ~ 0,
-      
-      # Missing Values
-      Hdwd_ht2 == "N/A" ~ NA,
-      Hdwd_ht2 == "Not recorded" ~ NA,
-      Hdwd_ht2 == "Not present" ~ NA,
-      
-      TRUE ~ NA_real_
-    )
-  )
-
-### growthform1/2Type (PlotObservations) ###
-# growthform1Type
-plots_merged <- plots_merged %>% 
-  mutate(
-    growthform1Type = case_when(
-      !is.na(growthform1Cover) ~ "Conifer Tree",
-      is.na(growthform1Cover) ~ NA,
-      
-      TRUE ~ NA_character_
-    )
-  )
-
-# growthform2Type
-plots_merged <- plots_merged %>% 
-  mutate(
-    growthform2Type = case_when(
-      !is.na(growthform2Cover) ~ "Hardwood Tree",
-      is.na(growthform2Cover) ~ NA,
-      
-      TRUE ~ NA_character_
-    )
-  )
-
-### user_pl_code (PlotObservations) ###
-# For now, there is no matches so user_pl_code will remain empty
-# set_vb_base_url("https://api-dev.vegbank.org")
-
-# CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
-# saved as csv so commented the code
-
-# Adaptive, resumable pager for VegBank plot observations
-
-# page_init  <- 5000  # shrink this if there is an error
-# page_min   <- 500   # don't go smaller than this
-# max_pages  <- 500   # hard stop
-# sleep_sec  <- 0.05  # brief pause to avoid error
-# keep_cols  <- c("pl_code","latitude","longitude","ob_code","author_plot_code", "author_obs_code", "state_province","country")
-# checkpoint <- "pl_all_checkpoint.rds" # just in case something fails
-# save_every <- 10
-
-# out <- list()
-# seen_codes <- character(0)
-# limit <- page_init
-
-# column types
-# text_cols <- c("ob_code","state_province","country", "author_obs_code")
-# num_cols  <- c("latitude","longitude")
-
-# for (i in seq_len(max_pages)) {
-  # offset <- (i - 1L) * limit
-  # message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
-  
-  # try once
-  # on failure (e.g., 504), halve the limit and retry
-  # chunk <- tryCatch(
-    # get_all_plot_observations(limit = limit, offset = offset),
-    # error = function(e) {
-      # message("  Request failed: ", conditionMessage(e))
-      # limit <<- max(page_min, floor(limit/2))
-      # message("  Reducing limit and retrying with limit=", limit)
-      # tryCatch(get_all_plot_observations(limit = limit, offset = offset),
-               # error = function(e2) { message("  Retry failed."); NULL })
-    # }
-  # )
-  # if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
-  
-  # keep <- intersect(keep_cols, names(chunk))
-  # if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-  
-  # normalize
-  # chunk <- chunk %>%
-    # mutate(
-      # across(any_of(text_cols), as.character),
-      # across(any_of(num_cols),  as.numeric)
-    # )
-  
-  # if ("pl_code" %in% names(chunk)) {
-    # new <- !chunk$pl_code %in% seen_codes
-    # if (!any(new)) { message("  All rows seen already; stopping."); break }
-    # seen_codes <- c(seen_codes, chunk$pl_code[new])
-    # chunk <- chunk[new, , drop = FALSE]
-  # }
-  
-  # out[[length(out) + 1L]] <- chunk
-  # total <- sum(vapply(out, nrow, integer(1)))
-  # message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
-  
-  # if (nrow(chunk) < limit) { message("  Short page; done."); break }
-  
-  # if (save_every > 0 && (i %% save_every == 0)) {
-  # Normalize again
-    # out_fixed <- map(out, ~ .x %>%
-                       # mutate(
-                         # across(any_of(text_cols), as.character),
-                         # across(any_of(num_cols),  as.numeric)
-                       # ))
-    # tmp <- bind_rows(out_fixed) %>% distinct()
-    # saveRDS(tmp, checkpoint)
-    # message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
-  # }
-  
-  # if (sleep_sec > 0) Sys.sleep(sleep_sec)
-# }
-
-# normalize again
-# out_fixed <- map(out, ~ .x %>%
-                   # mutate(
-                     # across(any_of(text_cols), as.character),
-                     # across(any_of(num_cols),  as.numeric)
-                   # ))
-
-# pl_all <- bind_rows(out_fixed) %>% distinct()
-
-# dir.create(here("data"), recursive = TRUE, showWarnings = FALSE)
-# write_csv(pl_all, here("data", "pl_all.csv"))
-
-csv_path <- here("data", "pl_all.csv")
-pl_all <- read_csv(csv_path, show_col_types = FALSE)
-
-plots_merged <- plots_merged %>%
-  left_join(
-    pl_all %>% select(author_plot_code, pl_code),
-    by = c("SurveyID" = "author_plot_code")
-  )
-
-sum(plots_merged$SurveyID %in% pl_all$author_plot_code)
-
-normalize_id <- function(x) {
-  x %>%
-    str_to_upper() %>%
-    str_replace_all("[^A-Z0-9]", "") %>%
-    str_squish()
-}
-
-RA_ids <- plots_merged %>%
-  mutate(SurveyID_norm = normalize_id(SurveyID)) %>%
-  pull(SurveyID_norm) %>%
-  unique()
-
-VB_ids <- pl_all %>%
-  mutate(author_norm = normalize_id(author_plot_code)) %>%
-  pull(author_norm) %>%
-  unique()
-
-sum(RA_ids %in% VB_ids)
-
-# Since there are no matches above, vb_pl_code will be left empty for now.
-
-### vb_pj_code ####
-
-# pj_all <- get_all_projects(limit = 1000)
-
-# dir.create(here("data"), recursive = TRUE, showWarnings = FALSE)
-# write_csv(pj_all, here("data", "pj_all.csv"))
-
-pj_all <- read_csv(here("data", "pj_all.csv"), show_col_types = FALSE)
-
-pj_all <- pj_all %>%
-  mutate(project_name_norm = str_squish(str_to_lower(project_name)),
-         project_code_norm = str_squish(str_to_lower(pj_code)))
-
-projects_norm <- projects %>%
-  mutate(
-    ProjectName_norm = str_squish(str_to_lower(ProjectName)),
-    ProjectCode_norm = str_squish(str_to_lower(ProjectCode))
-  )
-
-match_by_name <- projects_norm %>%
-  left_join(
-    pj_all %>% select(pj_code, project_name_norm),
-    by = c("ProjectName_norm" = "project_name_norm")
-  )
-
-match_by_code <- match_by_name %>%
-  left_join(
-    pj_all %>% select(pj_code, project_code_norm),
-    by = c("ProjectCode_norm" = "project_code_norm"),
-    suffix = c("", "_fromCode")
-  )
-
-sum(!is.na(match_by_name$pj_code))
-sum(!is.na(match_by_code$pj_code_fromCode))
-
-head(projects_norm %>% select(ProjectName, ProjectName_norm, ProjectCode, ProjectCode_norm))
-head(pj_all %>% select(project_name, project_name_norm, pj_code, project_code_norm))
-
-intersect(projects_norm$ProjectName_norm, pj_all$project_name_norm)
-intersect(projects_norm$ProjectCode_norm, pj_all$project_code_norm)
 # Assigning columns to loader table -------------------------------------------
 plots_LT$author_plot_code <- plots_merged$SurveyID
 plots_LT$real_latitude <- plots_merged$real_latitude
