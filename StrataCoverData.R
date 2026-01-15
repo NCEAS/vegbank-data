@@ -198,8 +198,12 @@ plants2 <- plants %>%
 
 # join CodeSpecies to mapping_values
 mapping_values <- mapping_values %>% 
-  left_join(plants2, by = c("authorPlantName" = "SpeciesName")) %>% 
-  select(CodeSpecies, authorPlantName, match_flag, vb_pc_code2)
+  left_join(plants2, by = c("authorPlantName" = "SpeciesName"))
+# %>% 
+#   select(CodeSpecies, authorPlantName, match_flag, vb_pc_code2)
+
+mapping_values3 <- mapping_values %>% 
+  left_join(plants2, by = c("authorPlantName" = "SpeciesName"))
 
 # # ----------------------------------------------------------------------------
 
@@ -244,7 +248,7 @@ find_matches <- function(wrong_name, correct_list, max_distance = 3) {
 
 # get unmatched plant names
 unmatched_plants <- mapping_values %>%
-  filter(is.na(vb_pc_code) | match_flag == FALSE) %>%
+  filter(is.na(vb_pc_code2) | match_flag == FALSE) %>%
   distinct(authorPlantName)
 
 # reference list
@@ -431,19 +435,19 @@ unmapped_code_na2 <- mapping_values3 %>%
   filter(!is.na(authorPlantName))
 
 # fuzzy matching with authorPlantName
-fuzzy_check <- unmapped_code_na %>% 
-  stringdist_inner_join(unmapped_code_na2,
-                        by = c("CodeSpecies" = "CodeSpecies"),
-                        max_dist = 2,
-                        method = "lv",
-                        distance_col = "distance") %>%
-  group_by(CodeSpecies.x) %>% 
-  slice_min(distance, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>% 
-  select(CodeSpecies.x,
-         authorPlantName.x,
-         CodeSpecies.y,
-         authorPlantName.y)
+# fuzzy_check <- unmapped_code_na %>% 
+#   stringdist_inner_join(unmapped_code_na2,
+#                         by = c("authorPlantName" = "authorPlantName"),
+#                         max_dist = 2,
+#                         method = "lv",
+#                         distance_col = "distance") %>%
+#   group_by(authorPlantName) %>% 
+#   slice_min(distance, n = 1, with_ties = FALSE) %>% 
+#   ungroup() %>% 
+#   select(CodeSpecies.x,
+#          authorPlantName.x,
+#          CodeSpecies.y,
+#          authorPlantName.y)
 
 # USDA Troubleshooting
 result <- plants %>% 
@@ -457,7 +461,7 @@ result <- plants %>%
   distinct(Species_name, .keep_all = TRUE) %>% 
   
   # only relevant
-  select(CodeSpecies, SpeciesName, vb_pc_code) %>% 
+  # select(CodeSpecies, SpeciesName, vb_pc_code) %>% 
   
   # NA vb_pc_code
   filter(is.na(vb_pc_code))
@@ -539,7 +543,7 @@ mapping_values22 <- mapping_values2 %>%
 strata_cover_LT$user_sr_code <- plants$Stratum
 strata_cover_LT$authorPlantName <- plants$SpeciesName
 strata_cover_LT$cover <- plants$Species_cover
-strata_cover_LT$vb_pc_code <- mapping_values3$vb_pc_code2
+strata_cover_LT$vb_pc_code <- mapping_values$vb_pc_code2
 
 # All variables besides authorPlantName, cover, and user_sre_code were not matched and are left as 'NA'
 # }
