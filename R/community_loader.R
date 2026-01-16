@@ -2,8 +2,8 @@ library(tidyverse)
 library(here)
 library(stringr)
 library(googlesheets4)
+library(cli)
 source("R/build_loader_table.R")
-
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -112,11 +112,9 @@ normalize_projects_classification <- function(projects) {
     pull(ClassificationDescription)
   
   if (length(unmatched) > 0) {
-    cli::cli_alert_warning(
-      "Some Project ClassificationDescription values did not match inspection or multivariate patterns ({length(unmatched)} unique values)."
-    )
-    cli::cli_text("Sample (up to 10):")
-    cli::cli_text(paste0("- ", head(unmatched, 10)))
+    cli_alert_warning("Some Project ClassificationDescription values did not match patterns ({length(unmatched)} unique).")
+    cli_text("Sample (up to 3):")
+    cli_text(paste0("- ", str_trunc(head(unmatched, 3), 120)))
   }
   
   return(projects_proj)
@@ -148,11 +146,140 @@ normalize_class_confidence <- function(plots) {
   weird_vals <- setdiff(unique(plots$Confidence_ID), allowed)
   
   if (length(weird_vals) > 0) {
-    cli::cli_alert_warning(
-      "Confidence_ID has unexpected values not in {H,M,L} (and not recorded/null) ({length(weird_vals)} unique values)."
+    cli_alert_warning(
+      "Confidence_ID has unexpected values not in H/M/L (and not recorded/null) ({length(weird_vals)} unique values)."
     )
-    cli::cli_text(paste0("- ", weird_vals))
+    cli_text(paste0("- ", weird_vals))
   }
   
   return(plots_conf)
 }
+
+load_reference_tables <- function(in_dir){
+  # Community concepts from VegBank (should be loaded already)
+  cc_all_path <- here("data", "cc_all.csv")
+  if (!file.exists(cc_all_path)) {
+    stop("Missing data/cc_all.csv. Generate it (or copy it) before running.")
+  }
+  cc_all <- read_csv(cc_all_path, show_col_types = FALSE)
+  
+  cc_current <- cc_all %>%
+    filter(current_accepted == TRUE)
+  
+  # CA code map (Google Sheet)
+  cacode_sheet_url <- "https://docs.google.com/spreadsheets/d/1LsDQL3NxRjJ32eyRuVPyjtQgq8cqcyhjAIZiw9MYg-0/edit?gid=755803824#gid=755803824"
+  
+  cacode_map_raw <- read_sheet(cacode_sheet_url, sheet = 1)
+  
+  cacode_map <- cacode_map_raw %>%
+    mutate(
+      CaCode_norm = str_squish(str_to_lower(CaCode)),
+      NVC_norm = str_squish(str_to_lower(as.character(`2009/NVC_Code`)))
+    ) %>%
+    filter(!is.na(CaCode_norm), CaCode_norm != "", !is.na(NVC_norm), NVC_norm != "")
+  
+  # warn on duplicate CaCodes
+  dup <- cacode_map %>%
+    count(CaCode_norm) %>%
+    filter(n > 1)
+  
+  if (nrow(dup) > 0) {
+    cli_alert_warning("cacode_map has duplicate CaCode values ({nrow(dup)} codes). Mapping may be ambiguous.")
+    cli_text("Sample duplicates:")
+    cli_text(paste0("- ", head(dup$CaCode_norm, 10)))
+  }
+  
+  # cc lookup table
+  cc_lookup <- cc_current %>%
+    mutate(comm_code_norm = str_squish(str_to_lower(as.character(comm_code)))) %>%
+    filter(!is.na(comm_code_norm), comm_code_norm != "") %>%
+    distinct(comm_code_norm, .keep_all = TRUE) %>%
+    select(cc_code, comm_code_norm)
+  
+  list(
+    cacode_map = cacode_map,
+    cc_lookup = cc_lookup
+  )
+}
+
+assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
+  
+  cacode_map_1to1 <- cacode_map %>%
+    group_by(CaCode_norm) %>%
+    summarise(
+      NVC_norm = first(NVC_norm),   # pick a stable default (first)
+      n_map = n(),
+      .groups = "drop"
+    )
+  
+  # warn if any CaCodes map to multiple NVC codes
+  multi <- cacode_map_1to1 %>% filter(n_map > 1)
+  if (nrow(multi) > 0) {
+    cli_alert_warning(
+      "Some CaCode values map to multiple NVC codes in cacode_map ({nrow(multi)} CaCodes). Using the first NVC code for now to avoid row duplication."
+    )
+    cli_text(paste0("- ", head(multi$CaCode_norm, 10)))
+  }
+  
+  classification_norm <- classification %>%
+    mutate(CaCode_norm = str_squish(str_to_lower(CaCode))) %>%
+    left_join(cacode_map_1to1 %>% select(CaCode_norm, NVC_norm), by = "CaCode_norm") %>%
+    mutate(comm_code_norm = NVC_norm) %>%
+    left_join(cc_lookup, by = "comm_code_norm") %>%
+    mutate(vb_cc_code = cc_code)
+  
+  # warn if lots of NAs
+  na_ct <- sum(is.na(classification_norm$vb_cc_code))
+  if (na_ct > 0) {
+    cli_alert_warning("vb_cc_code is NA for {na_ct} rows (out of {nrow(classification_norm)}).")
+  }
+  
+  classification_norm
+}
+
+join_classifications <- function(classification_with_cc, plots_conf, projects_proj){
+  out <- classification_with_cc %>%
+    left_join(plots_conf, by = "SurveyID") %>%
+    left_join(projects_proj, by = "ProjectCode")
+  
+  # sanity check
+  if (nrow(out) != nrow(classification_with_cc)) {
+    cli_alert_warning("Row count changed after joins: {nrow(classification_with_cc)} -> {nrow(out)}. Check join keys / duplicates.")
+  }
+  
+  out
+}
+
+community_loader <- function(in_dir){
+  
+  classification <- load_files(in_dir)
+  
+  projects_proj <- normalize_projects_classification(projects)
+  plots_conf <- normalize_class_confidence(plots)
+  
+  refs <- load_reference_tables(in_dir)
+  classification_with_cc <- assign_vb_cc_code(
+    classification = classification,
+    cacode_map = refs$cacode_map,
+    cc_lookup = refs$cc_lookup
+  )
+  
+  class_cc_proj <- join_classifications(
+    classification_with_cc = classification_with_cc,
+    plots_conf = plots_conf,
+    projects_proj = projects_proj
+  )
+  
+  class_cc_proj
+}
+
+
+class_cc_proj <- community_loader("/var/data/curation/vegbank/")
+
+community_LT$expert_system <- class_cc_proj$expert_system
+community_LT$inspection <- class_cc_proj$inspection
+community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
+community_LT$class_confidence <- class_cc_proj$class_confidence
+community_LT$vb_cc_code <- class_cc_proj$vb_cc_code
+
+write_csv(community_LT, here("loader_tables", "CommunityClassificationsLT.csv"))
