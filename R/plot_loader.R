@@ -724,7 +724,12 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT <- plots_template_fields$template
   
   # Assigning columns to loader table -------------------------------------------
-  plots_LT$author_plot_code <- plots_merged$SurveyID
+  # fix column names
+  # user ob code?
+  plots_LT$user_obs_code <- plots_merged$SurveyID
+  plots_LT$author_obs_code <- plots_merged$SurveyID
+  plots_LT$user_plot_code <- plots_merged$StandID
+  plots_LT$author_plot_code <- plots_merged$StandID
   plots_LT$real_latitude <- plots_merged$real_latitude
   plots_LT$real_longitude <- plots_merged$real_longitude
   plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
@@ -744,26 +749,26 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$topo_position <- plots_merged$topo_position
   plots_LT$rock_type <- plots_merged$Substrate
   plots_LT$pj_code <- plots_merged$ProjectCode
-  plots_LT$obsStartDate <- plots_merged$SurveyDate
-  plots_LT$methodNarrative <- plots_merged$methodNarrative
-  plots_LT$successionalStatus = plots_merged$Trend
-  plots_LT$basalArea <- plots_merged$BasalStem
-  plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
-  plots_LT$percentLitter <- plots_merged$Litter
-  plots_LT$percentBareSoil <- plots_merged$Bare_fines
-  plots_LT$percentWater <- plots_merged$Water
-  plots_LT$treeHt <- plots_merged$treeHt
-  plots_LT$shrubHt <- plots_merged$Shrub_ht2
-  plots_LT$fieldHt <- plots_merged$Herb_ht2
-  plots_LT$treeCover <- plots_merged$treeCover
-  plots_LT$shrubCover <- plots_merged$Shrub_cover
-  plots_LT$fieldCover <- plots_merged$Herb_cover
-  plots_LT$nonvascularCover <- plots_merged$NonVasc_Veg_cover
-  plots_LT$dominantStratum <- plots_merged$DomLayer
-  plots_LT$growthform1Cover <- plots_merged$growthform1Cover
-  plots_LT$growthform2Cover <- plots_merged$growthform2Cover
-  plots_LT$growthform1Type <- plots_merged$growthform1Type
-  plots_LT$growthform2Type <- plots_merged$growthform2Type
+  plots_LT$obs_start_date <- plots_merged$SurveyDate
+  plots_LT$method_narrative <- plots_merged$methodNarrative
+  plots_LT$successional_status = plots_merged$Trend
+  plots_LT$basal_area <- plots_merged$BasalStem
+  plots_LT$hydrologic_regime <- plots_merged$Upl_Wet_text
+  plots_LT$percent_litter <- plots_merged$Litter
+  plots_LT$percent_bare_soil <- plots_merged$Bare_fines
+  plots_LT$percent_qater <- plots_merged$Water
+  plots_LT$tree_ht <- plots_merged$treeHt
+  plots_LT$shrub_ht <- plots_merged$Shrub_ht2
+  plots_LT$field_ht <- plots_merged$Herb_ht2
+  plots_LT$tree_cover <- plots_merged$treeCover
+  plots_LT$shrub_cover <- plots_merged$Shrub_cover
+  plots_LT$field_cover <- plots_merged$Herb_cover
+  plots_LT$nonvascular_cover <- plots_merged$NonVasc_Veg_cover
+  plots_LT$dominant_stratum <- plots_merged$DomLayer
+  plots_LT$growthform_1_cover <- plots_merged$growthform1Cover
+  plots_LT$growthform_2_cover <- plots_merged$growthform2Cover
+  plots_LT$growthform_1_type <- plots_merged$growthform1Type
+  plots_LT$growthform_2_type <- plots_merged$growthform2Type
   
   
   
