@@ -704,6 +704,10 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- calc_hdwd_height(plots_merged)
   plots_merged <- assign_tree_height(plots_merged)
   plots_merged <- assign_growth_form(plots_merged)
+  
+  # TODO: field ht (fix values)
+  # TODO: shrub ht (fix values)
+
 
 
   # previously this only assigned user_ob_code to the SurveyId if it existed in the classification table
