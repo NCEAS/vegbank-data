@@ -66,6 +66,6 @@ soil_loader <- function(in_dir, out_dir){
   cli::cli_alert_success("Writing output file to:")
   cli::cli_ul(out_path)
   
-  write_csv(disturb_LT, out_path)
+  write_csv(soil_LT, out_path)
   
 }
