@@ -14,7 +14,8 @@ googlesheets4::gs4_auth()
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "R"
-r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
+r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
+  grep("community", ., value = TRUE, invert = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
@@ -97,7 +98,7 @@ disturbance_loader(in_dir, out_dir)
 ## Plots
 
 ```{r}
-plot_loader(in_dir, out_dir)
+plots_loader(in_dir, out_dir)
 ```
 
 
