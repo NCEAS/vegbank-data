@@ -58,20 +58,69 @@ disturbance_loader <- function(in_dir, out_dir){
   
   # Tidying CDFW data -------------------------------------------------------
   
+  lookup_disturbance <- tibble::tribble(
+    ~`Impact type`,                                   ~vegbank_disturbance,
+    "Development",                            "Human, general",
+    "ORV activity",                           "Roads and vehicular traffic",
+    "Agriculture",                            "Cultivation",
+    "Grazing",                                "Grazing, domestic stock", # several grazing options
+    "Competition from exotics",               "Other disturbances",
+    "Logging",                                "Timber harvest, general", # several timber harvest options
+    "Insufficient population/stand size",     "Other disturbances",
+    "Altered flood/tidal regime",             "Hydrologic alteration",
+    "Mining",                                 "Human, general",
+    "Hybridization",                          "Other disturbances",
+    "Groundwater pumping",                    "Hydrologic alteration",
+    "Dam/inundation",                         "Hydrologic alteration",
+    "Other",                                  "Other disturbances",
+    "Surface water diversion",                "Hydrologic alteration",
+    "Road/trail construction/maint.",         "Roads and vehicular traffic",
+    "Biocides",                               "Herbicide or chemical",
+    "Pollution",                              "Human, general",
+    "Unknown",                                "unknown",
+    "Vandalism/dumping/litter",               "Human, general",
+    "Foot traffic/trampling",                 "Trampling and trails",
+    "Improper burning regime",                "Fire suppression",
+    "Over collecting/poaching",               "Human, general",
+    "Erosion/runoff",                         "Erosion",
+    "Altered thermal regime",                 "Other disturbances",
+    "Landfill",                               "Human, general",
+    "Degrading water quality",                "Hydrologic alteration",
+    "Wood cutting",                           "Timber harvest, selective", # several timer harvest options
+    "Military operations",                    "Human, general",
+    "Recreational use (non ORV)",              "Trampling and trails",
+    "Nest parasitism",                        "Natural, general",
+    "Non-native predators",                   "Other disturbances",
+    "Rip-rap, bank protection",               "Hydrologic alteration",
+    "Channelization (human caused)",           "Hydrologic alteration",
+    "Feral pigs",                             "Animal, general",
+    "Burros",                                 "Animal, general", # or one of the grazings?
+    "Rills",                                  "Erosion",
+    "Phytogenic mounding",                    "Erosion",
+    "Sudden Oak Death (SODS)",                 "Plant disease"
+  )
+  
+  
   impacts_merged <- impacts %>% 
     # joining with lookup table by impact code
     left_join(impacts_lookup, by = c("CodeImpact" = "CodeImp")) %>% 
+    left_join(lookup_disturbance, by = "Impact type") %>% 
     # changing numeric code
     mutate(Intensity = case_when(
       Intensity == 1 ~ "Low",
       Intensity == 2 ~ "Moderate",
       Intensity == 3 ~ "High"
-    ))
+    )) %>% 
+    mutate(Other = paste(Other, `Impact type`, sep = "; ")) %>% 
+    mutate(Other = gsub("NA; ", "", Other))
+  
+  
+
   
   
   # Assigning columns to loader table ---------------------------------------
   disturb_LT$ob_code <- impacts_merged$SurveyID
-  disturb_LT$disturbance_type <- impacts_merged$`Impact type`
+  disturb_LT$disturbance_type <- impacts_merged$vegbank_disturbance
   disturb_LT$disturbance_comment <- impacts_merged$Other
   disturb_LT$disturbance_intensity <- impacts_merged$Intensity
   
