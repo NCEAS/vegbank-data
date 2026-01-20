@@ -70,6 +70,12 @@ project_loader <- function(in_dir, out_dir){
   project_LT$start_date <- projects$ProjectStartDate
   project_LT$stop_date <- projects$ProjectEndDate
   
+  project_LT <- project_LT %>%
+    mutate(len=nchar(project_description)) %>%
+    group_by(user_pj_code) %>% arrange(desc(len)) %>% 
+    slice(1) %>% 
+    select(-len)
+  
   # save filled in loader table
   out_path <- file.path(out_dir, "projectLT.csv")
   cli::cli_alert_success("Writing output to: {out_path}")
