@@ -65,85 +65,85 @@ vb_set_base_url("https://api-dev.vegbank.org")    # (Run this before running fun
 
 # Adaptive, resumable pager for VegBank plant concepts
 
-page_init <- 5000 # shrink this if there is an error
-page_min <- 500 # don't go smaller than this
-max_pages <- 500 # hard stop
-sleep_sec <- 0.05 # brief pause to avoid error
-keep_cols <- c("pc_code","plant_name", "current_accepted")
-checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
-save_every <- 10
-
-out <- list()
-seen_codes <- character(0)
-limit <- page_init
-
-for (i in seq_len(max_pages)) {
-  offset <- (i - 1L) * limit
-  message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
-
-#  try once; on failure (e.g., 504), halve the limit and retry
-  chunk <- tryCatch(
-    vb_get_plant_concepts(limit = limit, offset = offset),
-    error = function(e) {
-      message("  Request failed: ", conditionMessage(e))
-      limit <<- max(page_min, floor(limit/2))
-      message("  Reducing limit and retrying with limit=", limit)
-      tryCatch(vb_get_plant_concepts(limit = limit, offset = offset),
-               error = function(e2) { message("  Retry failed."); NULL })
-    }
-  )
-  if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
-
-  keep <- intersect(keep_cols, names(chunk))
-  if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-
-  if ("pc_code" %in% names(chunk)) {
-    new <- !chunk$pc_code %in% seen_codes
-    if (!any(new)) { message("  All rows seen already; stopping."); break }
-    seen_codes <- c(seen_codes, chunk$pc_code[new])
-    chunk <- chunk[new, , drop = FALSE]
-  }
-
-  out[[length(out) + 1L]] <- chunk
-  total <- sum(vapply(out, nrow, integer(1)))
-  message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
-
-  if (nrow(chunk) < limit) { message("  Short page; done."); break }
-
-  if (save_every > 0 && (i %% save_every == 0)) {
-    tmp <- dplyr::bind_rows(out) %>% distinct()
-    saveRDS(tmp, checkpoint)
-    message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
-  }
-
-  if (sleep_sec > 0) Sys.sleep(sleep_sec)
-}
-
-pc_all <- bind_rows(out) %>% distinct()
-message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
-
-write_csv(pc_all, here("data", "pc_all.csv"))
-
-pc_lookup <- pc_all %>%
-  mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
-  separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
-  mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
-  filter(plant_name_norm != "") %>%
-  group_by(plant_name_norm) %>%
-  summarise(pc_code = first(pc_code), .groups = "drop")
-
-mapping_values <- plants %>%
-  mutate(
-    authorPlantName = str_squish(coalesce(SpeciesName, "")),
-    author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
-  ) %>%
-  left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
-  transmute(
-    authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
-    vb_pc_code = pc_code
-  )
-
-nrow(mapping_values) == nrow(plants) # end of commenting
+# page_init <- 5000 # shrink this if there is an error
+# page_min <- 500 # don't go smaller than this
+# max_pages <- 500 # hard stop
+# sleep_sec <- 0.05 # brief pause to avoid error
+# keep_cols <- c("pc_code","plant_name", "current_accepted")
+# checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
+# save_every <- 10
+# 
+# out <- list()
+# seen_codes <- character(0)
+# limit <- page_init
+# 
+# for (i in seq_len(max_pages)) {
+#   offset <- (i - 1L) * limit
+#   message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
+# 
+# #  try once; on failure (e.g., 504), halve the limit and retry
+#   chunk <- tryCatch(
+#     vb_get_plant_concepts(limit = limit, offset = offset),
+#     error = function(e) {
+#       message("  Request failed: ", conditionMessage(e))
+#       limit <<- max(page_min, floor(limit/2))
+#       message("  Reducing limit and retrying with limit=", limit)
+#       tryCatch(vb_get_plant_concepts(limit = limit, offset = offset),
+#                error = function(e2) { message("  Retry failed."); NULL })
+#     }
+#   )
+#   if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
+# 
+#   keep <- intersect(keep_cols, names(chunk))
+#   if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
+# 
+#   if ("pc_code" %in% names(chunk)) {
+#     new <- !chunk$pc_code %in% seen_codes
+#     if (!any(new)) { message("  All rows seen already; stopping."); break }
+#     seen_codes <- c(seen_codes, chunk$pc_code[new])
+#     chunk <- chunk[new, , drop = FALSE]
+#   }
+# 
+#   out[[length(out) + 1L]] <- chunk
+#   total <- sum(vapply(out, nrow, integer(1)))
+#   message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
+# 
+#   if (nrow(chunk) < limit) { message("  Short page; done."); break }
+# 
+#   if (save_every > 0 && (i %% save_every == 0)) {
+#     tmp <- dplyr::bind_rows(out) %>% distinct()
+#     saveRDS(tmp, checkpoint)
+#     message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
+#   }
+# 
+#   if (sleep_sec > 0) Sys.sleep(sleep_sec)
+# }
+# 
+# pc_all <- bind_rows(out) %>% distinct()
+# message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
+# 
+# write_csv(pc_all, here("data", "pc_all.csv"))
+# 
+# pc_lookup <- pc_all %>%
+#   mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
+#   separate_rows(name_clean, sep = "\\s*\\+\\s*") %>%
+#   mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
+#   filter(plant_name_norm != "") %>%
+#   group_by(plant_name_norm) %>%
+#   summarise(pc_code = first(pc_code), .groups = "drop")
+# 
+# mapping_values <- plants %>%
+#   mutate(
+#     authorPlantName = str_squish(coalesce(SpeciesName, "")),
+#     author_norm = str_squish(stringr::str_to_lower(coalesce(SpeciesName, "")))
+#   ) %>%
+#   left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
+#   transmute(
+#     authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
+#     vb_pc_code = pc_code
+#   )
+# 
+# nrow(mapping_values) == nrow(plants) # end of commenting
 
 # ----------------------- vb_pc_code -----------------------------------------
 # read in csv
@@ -181,16 +181,14 @@ unmapped_code <- mapping_values %>%
 
 # 6,355 plants didn't get matched
 
-# looking for similar codes
-find_similar_codes <- function()
-
-# # filtering out authorPlantName NA for fuzzy matching
-# unmapped_code_na <- mapping_values %>% 
-#   filter(!is.na(authorPlantName) & is.na(vb_pc_code2)) %>% 
-#   select(CodeSpecies, authorPlantName, vb_pc_code, vb_pc_code2)
-# unmapped_code_na2 <- mapping_values %>% 
-#   filter(!is.na(authorPlantName)) %>% 
-#   select(CodeSpecies, authorPlantName, vb_pc_code, vb_pc_code2)
+# filtering out authorPlantName NA for fuzzy matching
+unmapped_code_na <- unmapped_code %>%
+  filter(!is.na(authorPlantName) & is.na(vb_pc_code2) &
+           !is.na(CodeSpecies)) %>%
+  select(CodeSpecies, authorPlantName, vb_pc_code, vb_pc_code2)
+unmapped_code_na2 <- unmapped_code %>%
+  filter(!is.na(authorPlantName) & !is.na(CodeSpecies)) %>%
+  select(CodeSpecies, authorPlantName, vb_pc_code, vb_pc_code2)
 
 
 # # try comparison on SpeciesName with CodeSpecies
@@ -242,20 +240,6 @@ find_similar_codes <- function()
 #   mutate(pc_current_index = row_number()) %>%
 #   mutate(plant_name = str_trim(tolower(plant_name))) %>%
 #   select(pc_current_name = plant_name, pc_current_index)
-# 
-# # cross join
-# comparison_table <- stringdist_inner_join(
-#   mapping_values_clean,
-#   pc_current_clean,
-#   by = c("mapping_values_name" = "pc_current_name"),
-#   method = "cosine",
-#   max_dist = 0.1,
-#   distance_col = "similarity",
-# ) %>%
-#   mutate(similarity = 1 - similarity) %>%
-#   filter(similarity < 1) %>%
-#   arrange(desc(similarity)) %>%
-#   distinct(pc_current_index, .keep_all = TRUE)
 # 
 # # trying different approach
 # # find closest matches using fuzzy matching
