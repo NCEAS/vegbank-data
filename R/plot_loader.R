@@ -714,6 +714,15 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- plots_merged %>% 
     mutate(SurveyDate = as_date(ymd(SurveyDate)))
   
+  
+  plots_template_fields <- build_loader_table(
+    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
+    sheet = "PlotObservations",
+    source_df = plots
+  )
+  
+  plots_LT <- plots_template_fields$template
+  
   # Assigning columns to loader table -------------------------------------------
   plots_LT$author_plot_code <- plots_merged$SurveyID
   plots_LT$real_latitude <- plots_merged$real_latitude
@@ -756,12 +765,15 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$growthform1Type <- plots_merged$growthform1Type
   plots_LT$growthform2Type <- plots_merged$growthform2Type
   
+  
+  
   # save filled in loader table
-  out_path <- file.path(out_dir, "plotLT.csv")
+  out_path <- file.path(out_dir, "plotsLT.csv")
   cli::cli_alert_success("Writing output file to:")
   cli::cli_ul(out_path)
   
   write_csv(plots_LT, out_path)
 }
+
 
 
