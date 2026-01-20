@@ -714,58 +714,54 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- plots_merged %>% 
     mutate(SurveyDate = as_date(ymd(SurveyDate)))
   
-  return(plots_merged)
+  # Assigning columns to loader table -------------------------------------------
+  plots_LT$author_plot_code <- plots_merged$SurveyID
+  plots_LT$real_latitude <- plots_merged$real_latitude
+  plots_LT$real_longitude <- plots_merged$real_longitude
+  plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
+  plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
+  plots_LT$author_e <- plots_merged$UTME_final
+  plots_LT$author_n <- plots_merged$UTMN_final
+  plots_LT$author_zone <- plots_merged$UTM_zone
+  plots_LT$author_datum <- plots_merged$author_datum
+  plots_LT$author_location <- plots_merged$SiteLocation
+  plots_LT$azimuth <- plots_merged$W_Axis_Bearing
+  plots_LT$shape <- plots_merged$PlotShape
+  plots_LT$area <- plots_merged$PlotArea
+  plots_LT$stand_size <- plots_merged$Stand_Size
+  plots_LT$elevation <- plots_merged$Elevation
+  plots_LT$slope_aspect <- plots_merged$Aspect_actual
+  plots_LT$slope_gradient <- plots_merged$slope
+  plots_LT$topo_position <- plots_merged$topo_position
+  plots_LT$rock_type <- plots_merged$Substrate
+  plots_LT$pj_code <- plots_merged$ProjectCode
+  plots_LT$obsStartDate <- plots_merged$SurveyDate
+  plots_LT$methodNarrative <- plots_merged$methodNarrative
+  plots_LT$successionalStatus = plots_merged$Trend
+  plots_LT$basalArea <- plots_merged$BasalStem
+  plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
+  plots_LT$percentLitter <- plots_merged$Litter
+  plots_LT$percentBareSoil <- plots_merged$Bare_fines
+  plots_LT$percentWater <- plots_merged$Water
+  plots_LT$treeHt <- plots_merged$treeHt
+  plots_LT$shrubHt <- plots_merged$Shrub_ht2
+  plots_LT$fieldHt <- plots_merged$Herb_ht2
+  plots_LT$treeCover <- plots_merged$treeCover
+  plots_LT$shrubCover <- plots_merged$Shrub_cover
+  plots_LT$fieldCover <- plots_merged$Herb_cover
+  plots_LT$nonvascularCover <- plots_merged$NonVasc_Veg_cover
+  plots_LT$dominantStratum <- plots_merged$DomLayer
+  plots_LT$growthform1Cover <- plots_merged$growthform1Cover
+  plots_LT$growthform2Cover <- plots_merged$growthform2Cover
+  plots_LT$growthform1Type <- plots_merged$growthform1Type
+  plots_LT$growthform2Type <- plots_merged$growthform2Type
+  
+  # save filled in loader table
+  out_path <- file.path(out_dir, "plotLT.csv")
+  cli::cli_alert_success("Writing output file to:")
+  cli::cli_ul(out_path)
+  
+  write_csv(plots_LT, out_path)
 }
 
-# run googlesheets auth on first run
-# googlesheets4::gs4_auth()
-plots_merged <- plots_loader(
-  in_dir  = "/var/data/curation/vegbank/",
-  out_dir = "data/loader-tables"
-)
 
-
-# Assigning columns to loader table -------------------------------------------
-plots_LT$author_plot_code <- plots_merged$SurveyID
-plots_LT$real_latitude <- plots_merged$real_latitude
-plots_LT$real_longitude <- plots_merged$real_longitude
-plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
-plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
-plots_LT$author_e <- plots_merged$UTME_final
-plots_LT$author_n <- plots_merged$UTMN_final
-plots_LT$author_zone <- plots_merged$UTM_zone
-plots_LT$author_datum <- plots_merged$author_datum
-plots_LT$author_location <- plots_merged$SiteLocation
-plots_LT$azimuth <- plots_merged$W_Axis_Bearing
-plots_LT$shape <- plots_merged$PlotShape
-plots_LT$area <- plots_merged$PlotArea
-plots_LT$stand_size <- plots_merged$Stand_Size
-plots_LT$elevation <- plots_merged$Elevation
-plots_LT$slope_aspect <- plots_merged$Aspect_actual
-plots_LT$slope_gradient <- plots_merged$slope
-plots_LT$topo_position <- plots_merged$topo_position
-plots_LT$rock_type <- plots_merged$Substrate
-plots_LT$pj_code <- plots_merged$ProjectCode
-plots_LT$obsStartDate <- plots_merged$SurveyDate
-plots_LT$methodNarrative <- plots_merged$methodNarrative
-plots_LT$successionalStatus = plots_merged$Trend
-plots_LT$basalArea <- plots_merged$BasalStem
-plots_LT$hydrolicRegime <- plots_merged$Upl_Wet_text
-plots_LT$percentLitter <- plots_merged$Litter
-plots_LT$percentBareSoil <- plots_merged$Bare_fines
-plots_LT$percentWater <- plots_merged$Water
-plots_LT$treeHt <- plots_merged$treeHt
-plots_LT$shrubHt <- plots_merged$Shrub_ht2
-plots_LT$fieldHt <- plots_merged$Herb_ht2
-plots_LT$treeCover <- plots_merged$treeCover
-plots_LT$shrubCover <- plots_merged$Shrub_cover
-plots_LT$fieldCover <- plots_merged$Herb_cover
-plots_LT$nonvascularCover <- plots_merged$NonVasc_Veg_cover
-plots_LT$dominantStratum <- plots_merged$DomLayer
-plots_LT$growthform1Cover <- plots_merged$growthform1Cover
-plots_LT$growthform2Cover <- plots_merged$growthform2Cover
-plots_LT$growthform1Type <- plots_merged$growthform1Type
-plots_LT$growthform2Type <- plots_merged$growthform2Type
-
-# save filled in loader table
-write_csv(plots_LT, here('loader_tables', 'PlotObservationsLT.csv'))
