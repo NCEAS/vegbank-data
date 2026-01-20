@@ -3,6 +3,7 @@ library(here)
 library(stringr)
 library(googlesheets4)
 library(cli)
+library(glue)
 source("R/build_loader_table.R")
 
 # load in CDFW data -----------------------------------------------------------
@@ -207,13 +208,16 @@ assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
   cacode_map_1to1 <- cacode_map %>%
     group_by(CaCode_norm) %>%
     summarise(
-      NVC_norm = first(NVC_norm),   # pick a stable default (first)
+      NVC_norm = first(NVC_norm),
       n_map = n(),
       .groups = "drop"
     )
   
   # warn if any CaCodes map to multiple NVC codes
-  multi <- cacode_map_1to1 %>% filter(n_map > 1)
+  multi <- cacode_map %>%
+    count(CaCode_norm, name = "n_map") %>%
+    filter(n_map > 1)
+  
   if (nrow(multi) > 0) {
     cli_alert_warning(
       "Some CaCode values map to multiple NVC codes in cacode_map ({nrow(multi)} CaCodes). Using the first NVC code for now to avoid row duplication."
@@ -241,10 +245,12 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
   out <- classification_with_cc %>%
     left_join(plots_conf, by = "SurveyID") %>%
     left_join(projects_proj, by = "ProjectCode")
-  
-  # sanity check
+
   if (nrow(out) != nrow(classification_with_cc)) {
-    cli_alert_warning("Row count changed after joins: {nrow(classification_with_cc)} -> {nrow(out)}. Check join keys / duplicates.")
+    stop(glue(
+      "Row count changed after joins: {nrow(classification_with_cc)} -> {nrow(out)}. ",
+      "This indicates duplicates in join keys (SurveyID or ProjectCode)."
+    ))
   }
   
   out
@@ -273,9 +279,12 @@ community_loader <- function(in_dir){
   class_cc_proj
 }
 
-
 class_cc_proj <- community_loader("/var/data/curation/vegbank/")
 
+stopifnot(nrow(class_cc_proj) == nrow(community_LT))
+stopifnot(all(names(c("expert_system","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
+
+# Assigning columns to loader table -------------------------------------------
 community_LT$expert_system <- class_cc_proj$expert_system
 community_LT$inspection <- class_cc_proj$inspection
 community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
