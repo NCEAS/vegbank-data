@@ -26,6 +26,9 @@ plots_2 <- read_csv(here(folder_2, 'RAPlants.csv'))
 # merge RAReleve and AARecon data
 plants_test <- plots_2 %>% 
   left_join(plots_1, by = "SurveyID") # creates .x and .y
+
+# instead of left_join() use rbind()
+# ex: plants <- rbind(plots_1, plots_2)
 plants <- plots_2 %>% 
   left_join(plots_1, by = "SurveyID",
             suffix = c("", "_small")) %>% 
