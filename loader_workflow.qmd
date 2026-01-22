@@ -19,6 +19,11 @@ r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, 
 invisible(lapply(r_scripts_source, source))
 ```
 
+```{r}
+in_dir <- '/var/data/curation/vegbank/'
+out_dir <- 'data/loader-tables'
+```
+
 ## Projects
 
 Project loader table data is extracted from `RAProjects` files. The following variable mappings are used:
@@ -34,8 +39,6 @@ Project loader table data is extracted from `RAProjects` files. The following va
 The project start and stop dates are converted from date-time formats to date formats (dropping the time). Date values are checked to ensure they are reasonable.
 
 ```{r}
-in_dir <- '/var/data/curation/vegbank/'
-out_dir <- 'data/loader-tables'
 project_loader(in_dir, out_dir)
 ```
 
@@ -69,8 +72,6 @@ The source data is normalized, moving from wide to long format so that each indi
 `role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. A mapping of role text to role codes can be found within the `party_contributor_loader` function. If no role is found in the source data, the code `ar.46` is assigned. The `contributor_type` field is given a value of "Project" for all rows.
 
 ```{r}
-in_dir <- '/var/data/curation/vegbank/'
-out_dir <- 'data/loader-tables'
 party_contributor_loader(in_dir, out_dir)
 ```
 
@@ -90,8 +91,6 @@ Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpac
 Intensity values are checked to ensure they are either 1, 2, or 3, and then these values are converted to low, medium, and high, respectively. Unknown intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field. Disturbance age and extent are not present in the CDFW data so are set to `NA` for all rows in the loader table.
 
 ```{r}
-in_dir <- '/var/data/curation/vegbank/'
-out_dir <- 'data/loader-tables'
 disturbance_loader(in_dir, out_dir)
 ```
 
