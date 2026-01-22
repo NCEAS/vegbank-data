@@ -157,7 +157,7 @@ mapping_values <- mapping_values %>%
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
 
 # join CodeSpecies to mapping_values
-vb_plants <- vegbankr::get_all_plant_concepts()
+vb_plants <- vegbankr::vb_get_plant_concepts()
 plants_joined <- plants %>% 
   left_join(vb_plants, by = c("CodeSpecies" = "plant_code"))
 
