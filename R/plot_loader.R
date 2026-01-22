@@ -686,6 +686,85 @@ assign_growth_form <- function(plots_merged){
   return(plots_merged)
 }
 
+range_to_midpoint <- function(x,
+                              less_rule = c("half", "keep", "na"),
+                              greater_rule = c("keep", "na"),
+                              treat_zero_as_na = FALSE) {
+  less_rule    <- match.arg(less_rule)
+  greater_rule <- match.arg(greater_rule)
+  
+  x0 <- as.character(x) %>% str_squish() %>% str_to_lower()
+  
+  # standard missing values
+  x0[x0 %in% c("", "<null>", "n/a", "not recorded", "not present", "na")] <- NA_character_
+  
+  # normalize dash types
+  x0 <- str_replace_all(x0, "–", "-")
+  
+  # convert fractions
+  # "1/2" -> "0.5"
+  x0 <- str_replace_all(x0, "1\\s*/\\s*2", "0.5")
+  
+  # remove units/spaces/words
+  x_clean <- str_replace_all(x0, "[^0-9.<>-]+", "")
+  
+  out <- rep(NA_real_, length(x_clean))
+  
+  # ranges : "0.5-1" or "2-5"
+  is_range <- !is.na(x_clean) & str_detect(x_clean, "^[0-9.]+-[0-9.]+$")
+  if (any(is_range)) {
+    m <- str_match(x_clean[is_range], "^([0-9.]+)-([0-9.]+)$")
+    lo <- as.numeric(m[, 2])
+    hi <- as.numeric(m[, 3])
+    out[is_range] <- (lo + hi) / 2
+  }
+  
+  # less-than : "<0.5"
+  is_less <- !is.na(x_clean) & str_detect(x_clean, "^<[0-9.]+$")
+  if (any(is_less)) {
+    v <- as.numeric(str_remove(x_clean[is_less], "^<"))
+    out[is_less] <- dplyr::case_when(
+      less_rule == "half" ~ v / 2,
+      less_rule == "keep" ~ v,
+      TRUE ~ NA_real_
+    )
+  }
+  
+  # greater-than : ">50"
+  is_greater <- !is.na(x_clean) & str_detect(x_clean, "^>[0-9.]+$")
+  if (any(is_greater)) {
+    v <- as.numeric(str_remove(x_clean[is_greater], "^>"))
+    out[is_greater] <- if (greater_rule == "keep") v else NA_real_
+  }
+  
+  # plain numbers like "0" or "7.5"
+  is_num <- !is.na(x_clean) & str_detect(x_clean, "^[0-9.]+$")
+  if (any(is_num)) {
+    out[is_num] <- as.numeric(x_clean[is_num])
+  }
+  
+  if (treat_zero_as_na) out[out == 0] <- NA_real_
+  
+  out
+}
+
+calc_shrub_height <- function(plots_merged){
+  plots_merged <- plots_merged %>%
+    mutate(
+      Shrub_ht22 = range_to_midpoint(Shrub_ht2, less_rule = "half", greater_rule = "keep")
+    )
+  
+  return(plots_merged)
+}
+
+calc_herb_height <- function(plots_merged){
+  plots_merged <- plots_merged %>%
+    mutate(
+      Herb_ht22 = range_to_midpoint(Herb_ht2, less_rule = "half", greater_rule = "keep")
+    )
+  
+  return(plots_merged)
+}
 
 plots_loader <- function(in_dir, out_dir){
   
@@ -704,9 +783,8 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- calc_hdwd_height(plots_merged)
   plots_merged <- assign_tree_height(plots_merged)
   plots_merged <- assign_growth_form(plots_merged)
-  
-  # TODO: field ht (fix values)
-  # TODO: shrub ht (fix values)
+  plots_merged <- calc_shrub_height(plots_merged)
+  plots_merged <- calc_herb_height(plots_merged)
 
 
 
@@ -762,8 +840,8 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$percent_bare_soil <- plots_merged$Bare_fines
   plots_LT$percent_qater <- plots_merged$Water
   plots_LT$tree_ht <- plots_merged$treeHt
-  plots_LT$shrub_ht <- plots_merged$Shrub_ht2
-  plots_LT$field_ht <- plots_merged$Herb_ht2
+  plots_LT$shrub_ht <- plots_merged$Shrub_ht22
+  plots_LT$field_ht <- plots_merged$Herb_ht22
   plots_LT$tree_cover <- plots_merged$treeCover
   plots_LT$shrub_cover <- plots_merged$Shrub_cover
   plots_LT$field_cover <- plots_merged$Herb_cover
@@ -783,6 +861,5 @@ plots_loader <- function(in_dir, out_dir){
   
   write_csv(plots_LT, out_path)
 }
-
 
 
