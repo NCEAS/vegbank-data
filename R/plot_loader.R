@@ -754,6 +754,12 @@ calc_shrub_height <- function(plots_merged){
       Shrub_ht22 = range_to_midpoint(Shrub_ht2, less_rule = "half", greater_rule = "keep")
     )
   
+  nas <- which(is.na(plots_merged$Shrub_ht22) & !is.na(plots_merged$Shrub_ht2))
+  
+  if (length(nas) > 0){
+    cli::cli_alert_warning("Some shrub heights were unable to be converted to numeric: {unique(plots_merged$Shrub_ht2)}")
+  }
+  
   return(plots_merged)
 }
 
@@ -762,6 +768,12 @@ calc_herb_height <- function(plots_merged){
     mutate(
       Herb_ht22 = range_to_midpoint(Herb_ht2, less_rule = "half", greater_rule = "keep")
     )
+  
+  nas <- which(is.na(plots_merged$Herb_ht22) & !is.na(plots_merged$Herb_ht2))
+  
+  if (length(nas) > 0){
+    cli::cli_alert_warning("Some herb heights were unable to be converted to numeric: {unique(plots_merged$Herb_ht2)}")
+  }
   
   return(plots_merged)
 }
