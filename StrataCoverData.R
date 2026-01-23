@@ -23,8 +23,12 @@ plots_1 <- read_csv(here(folder_1, 'RAPlants.csv'))
 folder_2 <- '/var/data/curation/vegbank/VegBankProject_StdDatasets2_AARecon_20251204'
 plots_2 <- read_csv(here(folder_2, 'RAPlants.csv'))
 
+# read in Cal data
+folder_3 <- '/var/data/curation/vegbank/NonStandardDatasets_Submission3_20260121'
+plots_3 <- read_csv(here(folder_3, 'RAPlants.csv'))
+
 # merge RAReleve and AARecon data
-plants <- rbind(plots_1, plots_2)
+plants <- rbind(plots_1, plots_2, plots_3)
   
 # creating loader table ---------------------------------------------------
 
@@ -62,7 +66,7 @@ page_init <- 5000 # shrink this if there is an error
 page_min <- 500 # don't go smaller than this
 max_pages <- 500 # hard stop
 sleep_sec <- 0.05 # brief pause to avoid error
-keep_cols <- c("pc_code","plant_name", "current_accepted")
+keep_cols <- c("pc_code","plant_name", "plant_code", "current_accepted")
 checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
 save_every <- 10
 
@@ -86,6 +90,11 @@ for (i in seq_len(max_pages)) {
     }
   )
   if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
+  
+  # Convert plant_code to character to avoid type conflicts
+  if ("plant_code" %in% names(chunk)) {
+    chunk$plant_code <- as.character(chunk$plant_code)
+  }
 
   keep <- intersect(keep_cols, names(chunk))
   if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
@@ -123,7 +132,9 @@ pc_lookup <- pc_all %>%
   mutate(plant_name_norm = str_squish(str_to_lower(name_clean))) %>%
   filter(plant_name_norm != "") %>%
   group_by(plant_name_norm) %>%
-  summarise(pc_code = first(pc_code), .groups = "drop")
+  summarise(pc_code = first(pc_code),
+            plant_code = first(plant_code),
+            .groups = "drop")
 
 mapping_values <- plants %>%
   mutate(
@@ -133,7 +144,8 @@ mapping_values <- plants %>%
   left_join(pc_lookup, by = c("author_norm" = "plant_name_norm")) %>%
   transmute(
     authorPlantName = na_if(authorPlantName, ""),  # turn "" back to NA if you want
-    vb_pc_code = pc_code
+    vb_pc_code = pc_code,
+    plant_code = plant_code
   )
 
 nrow(mapping_values) == nrow(plants) # end of commenting
@@ -157,8 +169,8 @@ mapping_values <- mapping_values %>%
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
 
 # join CodeSpecies to mapping_values
-vb_plants <- vegbankr::vb_get_plant_concepts()
-plants_joined <- plants %>% 
+
+plants_joined <- mapping_values %>% 
   left_join(vb_plants, by = c("CodeSpecies" = "plant_code"))
 
 # matching to CodeSpecies ===================================================
