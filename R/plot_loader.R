@@ -48,8 +48,8 @@ load_files <- function(in_dir) {
     grep(pattern = 'RAPlots.csv', value = TRUE)
   alt_plot_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'AltPlots.csv', value = TRUE)
-  survey_point_files <- dir(sub_folders, full.names = TRUE) %>% 
-    grep(pattern = 'SurveyPoints.csv', value = TRUE)
+  #survey_point_files <- dir(sub_folders, full.names = TRUE) %>% 
+  #  grep(pattern = 'SurveyPoints.csv', value = TRUE)
   impact_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'RAImpacts.csv', value = TRUE)
   alt_strata_files <- dir(sub_folders, full.names = TRUE) %>% 
@@ -60,19 +60,19 @@ load_files <- function(in_dir) {
     grep(pattern = 'RAProjects.csv', value = TRUE)
   
   
-  plots_df_list <- lapply(plot_files, read_csv, progress = FALSE, show_col_types = FALSE, col_types = cols(`PlotOther5` = col_character()))
+  plots_df_list <- lapply(plot_files, read_csv, progress = FALSE, show_col_types = FALSE, col_types = cols(`PlotOther5` = col_character()), guess_max = 20000)
   plots <- do.call(bind_rows, plots_df_list)
-  alt_plots_df_list <- lapply(alt_plot_files, read_csv, progress = FALSE, show_col_types = FALSE)
+  alt_plots_df_list <- lapply(alt_plot_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   alt_plots <- do.call(bind_rows, alt_plots_df_list)
-  survey_points <<- read_csv(survey_point_files, progress = FALSE, show_col_types = FALSE)
-  impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  impacts <<- do.call(bind_rows, impacts_df_list)
-  alt_strata_df_list <- lapply(alt_strata_files, read_csv, progress = FALSE, show_col_types = FALSE)
+  #survey_points <<- read_csv(survey_point_files, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+  #impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+  #impacts <<- do.call(bind_rows, impacts_df_list)
+  alt_strata_df_list <- lapply(alt_strata_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   alt_strata <- do.call(bind_rows, alt_strata_df_list)
-  classification_df_list <- lapply(classification_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  classification <<- do.call(bind_rows, classification_df_list)
-  project_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  projects <<- do.call(bind_rows, project_df_list)
+  #classification_df_list <- lapply(classification_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+  #classification <<- do.call(bind_rows, classification_df_list)
+  #project_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+  #projects <<- do.call(bind_rows, project_df_list)
   
   # create blank Loader Table dataframe -----------------------------------------------------
   
@@ -705,6 +705,9 @@ range_to_midpoint <- function(x,
   # "1/2" -> "0.5"
   x0 <- str_replace_all(x0, "1\\s*/\\s*2", "0.5")
   
+  # handle .5 (convert to 0.5)
+  x0 <- str_replace_all(x0, "^.5-1", "0.5-1")
+  
   # remove units/spaces/words
   x_clean <- str_replace_all(x0, "[^0-9.<>-]+", "")
   
@@ -749,30 +752,39 @@ range_to_midpoint <- function(x,
 }
 
 calc_shrub_height <- function(plots_merged){
+  
+  mv_list <- c("", "<null>", "n/a", "not recorded", "not present", "na", 'N/A', 'Not recorded', 'Not present', '<Null>')
+  
   plots_merged <- plots_merged %>%
     mutate(
       Shrub_ht22 = range_to_midpoint(Shrub_ht2, less_rule = "half", greater_rule = "keep")
-    )
+    ) %>% 
+    mutate(Shrub_ht2 = if_else(Shrub_ht2 %in% mv_list, NA, Shrub_ht2))
   
   nas <- which(is.na(plots_merged$Shrub_ht22) & !is.na(plots_merged$Shrub_ht2))
   
   if (length(nas) > 0){
-    cli::cli_alert_warning("Some shrub heights were unable to be converted to numeric: {unique(plots_merged$Shrub_ht2)}")
+    cli::cli_alert_warning("Some shrub heights were unable to be converted to numeric: {unique(plots_merged$Shrub_ht2[nas])}")
   }
   
   return(plots_merged)
 }
 
 calc_herb_height <- function(plots_merged){
+  
+  mv_list <- c("", "<null>", "n/a", "not recorded", "not present", "na", 'N/A', 'Not recorded', 'Not present', '<Null>')
+  
   plots_merged <- plots_merged %>%
     mutate(
       Herb_ht22 = range_to_midpoint(Herb_ht2, less_rule = "half", greater_rule = "keep")
-    )
+    ) %>% 
+    mutate(Herb_ht2 = if_else(Herb_ht2 %in% mv_list, NA, Herb_ht2))
   
+  # TODO: fix this one
   nas <- which(is.na(plots_merged$Herb_ht22) & !is.na(plots_merged$Herb_ht2))
   
   if (length(nas) > 0){
-    cli::cli_alert_warning("Some herb heights were unable to be converted to numeric: {unique(plots_merged$Herb_ht2)}")
+    cli::cli_alert_warning("Some herb heights were unable to be converted to numeric: {unique(plots_merged$Herb_ht2[nas])}")
   }
   
   return(plots_merged)
@@ -822,8 +834,8 @@ plots_loader <- function(in_dir, out_dir){
   # user ob code?
   plots_LT$user_obs_code <- plots_merged$SurveyID
   plots_LT$author_obs_code <- plots_merged$SurveyID
-  plots_LT$user_plot_code <- plots_merged$StandID
-  plots_LT$author_plot_code <- plots_merged$StandID
+  plots_LT$user_plot_code <- plots_merged$Stand_ID
+  plots_LT$author_plot_code <- plots_merged$Stand_ID
   plots_LT$real_latitude <- plots_merged$real_latitude
   plots_LT$real_longitude <- plots_merged$real_longitude
   plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
@@ -853,12 +865,12 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$percent_qater <- plots_merged$Water
   plots_LT$tree_ht <- plots_merged$treeHt
   plots_LT$shrub_ht <- plots_merged$Shrub_ht22
-  plots_LT$field_ht <- plots_merged$Herb_ht22
+  plots_LT$field_ht <- plots_merged$Herb_ht22 
   plots_LT$tree_cover <- plots_merged$treeCover
   plots_LT$shrub_cover <- plots_merged$Shrub_cover
   plots_LT$field_cover <- plots_merged$Herb_cover
   plots_LT$nonvascular_cover <- plots_merged$NonVasc_Veg_cover
-  plots_LT$dominant_stratum <- plots_merged$DomLayer
+  plots_LT$dominant_stratum <- plots_merged$DomForm
   plots_LT$growthform_1_cover <- plots_merged$growthform1Cover
   plots_LT$growthform_2_cover <- plots_merged$growthform2Cover
   plots_LT$growthform_1_type <- plots_merged$growthform1Type
