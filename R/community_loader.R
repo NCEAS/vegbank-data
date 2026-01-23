@@ -158,6 +158,7 @@ normalize_class_confidence <- function(plots) {
 
 load_reference_tables <- function(in_dir){
   # Community concepts from VegBank (should be loaded already)
+  # TODO: replace this with something that doesn't rely on a local file. we should either include the vegbank code that generates the file, or write that file out to the curation dir
   cc_all_path <- here("data", "cc_all.csv")
   if (!file.exists(cc_all_path)) {
     stop("Missing data/cc_all.csv. Generate it (or copy it) before running.")
@@ -276,19 +277,21 @@ community_loader <- function(in_dir){
     projects_proj = projects_proj
   )
   
-  class_cc_proj
+  # TODO: possibly improve messaging here?
+  stopifnot(nrow(class_cc_proj) == nrow(community_LT))
+  stopifnot(all(names(c("expert_system","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
+  
+  # Assigning columns to loader table -------------------------------------------
+  community_LT$expert_system <- class_cc_proj$expert_system
+  community_LT$inspection <- class_cc_proj$inspection
+  community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
+  community_LT$class_confidence <- class_cc_proj$class_confidence
+  community_LT$vb_cc_code <- class_cc_proj$vb_cc_code
+  
+  # save filled in loader table
+  out_path <- file.path(out_dir, "communityClassificationsLT.csv")
+  cli::cli_alert_success("Writing output file to:")
+  cli::cli_ul(out_path)
+  
+  write_csv(community_LT, out_path)
 }
-
-class_cc_proj <- community_loader("/var/data/curation/vegbank/")
-
-stopifnot(nrow(class_cc_proj) == nrow(community_LT))
-stopifnot(all(names(c("expert_system","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
-
-# Assigning columns to loader table -------------------------------------------
-community_LT$expert_system <- class_cc_proj$expert_system
-community_LT$inspection <- class_cc_proj$inspection
-community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
-community_LT$class_confidence <- class_cc_proj$class_confidence
-community_LT$vb_cc_code <- class_cc_proj$vb_cc_code
-
-write_csv(community_LT, here("loader_tables", "CommunityClassificationsLT.csv"))
