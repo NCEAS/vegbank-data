@@ -244,9 +244,9 @@ party_contributor_loader <- function(in_dir, out_dir){
   
   contributor_LT$vb_py_code <- project_names_j$py_code
   contributor_LT$user_py_code <- project_names_j$user_py_code
-  contributor_LT$role <- project_names_j$RoleCode
+  contributor_LT$vb_ar_code <- project_names_j$RoleCode
   contributor_LT$contributor_type <- project_names_j$contributor_type
-  contributor_LT$recordIdentifier <- project_names_j$ProjectCode
+  contributor_LT$record_identifier <- project_names_j$ProjectCode
   
   # saved filled in loader table --------------------------------------------
   out_path_party <- file.path(out_dir, "partyLT.csv")

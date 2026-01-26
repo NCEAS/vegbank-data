@@ -119,14 +119,14 @@ disturbance_loader <- function(in_dir, out_dir){
   
   
   # Assigning columns to loader table ---------------------------------------
-  disturb_LT$ob_code <- impacts_merged$SurveyID
-  disturb_LT$disturbance_type <- impacts_merged$vegbank_disturbance
-  disturb_LT$disturbance_comment <- impacts_merged$Other
-  disturb_LT$disturbance_intensity <- impacts_merged$Intensity
+  disturb_LT$user_ob_code <- impacts_merged$SurveyID
+  disturb_LT$type <- impacts_merged$vegbank_disturbance
+  disturb_LT$comment <- impacts_merged$Other
+  disturb_LT$intensity <- impacts_merged$Intensity
   
   # disturbance age and extent not present in CDFW data:
-  disturb_LT$disturbance_age <- 'NA'
-  disturb_LT$disturbance_extent <- 'NA'
+  disturb_LT$age <- 'NA'
+  disturb_LT$extent <- 'NA'
   
   # save filled in loader table
   out_path <- file.path(out_dir, "disturbanceLT.csv")

@@ -59,7 +59,7 @@ soil_loader <- function(in_dir, out_dir){
   # For now there is only one variable that mapped to the Soil Data Loader table (Soil_text from RAPlots)
   
   soil_LT$user_ob_code = plots$SurveyID
-  soil_LT$soilTexture = plots$Soil_text
+  soil_LT$texture = plots$Soil_text
   
   # save filled in loader table
   out_path <- file.path(out_dir, "soilLT.csv")
