@@ -26,15 +26,8 @@ out_dir <- 'data/loader-tables'
 
 ## Projects
 
-Project loader table data is extracted from `RAProjects` files. The following variable mappings are used:
+Project loader table data is extracted from `RAProjects` files.
 
-| Loader Table        | Source Data        |
-|---------------------|--------------------|
-| user_pj_code        | ProjectCode        |
-| project_name        | ProjectName        |
-| project_description | ProjectDescription |
-| start_date          | ProjectStartDate   |
-| stop_date           | ProjectEndDate     |
 
 The project start and stop dates are converted from date-time formats to date formats (dropping the time). Date values are checked to ensure they are reasonable.
 
@@ -44,28 +37,7 @@ project_loader(in_dir, out_dir)
 
 ## Party and Contributor
 
-The two loader tables for Party and Contributor are both extracted from `RAProjects` files. The variable mappings are given below:
-
-### Party Loader Mapping
-
-| Loader Table      | Source Data                            |
-|-------------------|----------------------------------------|
-| user_py_code      | N/A\*                                  |
-| surname           | DataContactName, DataContactName2...   |
-| organization_name | DataContactOrg, DataContactOrg2...     |
-| given_name        | DataContactName, DataContactName2...   |
-| email             | DataContactEmail, DataContactEmail2... |
-| middle_name       | DataContactName, DataContactName2...   |
-
-### Contributor Loader Mapping
-
-| Loader Table     | Source Data                          |
-|------------------|--------------------------------------|
-| vb_py_code       | N/A\*                                |
-| user_py_code     | N/A\*                                |
-| role             | DataContactRole, DataContactRole2... |
-| contributor_type | N/A\*                                |
-| recordIdentifier | ProjectCode                          |
+The two loader tables for Party and Contributor are both extracted from `RAProjects` files.
 
 The source data is normalized, moving from wide to long format so that each individual in `DataContact*{n}` columns is in their own row. Emails are checked to ensure they appear valid. Names are then split using whitespace into `given_name`, `middle_name`, and `sur_name`. Unique party codes are generated for each individual (`user_py_code`). Additionally, all unique individuals already in vegbank are retrieved, along with their project codes. Individuals in the source data are matched to existing vegbank parties, and if any are found the existing vegbank identifier is assigned to `vb_py_code`.
 
@@ -77,16 +49,7 @@ party_contributor_loader(in_dir, out_dir)
 
 ## Disturbance
 
-Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table. Variable mappings are given below:
-
-| Loader Table          | Source Data |
-|-----------------------|-------------|
-| ob_code               | SurveyID    |
-| disturbance_type      | Impact type |
-| disturbance_comment   | Other       |
-| disturbance_intensity | Intensity   |
-| disturbance_age       | N/A         |
-| disturbance_extent    | N/A         |
+Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table. 
 
 Intensity values are checked to ensure they are either 1, 2, or 3, and then these values are converted to low, medium, and high, respectively. Unknown intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field. Disturbance age and extent are not present in the CDFW data so are set to `NA` for all rows in the loader table.
 
@@ -111,5 +74,15 @@ soil_loader(in_dir, out_dir)
 
 ```{r}
 community_loader(in_dir, out_dir)
+```
+
+```{r}
+un <- plots_merged %>% 
+  distinct(SurveyID, Stand_ID) %>% 
+  group_by(Stand_ID) %>% 
+  summarise(num_surveys = n())
+
+t <- plots_merged %>% 
+  filter(Stand_ID == "SNF6A3515")
 ```
 
