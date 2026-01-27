@@ -60,33 +60,27 @@ load_files <- function(in_dir) {
     grep(pattern = 'RAProjects.csv', value = TRUE)
   
   
-  plots_df_list <- lapply(plot_files, read_csv, progress = FALSE, show_col_types = FALSE, col_types = cols(`PlotOther5` = col_character()), guess_max = 20000)
+  plots_df_list <- lapply(plot_files, 
+                          read_csv,
+                          progress = FALSE,
+                          show_col_types = FALSE,
+                          col_types = cols(`PalmJoshua` = col_character(),
+                                           `DesertRip` = col_character()),
+                          guess_max = 20000)
   plots <- do.call(bind_rows, plots_df_list)
-  alt_plots_df_list <- lapply(alt_plot_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+  alt_plots_df_list <- lapply(alt_plot_files,
+                              read_csv,
+                              progress = FALSE,
+                              show_col_types = FALSE,
+                              col_types = cols(`Representative` = col_character()),
+                              guess_max = 20000)
   alt_plots <- do.call(bind_rows, alt_plots_df_list)
-  #survey_points <<- read_csv(survey_point_files, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
-  #impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
-  #impacts <<- do.call(bind_rows, impacts_df_list)
   alt_strata_df_list <- lapply(alt_strata_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   alt_strata <- do.call(bind_rows, alt_strata_df_list)
-  #classification_df_list <- lapply(classification_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
-  #classification <<- do.call(bind_rows, classification_df_list)
-  #project_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
-  #projects <<- do.call(bind_rows, project_df_list)
-  
-  # create blank Loader Table dataframe -----------------------------------------------------
-  
-  plots_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "PlotObservations",
-    source_df = plots
-  )
-  
-  plots_LT <- plots_template_fields$template
   
   # join AltPlots and AltStrata with RAPlots
   plots_merged <- plots %>% 
-    left_join(alt_plots) %>% 
+    left_join(alt_plots, by = "SurveyID") %>% 
     left_join(alt_strata, by = "SurveyID") %>% 
     select(where(~!all(is.na(.x)))) %>% # dropping columns that are filled with NA values
     mutate(SurveyDate = as.Date(lubridate::mdy_hms(SurveyDate))) # drop time from date column after reformatting 
@@ -122,7 +116,6 @@ normalize_elevation <- function(plots_merged){
       )
     )
   
-  # location_accuracy -------------------------------------------------------
   # ErrorMeasurement and ErrorUnits in  RAPlots
   # If measurements are not in meters, needs to be converted
   feet_designators <- grep("^f|F", unique(plots_merged$ErrorUnits), value = TRUE)
@@ -173,7 +166,6 @@ normalize_coordinates <- function(plots_merged){
       )
     ) 
   
-  # real_longitude & real_latitude ------------------------------------------
   # use UTME_final and UTMN_final in RAPlots.csv
   # Convert UTM to lat long
   # Three reference systems: NAD83, NAD27, WGS83; Two zones: 10 and 11
@@ -228,7 +220,6 @@ assign_state_county <- function(plots_merged){
   plots_merged <- plots_merged %>% 
     left_join(state_county_points, by = ".row_id")
   
-  # Troubleshooting rows with missing spatial information -------------------
   missing_county <- plots_merged[is.na(plots_merged$county), ] # what to do with areas that could be in multiple states?
   
   if (nrow(missing_county) > 0){
@@ -267,7 +258,6 @@ assign_state_county <- function(plots_merged){
 # TODO: fix this after feedback from CDFW. need to deal with rows that have % in them
 normalize_area_shape <- function(plots_merged){
   
-  # area --------------------------------------------------------------------
   #!!!PROBLEM!!!
   # Using PlotArea and ViewRadius from RAPlots
   
@@ -686,6 +676,114 @@ assign_growth_form <- function(plots_merged){
   return(plots_merged)
 }
 
+check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE){
+  
+  cache_dir  <- rappdirs::user_cache_dir("vegbank")
+  cache_file <- file.path(cache_dir, "pl_all.csv")
+  
+  if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
+  
+  obj <- if (file.exists(cache_file) & !renew_cache) {
+    pl_all <- read_csv(cache_file)
+  } else {
+    cli::cli_alert_info("Downloading vb plots data.")
+    ### user_pl_code (PlotObservations) ###
+    # For now, there is no matches so user_pl_code will remain empty
+    vb_set_base_url(vb_url)
+    
+    # Adaptive, resumable pager for VegBank plot observations
+    
+    page_init  <- 5000  # shrink this if there is an error
+    page_min   <- 500   # don't go smaller than this
+    max_pages  <- 500   # hard stop
+    sleep_sec  <- 0.05  # brief pause to avoid error
+    keep_cols  <- c("pl_code","latitude","longitude","ob_code","author_plot_code", "author_obs_code", "state_province","country")
+    checkpoint <- "pl_all_checkpoint.rds" # just in case something fails
+    save_every <- 10
+    
+    out <- list()
+    seen_codes <- character(0)
+    limit <- page_init
+    
+    # column types
+    text_cols <- c("ob_code","state_province","country", "author_obs_code")
+    num_cols  <- c("latitude","longitude")
+    
+    for (i in seq_len(max_pages)) {
+      offset <- (i - 1L) * limit
+      # try once
+      # on failure (e.g., 504), halve the limit and retry
+      chunk <- tryCatch(
+        vb_get_plot_observations(limit = limit, offset = offset),
+        error = function(e) {
+          limit <<- max(page_min, floor(limit/2))
+          tryCatch(get_all_plot_observations(limit = limit, offset = offset),
+                   error = function(e2) { NULL })
+        }
+      )
+      if (is.null(chunk) || !nrow(chunk)) { break }
+      
+      keep <- intersect(keep_cols, names(chunk))
+      if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
+      
+      # normalize
+      chunk <- chunk %>%
+        mutate(
+          across(any_of(text_cols), as.character),
+          across(any_of(num_cols),  as.numeric)
+        )
+      
+      if ("pl_code" %in% names(chunk)) {
+        new <- !chunk$pl_code %in% seen_codes
+        if (!any(new)) { break }
+        seen_codes <- c(seen_codes, chunk$pl_code[new])
+        chunk <- chunk[new, , drop = FALSE]
+      }
+      
+      out[[length(out) + 1L]] <- chunk
+      total <- sum(vapply(out, nrow, integer(1)))
+      
+      if (nrow(chunk) < limit) { break }
+      
+      if (save_every > 0 && (i %% save_every == 0)) {
+        #Normalize again
+        out_fixed <- map(out, ~ .x %>%
+                           mutate(
+                             across(any_of(text_cols), as.character),
+                             across(any_of(num_cols),  as.numeric)
+                           ))
+        tmp <- bind_rows(out_fixed) %>% distinct()
+        saveRDS(tmp, checkpoint)
+      }
+      
+      if (sleep_sec > 0) Sys.sleep(sleep_sec) }
+    
+    # normalize again
+    out_fixed <- map(out, ~ .x %>%
+                       mutate(
+                         across(any_of(text_cols), as.character),
+                         across(any_of(num_cols),  as.numeric)
+                       ))
+    
+    pl_all <- bind_rows(out_fixed) %>% distinct()
+    write_csv(pl_all, cache_file)
+  }
+  
+  plots_merged_check <- plots_merged %>%
+    left_join(
+      pl_all %>% select(author_plot_code, pl_code),
+      by = c("SurveyID" = "author_plot_code")
+    )
+  
+  if (any(plots_merged_check$SurveyID %in% pl_all$author_plot_code)){
+    cli::cli_alert_warning("Some SurveyId values already exist in the vegbank database. Is this expected?")
+  }
+  
+  return(NULL)
+  
+}
+
+# helper function for range to midpoint
 range_to_midpoint <- function(x,
                               less_rule = c("half", "keep", "na"),
                               greater_rule = c("keep", "na"),
@@ -751,6 +849,7 @@ range_to_midpoint <- function(x,
   out
 }
 
+# calculate shrub height
 calc_shrub_height <- function(plots_merged){
   
   mv_list <- c("", "<null>", "n/a", "not recorded", "not present", "na", 'N/A', 'Not recorded', 'Not present', '<Null>')
@@ -770,6 +869,7 @@ calc_shrub_height <- function(plots_merged){
   return(plots_merged)
 }
 
+# calculate field height
 calc_herb_height <- function(plots_merged){
   
   mv_list <- c("", "<null>", "n/a", "not recorded", "not present", "na", 'N/A', 'Not recorded', 'Not present', '<Null>')
@@ -809,6 +909,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- assign_growth_form(plots_merged)
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
+  check_existing_plots(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE)
 
 
 
@@ -824,12 +925,11 @@ plots_loader <- function(in_dir, out_dir){
   plots_template_fields <- build_loader_table(
     sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
     sheet = "PlotObservations",
-    source_df = plots
+    source_df = plots_merged
   )
   
   plots_LT <- plots_template_fields$template
   
-  # Assigning columns to loader table -------------------------------------------
   # fix column names
   # user ob code?
   plots_LT$user_obs_code <- plots_merged$SurveyID
