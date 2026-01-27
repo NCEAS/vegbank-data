@@ -288,7 +288,7 @@ normalize_area_shape <- function(plots_merged){
   
   # -1 indicates plot has no boundaries (no area)
   plots_merged <- plots_merged %>%
-    mutate(PlotArea_num = parse_number(as.character(PlotArea), na = c("NA","na","Not recorded","not recorded")), # changing PlotArea to number, combining NAs
+    mutate(PlotArea_num = parse_number(as.character(PlotArea), na = c("NA","na","Not recorded","not recorded", "`")), # changing PlotArea to number, combining NAs
            dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
            SurveyLength = suppressWarnings(as.numeric(map_chr(dims, 1, .default = NA))),
            SurveyWidth  = suppressWarnings(as.numeric(map_chr(dims, 2, .default = NA))),
@@ -684,7 +684,7 @@ check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
   
   obj <- if (file.exists(cache_file) & !renew_cache) {
-    pl_all <- read_csv(cache_file)
+    pl_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   } else {
     cli::cli_alert_info("Downloading vb plots data.")
     ### user_pl_code (PlotObservations) ###
