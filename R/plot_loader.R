@@ -939,6 +939,122 @@ calc_herb_height <- function(plots_merged){
   return(plots_merged)
 }
 
+# truncate author_location to not exceed 200 char
+truncate_author_location <- function(plots_merged){
+  plots_merged <- plots_merged %>% 
+    mutate(SiteLocation = substr(SiteLocation, 1, 200))
+}
+
+# handle duplicate plot data
+deduplicate_plot_data <- function(plots_LT){
+  
+  plot_fields <- c(
+    "real_latitude",
+    "real_longitude",
+    "latitude",
+    "longitude",
+    "location_accuracy",
+    "confidentiality_status",
+    "confidentiality_reason",
+    "author_e",
+    "author_n",
+    "author_zone",
+    "author_datum",
+    "author_location",
+    "location_narrative",
+    "azimuth",
+    "dsgpoly",
+    "shape",
+    "area",
+    "stand_size",
+    "placement_method",
+    "permanence",
+    "layout_narrative",
+    "elevation",
+    "elevation_accuracy",
+    "elevation_range",
+    "slope_aspect",
+    "min_slope_aspect",
+    "max_slope_aspect",
+    "slope_gradient",
+    "min_slope_gradient",
+    "max_slope_gradient",
+    "topo_position",
+    "landform",
+    "surficial_deposits",
+    "rock_type"
+  ) 
+  
+  present_fields <- intersect(plot_fields, names(plots_LT))
+  
+  needs_suffix <- plots_LT %>%
+    group_by(user_pl_code) %>%
+    mutate(n = n()) %>% 
+    filter(n > 1) %>% 
+    select(all_of(present_fields), user_pl_code) %>% 
+    ungroup() %>% 
+    mutate(dupe = duplicated(.) | duplicated(., fromLast = TRUE)) %>% 
+    filter(!dupe) %>% 
+    group_by(user_pl_code) %>% 
+    mutate(row_num = row_number()) %>% 
+    mutate(user_pl_code_dedup = paste0(user_pl_code, "_", row_num)) %>%
+    select(-row_num, -dupe)
+  
+  plots_LT_fixed <- left_join(
+    plots_LT,
+    needs_suffix,
+    by = join_by(
+      user_pl_code,
+      real_latitude,
+      real_longitude,
+      latitude,
+      longitude,
+      location_accuracy,
+      confidentiality_status,
+      confidentiality_reason,
+      author_e,
+      author_n,
+      author_zone,
+      author_datum,
+      author_location,
+      location_narrative,
+      azimuth,
+      dsgpoly,
+      shape,
+      area,
+      stand_size,
+      placement_method,
+      permanence,
+      layout_narrative,
+      elevation,
+      elevation_accuracy,
+      elevation_range,
+      slope_aspect,
+      min_slope_aspect,
+      max_slope_aspect,
+      slope_gradient,
+      min_slope_gradient,
+      max_slope_gradient,
+      topo_position,
+      landform,
+      surficial_deposits,
+      rock_type
+    )
+  ) %>% 
+    mutate(user_pl_code = if_else(!is.na(user_pl_code_dedup), user_pl_code_dedup, user_pl_code)) %>% 
+    select(-user_pl_code_dedup)
+  
+  if (nrow(plots_LT_fixed) != nrow(plots_LT)){
+    cli::cli_alert_warning("Deduplicated loader table does not have the same rows as original. Check deduplicate_plot_data function.")
+  }
+  
+  return(plots_LT_fixed)
+  
+  
+
+
+}
+
 plots_loader <- function(in_dir, out_dir){
   
   # read in all the files and join to one table
@@ -958,13 +1074,8 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- assign_growth_form(plots_merged)
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
+  plots_merged <- truncate_author_location(plots_merged)
   check_existing_plots(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE)
-
-
-
-  # previously this only assigned user_ob_code to the SurveyId if it existed in the classification table
-  plots_merged <- plots_merged %>% 
-    mutate(user_ob_code = SurveyID)
   
   # Time should be removed
   plots_merged <- plots_merged %>% 
@@ -981,12 +1092,14 @@ plots_loader <- function(in_dir, out_dir){
   
   # fix column names
   # user ob code?
-  plots_LT$user_obs_code <- plots_merged$SurveyID
-  plots_LT$author_obs_code <- plots_merged$SurveyID
-  plots_LT$user_plot_code <- plots_merged$Stand_ID
+  plots_LT$user_ob_code <- plots_merged$SurveyID
+  #plots_LT$author_ob_code <- plots_merged$SurveyID
+  plots_LT$user_pl_code <- plots_merged$Stand_ID
   plots_LT$author_plot_code <- plots_merged$Stand_ID
-  plots_LT$real_latitude <- plots_merged$real_latitude
+  plots_LT$latitude <- plots_merged$real_latitude
+  plots_LT$longitude <- plots_merged$real_longitude
   plots_LT$real_longitude <- plots_merged$real_longitude
+  plots_LT$real_latitude <- plots_merged$real_latitude
   plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
   plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
   plots_LT$author_e <- plots_merged$UTME_final
@@ -1003,7 +1116,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$slope_gradient <- plots_merged$slope
   plots_LT$topo_position <- plots_merged$topo_position
   plots_LT$rock_type <- plots_merged$Substrate
-  plots_LT$pj_code <- plots_merged$ProjectCode
+  plots_LT$vb_pj_code <- plots_merged$ProjectCode
   plots_LT$obs_start_date <- plots_merged$SurveyDate
   plots_LT$method_narrative <- plots_merged$methodNarrative
   plots_LT$successional_status = plots_merged$Trend
@@ -1011,7 +1124,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$hydrologic_regime <- plots_merged$Upl_Wet_text
   plots_LT$percent_litter <- plots_merged$Litter
   plots_LT$percent_bare_soil <- plots_merged$Bare_fines
-  plots_LT$percent_qater <- plots_merged$Water
+  plots_LT$percent_water <- plots_merged$Water
   plots_LT$tree_ht <- plots_merged$treeHt
   plots_LT$shrub_ht <- plots_merged$Shrub_ht22
   plots_LT$field_ht <- plots_merged$Herb_ht22 
@@ -1025,7 +1138,10 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$growthform_1_type <- plots_merged$growthform1Type
   plots_LT$growthform_2_type <- plots_merged$growthform2Type
   
+  plots_LT <- plots_LT %>% 
+    select(-user_parent_pl_code, -vb_prev_ob_code)
   
+  plots_LT <- deduplicate_plot_data(plots_LT)
   
   # save filled in loader table
   out_path <- file.path(out_dir, "plotsLT.csv")
