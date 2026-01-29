@@ -939,10 +939,11 @@ calc_herb_height <- function(plots_merged){
   return(plots_merged)
 }
 
-# truncate author_location to not exceed 200 char
-truncate_author_location <- function(plots_merged){
+# truncate fields that are varchar(n)
+truncate_fields <- function(plots_merged){
   plots_merged <- plots_merged %>% 
-    mutate(SiteLocation = substr(SiteLocation, 1, 200))
+    mutate(SiteLocation = substr(SiteLocation, 1, 200)) %>% 
+    mutate(DomForm = substr(SiteLocation, 1, 40))
 }
 
 # handle duplicate plot data
@@ -1074,7 +1075,8 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- assign_growth_form(plots_merged)
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
-  plots_merged <- truncate_author_location(plots_merged)
+  plots_merged <- truncate_fields(plots_merged)
+  # check for missing projects
   check_existing_plots(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE)
   
   # Time should be removed
@@ -1116,7 +1118,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$slope_gradient <- plots_merged$slope
   plots_LT$topo_position <- plots_merged$topo_position
   plots_LT$rock_type <- plots_merged$Substrate
-  plots_LT$vb_pj_code <- plots_merged$ProjectCode
+  plots_LT$user_pj_code <- plots_merged$ProjectCode
   plots_LT$obs_start_date <- plots_merged$SurveyDate
   plots_LT$method_narrative <- plots_merged$methodNarrative
   plots_LT$successional_status = plots_merged$Trend
