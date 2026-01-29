@@ -117,65 +117,50 @@ party_contributor_loader <- function(in_dir, out_dir){
   ### user_py_code (Party) ###
   # Create a unique code for each individual (ca_***)
   projects <- projects %>%
-    mutate(user_py_code = sprintf("ca_%03d", seq_len(n())))
+    mutate(user_py_code = sprintf("ca_%03d", seq_len(n()))) 
   
+  roles <- tibble::tribble(
+    ~ar_code, ~role_name,
+    "ar.16",  "Author",
+    "ar.17",  "Contact",
+    "ar.18",  "PI",
+    "ar.19",  "Data Manager",
+    "ar.34",  "Classifier",
+    "ar.36",  "Plot author",
+    "ar.38",  "Co-PI",
+    "ar.39",  "Computer (automated)",
+    "ar.40",  "Consultant",
+    "ar.43",  "Field assistant",
+    "ar.44",  "Guide",
+    "ar.45",  "Land owner",
+    "ar.46",  "Not specified",
+    "ar.47",  "Not specified/Unknown",
+    "ar.48",  "Passive observer",
+    "ar.50",  "Plot contributor",
+    "ar.51",  "Publication author",
+    "ar.53",  "Research advisor",
+    "ar.54",  "System manager",
+    "ar.55",  "Taxonomist",
+    "ar.56",  "Data aggregator"
+  )
   
   ### role (Contributor) ###
   # Map DataContactRole values to ar.* codes
   # Done manually for each value
-  role_map <- c(
-    "project lead" = "ar.18",
-    "regional biologist who helped with field effort" = "ar.43",
-    "regional biologist who met with us on reviving project" = "ar.40",
-    "Classification lead for the project." = "ar.34",
-    "NPS lead and data collector" = "ar.36",
-    "California Native Plant Program" = "ar.19",
-    "planning" = "ar.46",
-    "provided student workers" = "ar.40",
-    "field lead" = "ar.43",
-    "Project Lead" = "ar.18",
-    "Lead Biologist Interpreter" = "ar.18",
-    "Senior Environmental Scientist" = "ar.18",
-    "Environmental Scientist/ Vegetation Ecologist" = "ar.36",
-    "Associate Wildlife Biologist, Land Program - North, Eastern Sierra - Inland Deserts Region" = "ar.36",
-    "CNPS Vegetation Program" = "ar.19",
-    "Program Lead" = "ar.18",
-    "Project Manager" = "ar.18",
-    "Managed field crew and database entry for the project" = "ar.19",
-    "classification" = "ar.34",
-    "data management" = "ar.19",
-    "VegCAMP Lead Biologist" = "ar.18",
-    "Vegetation Ecologist" = "ar.36",
-    "GIS analyst and lead photointerpreter" = "ar.54",
-    "VegCAMP lead" = "ar.18",
-    "surveyor" = "ar.36",
-    "Field coordinator and data collector" = "ar.36",
-    "Senior Scientist" = "ar.18",
-    "Obtained data for CNPS" = "ar.56",
-    "primary surveyor" = "ar.36",
-    "Collected additional data for the project and managed data entry for their surveys" = "ar.19",
-    "Environmental Scientist / Vegetation Ecologist" = "ar.36",
-    "Project manager, including mainting sub-contract with Prunske-Chattam for surveying" = "ar.18",
-    "vegetation program lead" = "ar.18",
-    "Senior Biologist during the time of the project. CDFW performed RAs and releves, and classified them" = "ar.34",
-    "GIC used these surveys and classification of them to map the area." = "ar.56",
-    "Lead biologist for VegCAMP" = "ar.18",
-    "Prinicpal contact for AECOM" = "ar.17",
-    "classifier" = "ar.34",
-    "field staff and mapper" = "ar.43"
-  )
+  role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles.csv")) %>% 
+    rename(ContactRole = found, role_name = allowed)
   
+
   projects <- projects %>%
-    mutate(
-      RoleCode = recode(ContactRole, !!!role_map),
-      RoleCode = if_else(is.na(RoleCode) | str_squish(ContactRole) == "", "ar.46", RoleCode)
-    )
+    mutate(ContactRole = tolower(trimws(ContactRole))) %>% 
+    left_join(role_lookup, by = "ContactRole") %>% 
+    left_join(roles, by = c("role_name"))
   
-  if (!all(grepl("^ar\\.", projects$RoleCode))){
-    uncat <- grep("^ar\\.", projects$RoleCode, value = TRUE, invert = TRUE)
+  if (any(is.na(projects$ar_code))){
+    uncat <- projects$ContactRole[which(is.na(projects$ar_code))]
     cli::cli_alert_warning("The following project roles were not transformed into vegbank codes:")
     cli::cli_h3("Uncategorized roles")
-    cli::cli_ul(uncat)
+    cli::cli_ul(unique(uncat))
   }
   
   ### contributor_type (Contributor) ###
@@ -227,7 +212,8 @@ party_contributor_loader <- function(in_dir, out_dir){
   
   # Left join to get vb_py_code
   project_names_j <- project_names %>% 
-    left_join(veg_subset, by = "full_name")
+    left_join(veg_subset, by = "full_name") %>% 
+    mutate(user_cr_code = sprintf("ca_cr_%03d", seq_len(n())))
   
   if (nrow(project_names_j) > nrow(project_names)){
     warning("Joining vegbank party identifiers resulted in duplicated rows. This could indicate an issue with the vegbank party codes, the input data, or both.")
@@ -242,9 +228,10 @@ party_contributor_loader <- function(in_dir, out_dir){
   party_LT$email <- projects$ContactEmail
   party_LT$middle_name <- projects$MiddleName
   
+  contributor_LT$user_cr_code <- project_names_j$user_cr_code
   contributor_LT$vb_py_code <- project_names_j$py_code
   contributor_LT$user_py_code <- project_names_j$user_py_code
-  contributor_LT$vb_ar_code <- project_names_j$RoleCode
+  contributor_LT$vb_ar_code <- project_names_j$ar_code
   contributor_LT$contributor_type <- project_names_j$contributor_type
   contributor_LT$record_identifier <- project_names_j$ProjectCode
   
