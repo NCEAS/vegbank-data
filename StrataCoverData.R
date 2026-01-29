@@ -8,6 +8,10 @@ library(taxize)
 library(vctrs)
 library(glue)
 library(remotes)
+library(plantR)
+library(flora)
+library(TNRS)
+library(devtools)
 source('R/build_loader_table.R')
 
 # load in CDFW data -------------------------------------------------------
@@ -174,16 +178,122 @@ mapping_values <- mapping_values %>%
 # plants_joined <- mapping_values %>% 
 #   left_join(vb_plants, by = c("CodeSpecies" = "plant_code"))
 
-# install plantr everytime?
-remotes::install_github("mikemahoney218/plantr")
-
 # matching to CodeSpecies ===================================================
 # troubleshooting
 
+# Function to look up USDA plant code and get species info
+lookup_usda_code <- function(plant_code) {
+  if (is.na(plant_code) || plant_code == "") {
+    return(tibble(
+      plant_code = plant_code,
+      found = FALSE,
+      scientific_name = NA,
+      common_name = NA,
+      family = NA,
+      status = "No code provided"
+    ))
+  }
+  
+  tryCatch({
+    # Query USDA PLANTS database using taxize
+    result <- taxize::plants_lookup(plant_code, by = "symbol")
+    
+    if (!is.null(result) && nrow(result) > 0) {
+      return(tibble(
+        plant_code = plant_code,
+        found = TRUE,
+        scientific_name = result$Scientific_Name[1],
+        common_name = result$Common_Name[1],
+        family = result$Family[1],
+        status = "Valid code"
+      ))
+    } else {
+      return(tibble(
+        plant_code = plant_code,
+        found = FALSE,
+        scientific_name = NA,
+        common_name = NA,
+        family = NA,
+        status = "Code not found in USDA database"
+      ))
+    }
+  }, error = function(e) {
+    return(tibble(
+      plant_code = plant_code,
+      found = FALSE,
+      scientific_name = NA,
+      common_name = NA,
+      family = NA,
+      status = paste("Error:", e$message)
+    ))
+  })
+}
+
+# Function to check if scientific name matches expected plant code
+verify_name_code_match <- function(scientific_name, plant_code) {
+  if (is.na(plant_code) || is.na(scientific_name)) {
+    return(tibble(
+      scientific_name = scientific_name,
+      expected_code = plant_code,
+      actual_code = NA,
+      match = NA,
+      issue = "Missing data"
+    ))
+  }
+  
+  tryCatch({
+    # Search for the scientific name to get its code
+    result <- taxize::plants_lookup(scientific_name, by = "scientific")
+    
+    if (!is.null(result) && nrow(result) > 0) {
+      actual_code <- result$Symbol[1]
+      matches <- (actual_code == plant_code)
+      
+      return(tibble(
+        scientific_name = scientific_name,
+        expected_code = plant_code,
+        actual_code = actual_code,
+        match = matches,
+        issue = ifelse(matches, "OK", "Code mismatch - possible typo")
+      ))
+    } else {
+      return(tibble(
+        scientific_name = scientific_name,
+        expected_code = plant_code,
+        actual_code = NA,
+        match = FALSE,
+        issue = "Scientific name not found in USDA database"
+      ))
+    }
+  }, error = function(e) {
+    return(tibble(
+      scientific_name = scientific_name,
+      expected_code = plant_code,
+      actual_code = NA,
+      match = NA,
+      issue = paste("Error:", e$message)
+    ))
+  })
+}
+
+# Example usage with your data
+cat("=== TESTING PLANT CODE LOOKUP ===\n\n")
+
+# Test some codes from your dataset
+test_codes <- c("FRSA", "BRRU2", "HOMU", "AMTE3", "RASA2", "LOWR2")
+
+cat("Looking up plant codes...\n")
+for (code in test_codes) {
+  cat("\nCode:", code, "\n")
+  result <- lookup_usda_code(code)
+  print(result)
+  Sys.sleep(1)  # Be polite to the API
+}
+
 # filter to NA vb_pc_codes and currently accepted plants
-unmapped_code <- mapping_values %>% 
-  filter(is.na(vb_pc_code) & !is.na(plant_code)) %>% 
-  select(plant_code, authorPlantName, vb_pc_code, vb_pc_code2)
+# unmapped_code <- mapping_values %>% 
+#   filter(is.na(vb_pc_code) & !is.na(plant_code)) %>% 
+#   select(plant_code, authorPlantName, vb_pc_code, vb_pc_code2)
 
 # no currently accepted plants are missing a Code
 
