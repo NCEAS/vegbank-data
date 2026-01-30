@@ -1,5 +1,4 @@
 library(tidyverse)
-library(here)
 library(stringr)
 library(googlesheets4)
 library(cli)
@@ -29,7 +28,9 @@ load_files <- function(in_dir) {
     read_csv,
     progress = FALSE,
     show_col_types = FALSE,
-    col_types = cols(`PlotOther5` = col_character())
+    col_types = cols(`PalmJoshua` = col_character(),
+                     `DesertRip` = col_character()),
+    guess_max = 20000
   )
   plots <- do.call(bind_rows, plots_df_list)
   
@@ -37,7 +38,8 @@ load_files <- function(in_dir) {
     classification_files,
     read_csv,
     progress = FALSE,
-    show_col_types = FALSE
+    show_col_types = FALSE,
+    guess_max = 20000
   )
   classification <- do.call(bind_rows, classification_df_list)
   
@@ -156,22 +158,101 @@ normalize_class_confidence <- function(plots) {
   return(plots_conf)
 }
 
-load_reference_tables <- function(in_dir){
-  # Community concepts from VegBank (should be loaded already)
-  # TODO: replace this with something that doesn't rely on a local file. we should either include the vegbank code that generates the file, or write that file out to the curation dir
-  cc_all_path <- here("data", "cc_all.csv")
-  if (!file.exists(cc_all_path)) {
-    stop("Missing data/cc_all.csv. Generate it (or copy it) before running.")
+get_vb_cc <- function(vb_url, renew_cache = FALSE){
+  
+  cache_dir  <- rappdirs::user_cache_dir("vegbank")
+  cache_file <- file.path(cache_dir, "cc_all.csv")
+  
+  if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
+  
+  obj <- if (file.exists(cache_file) & !renew_cache) {
+    cc_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+  } else {
+    vb_set_base_url(vb_url) # "https://api-dev.vegbank.org"
+    cli::cli_alert_info("Downloading vb community concept data.")
+  
+   page_init  <- 5000   # starting page size (can shrink if error)
+   page_min   <- 500    # don't go smaller than this
+   max_pages  <- 500    # hard stop
+   sleep_sec  <- 0.05   # brief pause to avoid error
+   checkpoint <- "cc_all_checkpoint.rds" # just in case something fails
+   save_every <- 10
+  
+   out        <- list()
+   seen_codes <- character(0)
+   limit      <- page_init
+  
+   for (i in seq_len(max_pages)) {
+     offset <- (i - 1L) * limit
+  
+     chunk <- tryCatch(
+       vb_get_community_concepts(limit = limit, offset = offset),
+       error = function(e) {
+         limit <<- max(page_min, floor(limit / 2))
+         tryCatch(
+           vb_get_community_concepts(limit = limit, offset = offset),
+           error = function(e2) {
+             NULL
+           }
+        )
+       }
+     )
+  
+     if (is.null(chunk) || !nrow(chunk)) {
+       break
+     }
+     
+     if ("cc_code" %in% names(chunk)) {
+       new <- !chunk$cc_code %in% seen_codes
+       if (!any(new)) {
+         break
+      }
+       seen_codes <- c(seen_codes, chunk$cc_code[new])
+       chunk <- chunk[new, , drop = FALSE]
+     }
+  
+     out[[length(out) + 1L]] <- chunk
+     total <- sum(vapply(out, nrow, integer(1)))
+     if (nrow(chunk) < limit) {
+       break
+     }
+  
+     if (save_every > 0 && (i %% save_every == 0)) {
+       tmp <- bind_rows(out) %>% distinct()
+       saveRDS(tmp, checkpoint)
+     }
+  
+     if (sleep_sec > 0) Sys.sleep(sleep_sec)
+   }
+   
+   out_char <- lapply(out, function(x) {
+     x %>% mutate(comm_description = as.character(comm_description),
+                  comm_party_comments = as.character(comm_party_comments),
+                  status_rf_code = as.character(status_rf_code),
+                  status_rf_label = as.character(status_rf_label),
+                  parent_cc_code = as.character(parent_cc_code),
+                  parent_name = as.character(parent_name),
+                  stop_date = as.POSIXct(stop_date),
+                  start_date = as.POSIXct(start_date))
+   })
+  
+   cc_all <- bind_rows(out_char) %>% distinct()
+   write_csv(cc_all, cache_file, progress = FALSE)
   }
-  cc_all <- read_csv(cc_all_path, show_col_types = FALSE)
+  return(cc_all)
+}
+
+load_reference_tables <- function(in_dir){
+  # Community concepts from VegBank
+  cc_all <- get_vb_cc("https://api-dev.vegbank.org", renew_cache = FALSE)
   
   cc_current <- cc_all %>%
     filter(current_accepted == TRUE)
   
-  # CA code map (Google Sheet)
-  cacode_sheet_url <- "https://docs.google.com/spreadsheets/d/1LsDQL3NxRjJ32eyRuVPyjtQgq8cqcyhjAIZiw9MYg-0/edit?gid=755803824#gid=755803824"
+  # CA code map
+  cacode_sheet_path <- file.path(in_dir, "lookup-tables/VegBank_CrosswalkHierarchyMCV.csv")
   
-  cacode_map_raw <- read_sheet(cacode_sheet_url, sheet = 1)
+  cacode_map_raw <- read_csv(cacode_sheet_path, progress = FALSE, show_col_types = FALSE)
   
   cacode_map <- cacode_map_raw %>%
     mutate(
@@ -257,7 +338,7 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
   out
 }
 
-community_loader <- function(in_dir){
+community_loader <- function(in_dir, out_dir){
   
   classification <- load_files(in_dir)
   
@@ -265,6 +346,8 @@ community_loader <- function(in_dir){
   plots_conf <- normalize_class_confidence(plots)
   
   refs <- load_reference_tables(in_dir)
+  
+  # TODO: what is refs? can you rewrite this so that it runs?
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,
     cacode_map = refs$cacode_map,
