@@ -56,6 +56,8 @@ disturbance_loader <- function(in_dir, out_dir){
   }
   
   
+  
+  
   # Tidying CDFW data -------------------------------------------------------
   
   lookup_disturbance <- tibble::tribble(
@@ -97,7 +99,8 @@ disturbance_loader <- function(in_dir, out_dir){
     "Burros",                                 "Animal, general", # or one of the grazings?
     "Rills",                                  "Erosion",
     "Phytogenic mounding",                    "Erosion",
-    "Sudden Oak Death (SODS)",                 "Plant disease"
+    "Sudden Oak Death (SODS)",                 "Plant disease",
+    NA, "Unknown"
   )
   
   
@@ -115,10 +118,12 @@ disturbance_loader <- function(in_dir, out_dir){
     mutate(Other = gsub("NA; ", "", Other))
   
   
+  
 
   
   
   # Assigning columns to loader table ---------------------------------------
+  disturb_LT$user_do_code <- seq(1:nrow(disturb_LT))
   disturb_LT$user_ob_code <- impacts_merged$SurveyID
   disturb_LT$type <- impacts_merged$vegbank_disturbance
   disturb_LT$comment <- impacts_merged$Other
