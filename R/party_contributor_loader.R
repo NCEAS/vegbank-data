@@ -147,7 +147,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   ### role (Contributor) ###
   # Map DataContactRole values to ar.* codes
   # Done manually for each value
-  role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles.csv")) %>% 
+  role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles-2026-02-02.csv")) %>% 
     rename(ContactRole = found, role_name = allowed)
   
 
