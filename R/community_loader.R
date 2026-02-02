@@ -70,56 +70,35 @@ load_community_files <- function(in_dir) {
   return(out)
 }
 
-normalize_projects_classification <- function(projects) {
+normalize_projects_classification <- function(projects, in_dir) {
   
-  #TODO: review this section with the new data, and classify unclassified values as needed
+  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods.csv")) 
   
-  text_map <- c(
-    inspectionText = "surveys were keyed using",
-    multivariateAnalysisText = paste(
-      'See "Vegetation Map and Classification of Fish',
-      'These data were analyzed using multivariate cluster analysis, performed',
-      'See: Classification of the Vegetation Alliances',
-      'These data were analyzed using a number of statistical methods, chiefly an',
-      'CNPS analyzed the species cover data using PC-Ord and R software',
-      sep = "|"
-    )
-  )
-  
-  projects_proj <- projects %>%
-    mutate(
-      inspectionText = if_else(
-        coalesce(str_detect(ClassificationDescription, text_map["inspectionText"]), FALSE),
-        ClassificationDescription,
-        NA_character_
-      ),
-      multivariateAnalysisText = if_else(
-        coalesce(str_detect(ClassificationDescription, text_map["multivariateAnalysisText"]), FALSE),
-        ClassificationDescription,
-        NA_character_
-      )
-    ) %>%
-    group_by(ProjectCode) %>%
+  projects_proj <- projects %>% 
+    # TODO: join based on project code and something else, not the long potentially garbled text string
+    # will need to rewrite LUT
+    left_join(method_lookup, by = join_by(ClassificationTool, ClassificationDescription)) %>% 
+    mutate(inspection = if_else(grepl("inspection", technique), TRUE, FALSE),
+           multivariate_analysis = if_else(grepl("multiVariateAnalysis", technique), TRUE, FALSE),
+           table_analysis = if_else(grepl("tableAnalysis", technique), TRUE, FALSE)) %>% 
+    mutate(across(c(inspection, multivariate_analysis, table_analysis), ~ if_else(is.na(technique), NA, .))) %>% 
+    mutate(across(c(ClassificationDescription, ClassificationTool), ~ if_else(is.na(.x), "", .x))) %>% 
+    mutate(expert_system = paste(ClassificationDescription, ClassificationTool, sep = ", ")) %>% 
+    mutate(expert_system = if_else(expert_system == ", ", NA, expert_system)) %>% 
+    group_by(ProjectCode) %>% 
     summarise(
-      expert_system = first(ClassificationTool),
-      inspection = first(inspectionText),
-      multivariate_analysis = first(multivariateAnalysisText),
+      across(c(inspection, multivariate_analysis, table_analysis, expert_system), first),
       .groups = "drop"
     )
   
   # any ClassificationDescription that didn't match either bucket?
-  unmatched <- projects %>%
-    filter(!is.na(ClassificationDescription), str_squish(ClassificationDescription) != "") %>%
-    mutate(
-      matched_any = coalesce(str_detect(ClassificationDescription, text_map["inspectionText"]), FALSE) |
-        coalesce(str_detect(ClassificationDescription, text_map["multivariateAnalysisText"]), FALSE)
-    ) %>%
-    filter(!matched_any) %>%
-    distinct(ClassificationDescription) %>%
-    pull(ClassificationDescription)
+  unmatched <- projects_proj %>%
+    filter(is.na(inspection) | is.na(table_analysis) | is.na(multivariate_analysis)) %>% 
+    distinct(expert_system) %>%
+    pull(expert_system)
   
   if (length(unmatched) > 0) {
-    cli_alert_warning("Some Project ClassificationDescription values did not match patterns ({length(unmatched)} unique).")
+    cli_alert_warning("Some Project ClassificationDescription/ClassificationTool values did not match patterns ({length(unmatched)} unique).")
     cli_text("Sample (up to 3):")
     cli_text(paste0("- ", str_trunc(head(unmatched, 3), 120)))
   }
@@ -355,7 +334,7 @@ community_loader <- function(in_dir, out_dir){
   
   list2env(out, envir = environment())
   
-  projects_proj <- normalize_projects_classification(projects)
+  projects_proj <- normalize_projects_classification(projects, in_dir)
   plots_conf <- normalize_class_confidence(plots)
   
   refs <- load_reference_tables(in_dir)
@@ -372,11 +351,16 @@ community_loader <- function(in_dir, out_dir){
     projects_proj = projects_proj
   )
   
+  class_cc_proj <- class_cc_proj %>% 
+    mutate(multivariate_analysis = if_else(!(multivariate_analysis %in% c("TRUE", "FALSE")), NA, multivariate_analysis))
+  
   # TODO: possibly improve messaging here?
   stopifnot(nrow(class_cc_proj) == nrow(community_LT))
   stopifnot(all(names(c("expert_system","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
   
   # Assigning columns to loader table -------------------------------------------
+  community_LT$user_ob_code <- class_cc_proj$SurveyID
+  community_LT$user_cl_code <- 1:nrow(class_cc_proj)
   community_LT$expert_system <- class_cc_proj$expert_system
   community_LT$inspection <- class_cc_proj$inspection
   community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
