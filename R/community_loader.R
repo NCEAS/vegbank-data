@@ -7,7 +7,7 @@ source("R/build_loader_table.R")
 
 # load in CDFW data -----------------------------------------------------------
 
-load_files <- function(in_dir) {
+load_community_files <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
@@ -60,15 +60,19 @@ load_files <- function(in_dir) {
   
   community_LT <- community_template_fields$template
   
-  plots <<- plots
-  classification <<- classification
-  projects <<- projects
-  community_LT <<- community_LT
+  plots <- plots
+  classification <- classification
+  projects <- projects
+  community_LT <- community_LT
   
-  return(classification)
+  out <- list("plots" = plots, "classification" = classification, "projects" = projects, "community_LT" = community_LT)
+  
+  return(out)
 }
 
 normalize_projects_classification <- function(projects) {
+  
+  #TODO: review this section with the new data, and classify unclassified values as needed
   
   text_map <- c(
     inspectionText = "surveys were keyed using",
@@ -127,11 +131,15 @@ normalize_projects_classification <- function(projects) {
 
 normalize_class_confidence <- function(plots) {
   
+  #TODO: fix percentage values here, classify into H/M/L
+  # value >= 75% is high
+  # value < 75 is medium
+  # I don't see any lows
   plots_conf <- plots %>%
     transmute(
       SurveyID,
       class_confidence = case_when(
-        Confidence_ID %in% c("Not recorded") ~ NA_character_,
+        Confidence_ID %in% c("Not recorded", "not collected") ~ NA_character_,
         is.na(Confidence_ID) ~ NA_character_,
         Confidence_ID == "H" ~ "High",
         Confidence_ID == "M" ~ "Medium",
@@ -265,7 +273,10 @@ load_reference_tables <- function(in_dir){
   dup <- cacode_map %>%
     count(CaCode_norm) %>%
     filter(n > 1)
-  
+  # TODO: do we need to do anything about this? is this normal?
+  # most recent run says: cacode_map has duplicate CaCode values (45 codes). Mapping may be ambiguous.
+  # Sample duplicates:
+  #  - 21.310.00- 32.037.00- 33.020.00- 35.110.00- 35.111.00- 35.150.00- 35.310.00- 36.310.00- 36.400.00- 37.070.00
   if (nrow(dup) > 0) {
     cli_alert_warning("cacode_map has duplicate CaCode values ({nrow(dup)} codes). Mapping may be ambiguous.")
     cli_text("Sample duplicates:")
@@ -340,14 +351,15 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
 
 community_loader <- function(in_dir, out_dir){
   
-  classification <- load_files(in_dir)
+  out <- load_community_files(in_dir)
+  
+  list2env(out, envir = environment())
   
   projects_proj <- normalize_projects_classification(projects)
   plots_conf <- normalize_class_confidence(plots)
   
   refs <- load_reference_tables(in_dir)
   
-  # TODO: what is refs? can you rewrite this so that it runs?
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,
     cacode_map = refs$cacode_map,
