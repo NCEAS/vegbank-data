@@ -39,7 +39,7 @@ convert_to_ll <- function(df_group) {
 }
 
 # read in files from input directory and join into one table
-load_files <- function(in_dir) {
+load_plot_files <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
@@ -1059,7 +1059,7 @@ deduplicate_plot_data <- function(plots_LT){
 plots_loader <- function(in_dir, out_dir){
   
   # read in all the files and join to one table
-  plots_merged <- load_files(in_dir)
+  plots_merged <- load_plot_files(in_dir)
   plots_merged <- normalize_elevation(plots_merged)
   plots_merged <- normalize_coordinates(plots_merged)
   plots_merged <- assign_state_county(plots_merged)
