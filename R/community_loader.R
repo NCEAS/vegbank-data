@@ -49,7 +49,10 @@ load_community_files <- function(in_dir) {
     progress = FALSE,
     show_col_types = FALSE
   )
-  projects <- do.call(bind_rows, project_df_list)
+  projects <- do.call(bind_rows, project_df_list) %>%
+    group_by(ProjectCode) %>% 
+    arrange(desc(nchar(ProjectDescription))) %>% 
+    slice(1)
   
   # create blank Loader Table dataframe -----------------------------------------------------
   community_template_fields <- build_loader_table(
@@ -72,12 +75,13 @@ load_community_files <- function(in_dir) {
 
 normalize_projects_classification <- function(projects, in_dir) {
   
-  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods.csv")) 
+  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260202.csv")) %>% 
+    select(-ClassificationDescription, -ClassificationTool)
   
   projects_proj <- projects %>% 
     # TODO: join based on project code and something else, not the long potentially garbled text string
     # will need to rewrite LUT
-    left_join(method_lookup, by = join_by(ClassificationTool, ClassificationDescription)) %>% 
+    left_join(method_lookup, by = join_by(ProjectCode)) %>% 
     mutate(inspection = if_else(grepl("inspection", technique), TRUE, FALSE),
            multivariate_analysis = if_else(grepl("multiVariateAnalysis", technique), TRUE, FALSE),
            table_analysis = if_else(grepl("tableAnalysis", technique), TRUE, FALSE)) %>% 
@@ -85,6 +89,7 @@ normalize_projects_classification <- function(projects, in_dir) {
     mutate(across(c(ClassificationDescription, ClassificationTool), ~ if_else(is.na(.x), "", .x))) %>% 
     mutate(expert_system = paste(ClassificationDescription, ClassificationTool, sep = ", ")) %>% 
     mutate(expert_system = if_else(expert_system == ", ", NA, expert_system)) %>% 
+    mutate(expert_system = gsub("^(,\\s*)|(,\\s*)$", "", expert_system)) %>% 
     group_by(ProjectCode) %>% 
     summarise(
       across(c(inspection, multivariate_analysis, table_analysis, expert_system), first),
@@ -94,6 +99,8 @@ normalize_projects_classification <- function(projects, in_dir) {
   # any ClassificationDescription that didn't match either bucket?
   unmatched <- projects_proj %>%
     filter(is.na(inspection) | is.na(table_analysis) | is.na(multivariate_analysis)) %>% 
+    filter(!is.na(expert_system)) %>% 
+    filter(!grepl("was not performed|Not formally classified", expert_system)) %>% 
     distinct(expert_system) %>%
     pull(expert_system)
   
