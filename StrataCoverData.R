@@ -8,10 +8,7 @@ library(taxize)
 library(vctrs)
 library(glue)
 library(remotes)
-library(plantR)
-library(flora)
-library(TNRS)
-library(devtools)
+library(httr)
 source('R/build_loader_table.R')
 
 # load in CDFW data -------------------------------------------------------
@@ -34,6 +31,22 @@ plots_3 <- read_csv(here(folder_3, 'RAPlants.csv'))
 
 # merge RAReleve and AARecon data
 plants <- rbind(plots_1, plots_2, plots_3)
+
+# load in USDA data -------------------------------------------------------
+
+# download the file
+url <- "https://plants.sc.egov.usda.gov/DocumentLibrary/Txt/plantlst.txt"
+
+download.file(url, destfile = "data/plantlist.txt", mode = "wb")
+
+response <- GET(url)
+writeBin(content(response, "raw"), "plantlist.txt")
+
+# read the file
+plant_list <- read.delim("data/plantlist.txt", sep = ",", header = TRUE)
+
+# View the first few rows
+head(plant_list)
   
 # creating loader table ---------------------------------------------------
 
@@ -173,13 +186,23 @@ mapping_values <- mapping_values %>%
 mapping_values <- mapping_values %>%
   mutate(vb_pc_code2 = ifelse(match_flag, vb_pc_code, NA))
 
-# join CodeSpecies to mapping_values
-
-# plants_joined <- mapping_values %>% 
-#   left_join(vb_plants, by = c("CodeSpecies" = "plant_code"))
-
 # matching to CodeSpecies ===================================================
 # troubleshooting
+
+# approach with looking for typos IN plant_code
+# Create a diagnostic column to identify WHY vb_pc_code2 is NA
+missing_vb_codes <- mapping_values %>%
+  filter(is.na(vb_pc_code2)) %>%
+  mutate(
+    na_reason = case_when(
+      is.na(plant_code) ~ "No USDA code from CDFW",
+      !is.na(plant_code) & match_flag == FALSE ~ "USDA code but no VegBank match",
+      TRUE ~ "Other"
+    )
+  )
+
+test <- mapping_values %>% 
+  filter(is.na(vb_pc_code) & match_flag == FALSE)
 
 # Function to look up USDA plant code and get species info
 lookup_usda_code <- function(plant_code) {
@@ -196,7 +219,7 @@ lookup_usda_code <- function(plant_code) {
   
   tryCatch({
     # Query USDA PLANTS database using taxize
-    result <- taxize::plants_lookup(plant_code, by = "symbol")
+    result <- plant_list[grep(plant_code, plant_list$Symbol), ]
     
     if (!is.null(result) && nrow(result) > 0) {
       return(tibble(
@@ -208,14 +231,28 @@ lookup_usda_code <- function(plant_code) {
         status = "Valid code"
       ))
     } else {
-      return(tibble(
-        plant_code = plant_code,
-        found = FALSE,
-        scientific_name = NA,
-        common_name = NA,
-        family = NA,
-        status = "Code not found in USDA database"
-      ))
+      # If not found in Symbol, search in Synonym.Symbol
+      synonym_result <- plant_list[grep(plant_code, plant_list$Synonym.Symbol), ]
+      
+      if (!is.null(synonym_result) && nrow(synonym_result) > 0) {
+        return(tibble(
+          plant_code = plant_code,
+          found = TRUE,
+          scientific_name = synonym_result$Scientific_Name[1],
+          common_name = synonym_result$Common_Name[1],
+          family = synonym_result$Family[1],
+          status = "Found as synonym"
+        ))
+      } else {
+        return(tibble(
+          plant_code = plant_code,
+          found = FALSE,
+          scientific_name = NA,
+          common_name = NA,
+          family = NA,
+          status = "Code not found in USDA database"
+        ))
+      }
     }
   }, error = function(e) {
     return(tibble(
@@ -243,7 +280,7 @@ verify_name_code_match <- function(scientific_name, plant_code) {
   
   tryCatch({
     # Search for the scientific name to get its code
-    result <- taxize::plants_lookup(scientific_name, by = "scientific")
+    result <- plant_list[grep(scientific_name, plant_list$Scientific.Name.with.Author), ]
     
     if (!is.null(result) && nrow(result) > 0) {
       actual_code <- result$Symbol[1]
@@ -280,14 +317,14 @@ verify_name_code_match <- function(scientific_name, plant_code) {
 cat("=== TESTING PLANT CODE LOOKUP ===\n\n")
 
 # Test some codes from your dataset
-test_codes <- c("FRSA", "BRRU2", "HOMU", "AMTE3", "RASA2", "LOWR2")
+test_codes <- c("FRSA", "BRRU2", "HOMU", "AMTE3", "RASA2", "LOWR2", "LEAC3")
 
 cat("Looking up plant codes...\n")
 for (code in test_codes) {
   cat("\nCode:", code, "\n")
   result <- lookup_usda_code(code)
   print(result)
-  Sys.sleep(1)  # Be polite to the API
+  Sys.sleep(1)
 }
 
 # filter to NA vb_pc_codes and currently accepted plants
