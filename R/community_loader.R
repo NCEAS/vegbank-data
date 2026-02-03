@@ -79,8 +79,6 @@ normalize_projects_classification <- function(projects, in_dir) {
     select(-ClassificationDescription, -ClassificationTool)
   
   projects_proj <- projects %>% 
-    # TODO: join based on project code and something else, not the long potentially garbled text string
-    # will need to rewrite LUT
     left_join(method_lookup, by = join_by(ProjectCode)) %>% 
     mutate(inspection = if_else(grepl("inspection", technique), TRUE, FALSE),
            multivariate_analysis = if_else(grepl("multiVariateAnalysis", technique), TRUE, FALSE),
@@ -148,9 +146,7 @@ normalize_class_confidence <- function(plots) {
         
         TRUE ~ NA_character_
       )
-    ) %>%
-    group_by(SurveyID) %>%
-    summarise(class_confidence = first(class_confidence), .groups = "drop")
+    )
   
   recognized <- is.na(conf_raw) |
     conf_raw %in% c("H","M","L","High","Medium","Low") |
