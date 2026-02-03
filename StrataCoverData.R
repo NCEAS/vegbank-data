@@ -14,33 +14,31 @@ source('R/build_loader_table.R')
 # load in CDFW data -------------------------------------------------------
 
 # loading CA lookup tables
-csv_path <- here("data", "USDA_PLANTS.csv")
+in_dir <- '/var/data/curation/vegbank'
+csv_path <- file.path(in_dir, "lookup-tables/USDA_PLANTS.csv")
 plants_lookup <- read_csv(csv_path, show_col_types = FALSE) # ignore parsing issue
 
-# read in RAReleve data
-folder_1 <- '/var/data/curation/vegbank/VegBankProject_StdDatasets1_RAReleve_20250915'
-plots_1 <- read_csv(here(folder_1, 'RAPlants.csv'))
 
-# read in AARecon data
-folder_2 <- '/var/data/curation/vegbank/VegBankProject_StdDatasets2_AARecon_20251204'
-plots_2 <- read_csv(here(folder_2, 'RAPlants.csv'))
+sub_folders <- dir(in_dir, full.names = TRUE) %>%
+  grep(pattern = "VegBankProject", value = TRUE)
 
-# read in Cal data
-folder_3 <- '/var/data/curation/vegbank/VegBankProject_NonStandardDatasets_Submission3_20260121'
-plots_3 <- read_csv(here(folder_3, 'RAPlants.csv'))
+plant_files <- dir(sub_folders, full.names = TRUE) %>% 
+  grep(pattern = 'RAPlants.csv', value = TRUE)
 
-# merge RAReleve and AARecon data
-plants <- rbind(plots_1, plots_2, plots_3)
+plants_df_list <- lapply(plant_files, 
+                        read_csv,
+                        progress = FALSE,
+                        show_col_types = FALSE,
+                        guess_max = 20000)
+plants <- do.call(bind_rows, plants_df_list)
 
 # load in USDA data -------------------------------------------------------
 
 # download the file
-url <- "https://plants.sc.egov.usda.gov/DocumentLibrary/Txt/plantlst.txt"
-
-download.file(url, destfile = "data/plantlist.txt", mode = "wb")
-
-response <- GET(url)
-writeBin(content(response, "raw"), "plantlist.txt")
+if (!file.exists("data/plantlist.txt")){
+  url <- "https://plants.sc.egov.usda.gov/DocumentLibrary/Txt/plantlst.txt"
+  download.file(url, destfile = "data/plantlist.txt", mode = "wb")
+}
 
 # read the file
 plant_list <- read.delim("data/plantlist.txt", sep = ",", header = TRUE)
@@ -74,75 +72,80 @@ unique(plants$Stratum)
 
 # tidying CDFW data -----------------------------------------------------------
 
-vb_set_base_url("https://api-dev.vegbank.org")    # (Run this before running functions from vegbankr)
-# CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
-# saved as csv so commented the code
-
-# Adaptive, resumable pager for VegBank plant concepts
-
-page_init <- 5000 # shrink this if there is an error
-page_min <- 500 # don't go smaller than this
-max_pages <- 500 # hard stop
-sleep_sec <- 0.05 # brief pause to avoid error
-keep_cols <- c("pc_code","plant_name", "plant_code", "current_accepted")
-checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
-save_every <- 10
-
-out <- list()
-seen_codes <- character(0)
-limit <- page_init
-
-for (i in seq_len(max_pages)) {
-  offset <- (i - 1L) * limit
-  message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
-
-#  try once; on failure (e.g., 504), halve the limit and retry
-  chunk <- tryCatch(
-    vb_get_plant_concepts(limit = limit, offset = offset),
-    error = function(e) {
-      message("  Request failed: ", conditionMessage(e))
-      limit <<- max(page_min, floor(limit/2))
-      message("  Reducing limit and retrying with limit=", limit)
-      tryCatch(vb_get_plant_concepts(limit = limit, offset = offset),
-               error = function(e2) { message("  Retry failed."); NULL })
-    }
-  )
-  if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
+if (!file.exists("data/pc_all.csv")){
+  vb_set_base_url("https://api-dev.vegbank.org")    # (Run this before running functions from vegbankr)
+  # CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
+  # saved as csv so commented the code
   
-  # Convert plant_code to character to avoid type conflicts
-  if ("plant_code" %in% names(chunk)) {
-    chunk$plant_code <- as.character(chunk$plant_code)
+  # Adaptive, resumable pager for VegBank plant concepts
+  
+  page_init <- 5000 # shrink this if there is an error
+  page_min <- 500 # don't go smaller than this
+  max_pages <- 500 # hard stop
+  sleep_sec <- 0.05 # brief pause to avoid error
+  keep_cols <- c("pc_code","plant_name", "plant_code", "current_accepted")
+  checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
+  save_every <- 10
+  
+  out <- list()
+  seen_codes <- character(0)
+  limit <- page_init
+  
+  for (i in seq_len(max_pages)) {
+    offset <- (i - 1L) * limit
+    message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
+    
+    #  try once; on failure (e.g., 504), halve the limit and retry
+    chunk <- tryCatch(
+      vb_get_plant_concepts(limit = limit, offset = offset),
+      error = function(e) {
+        message("  Request failed: ", conditionMessage(e))
+        limit <<- max(page_min, floor(limit/2))
+        message("  Reducing limit and retrying with limit=", limit)
+        tryCatch(vb_get_plant_concepts(limit = limit, offset = offset),
+                 error = function(e2) { message("  Retry failed."); NULL })
+      }
+    )
+    if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
+    
+    # Convert plant_code to character to avoid type conflicts
+    if ("plant_code" %in% names(chunk)) {
+      chunk$plant_code <- as.character(chunk$plant_code)
+    }
+    
+    keep <- intersect(keep_cols, names(chunk))
+    if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
+    
+    if ("pc_code" %in% names(chunk)) {
+      new <- !chunk$pc_code %in% seen_codes
+      if (!any(new)) { message("  All rows seen already; stopping."); break }
+      seen_codes <- c(seen_codes, chunk$pc_code[new])
+      chunk <- chunk[new, , drop = FALSE]
+    }
+    
+    out[[length(out) + 1L]] <- chunk
+    total <- sum(vapply(out, nrow, integer(1)))
+    message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
+    
+    if (nrow(chunk) < limit) { message("  Short page; done."); break }
+    
+    if (save_every > 0 && (i %% save_every == 0)) {
+      tmp <- dplyr::bind_rows(out) %>% distinct()
+      saveRDS(tmp, checkpoint)
+      message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
+    }
+    
+    if (sleep_sec > 0) Sys.sleep(sleep_sec)
   }
-
-  keep <- intersect(keep_cols, names(chunk))
-  if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-
-  if ("pc_code" %in% names(chunk)) {
-    new <- !chunk$pc_code %in% seen_codes
-    if (!any(new)) { message("  All rows seen already; stopping."); break }
-    seen_codes <- c(seen_codes, chunk$pc_code[new])
-    chunk <- chunk[new, , drop = FALSE]
-  }
-
-  out[[length(out) + 1L]] <- chunk
-  total <- sum(vapply(out, nrow, integer(1)))
-  message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
-
-  if (nrow(chunk) < limit) { message("  Short page; done."); break }
-
-  if (save_every > 0 && (i %% save_every == 0)) {
-    tmp <- dplyr::bind_rows(out) %>% distinct()
-    saveRDS(tmp, checkpoint)
-    message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
-  }
-
-  if (sleep_sec > 0) Sys.sleep(sleep_sec)
+  
+  pc_all <- bind_rows(out) %>% distinct()
+  message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
+  
+  write_csv(pc_all, here("data", "pc_all.csv"))
+} else {
+  pc_all <- read.csv("data/pc_all.csv")
 }
 
-pc_all <- bind_rows(out) %>% distinct()
-message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
-
-write_csv(pc_all, here("data", "pc_all.csv"))
 
 pc_lookup <- pc_all %>%
   mutate(name_clean = gsub("^\\[|\\]$", "", plant_name)) %>%
