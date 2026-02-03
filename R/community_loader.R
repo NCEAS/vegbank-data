@@ -116,37 +116,52 @@ normalize_projects_classification <- function(projects, in_dir) {
 # plots (class_confidence)
 
 normalize_class_confidence <- function(plots) {
+  conf_raw <- plots$Confidence_ID %>%
+    as.character() %>%
+    str_squish()
   
-  #TODO: fix percentage values here, classify into H/M/L
-  # value >= 75% is high
-  # value < 75 is medium
-  # I don't see any lows
+  conf_raw[conf_raw %in% c(
+    "", "NA", "N/A", "<Null>",
+    "Not recorded", "not recorded",
+    "Not present", "not present",
+    "not collected", NA
+  )] <- NA_character_
+  
+  conf_pct <- suppressWarnings(
+    as.numeric(str_remove(conf_raw, "%$"))
+  )
+  
   plots_conf <- plots %>%
     transmute(
       SurveyID,
       class_confidence = case_when(
-        Confidence_ID %in% c("Not recorded", "not collected") ~ NA_character_,
-        is.na(Confidence_ID) ~ NA_character_,
-        Confidence_ID == "H" ~ "High",
-        Confidence_ID == "M" ~ "Medium",
-        Confidence_ID == "L" ~ "Low",
+        is.na(conf_raw) ~ NA_character_,
+        
+        conf_raw == "H" ~ "High",
+        conf_raw == "M" ~ "Medium",
+        conf_raw == "L" ~ "Low",
+        
+        conf_raw %in% c("High", "Medium", "Low") ~ conf_raw,
+        
+        !is.na(conf_pct) & conf_pct >= 75 ~ "High",
+        !is.na(conf_pct) & conf_pct < 75  ~ "Medium",
+        
         TRUE ~ NA_character_
       )
     ) %>%
     group_by(SurveyID) %>%
-    summarise(
-      class_confidence = first(class_confidence),
-      .groups = "drop"
-    )
+    summarise(class_confidence = first(class_confidence), .groups = "drop")
   
-  allowed <- c("H", "M", "L", "Not recorded", "<Null>", "", NA)
-  weird_vals <- setdiff(unique(plots$Confidence_ID), allowed)
+  recognized <- is.na(conf_raw) |
+    conf_raw %in% c("H","M","L","High","Medium","Low") |
+    !is.na(conf_pct)
+  
+  weird_vals <- unique(conf_raw[!recognized])
+  weird_vals <- weird_vals[!is.na(weird_vals)]
   
   if (length(weird_vals) > 0) {
-    cli_alert_warning(
-      "Confidence_ID has unexpected values not in H/M/L (and not recorded/null) ({length(weird_vals)} unique values)."
-    )
-    cli_text(paste0("- ", weird_vals))
+    cli_alert_warning("Confidence_ID has unexpected/unparseable values ({length(weird_vals)} unique).")
+    cli_text(paste0("- ", head(weird_vals, 20)))
   }
   
   return(plots_conf)
