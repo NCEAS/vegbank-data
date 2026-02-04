@@ -85,22 +85,22 @@ normalize_projects_classification <- function(projects, in_dir) {
            table_analysis = if_else(grepl("tableAnalysis", technique), TRUE, FALSE)) %>% 
     mutate(across(c(inspection, multivariate_analysis, table_analysis), ~ if_else(is.na(technique), NA, .))) %>% 
     mutate(across(c(ClassificationDescription, ClassificationTool), ~ if_else(is.na(.x), "", .x))) %>% 
-    mutate(expert_system = paste(ClassificationDescription, ClassificationTool, sep = ", ")) %>% 
-    mutate(expert_system = if_else(expert_system == ", ", NA, expert_system)) %>% 
-    mutate(expert_system = gsub("^(,\\s*)|(,\\s*)$", "", expert_system)) %>% 
+    mutate(class_notes = paste(ClassificationDescription, ClassificationTool, sep = ", ")) %>% 
+    mutate(class_notes = if_else(class_notes == ", ", NA, class_notes)) %>% 
+    mutate(class_notes = gsub("^(,\\s*)|(,\\s*)$", "", class_notes)) %>% 
     group_by(ProjectCode) %>% 
     summarise(
-      across(c(inspection, multivariate_analysis, table_analysis, expert_system), first),
+      across(c(inspection, multivariate_analysis, table_analysis, class_notes), first),
       .groups = "drop"
     )
   
   # any ClassificationDescription that didn't match either bucket?
   unmatched <- projects_proj %>%
     filter(is.na(inspection) | is.na(table_analysis) | is.na(multivariate_analysis)) %>% 
-    filter(!is.na(expert_system)) %>% 
-    filter(!grepl("was not performed|Not formally classified", expert_system)) %>% 
-    distinct(expert_system) %>%
-    pull(expert_system)
+    filter(!is.na(class_notes)) %>% 
+    filter(!grepl("was not performed|Not formally classified", class_notes)) %>% 
+    distinct(class_notes) %>%
+    pull(class_notes)
   
   if (length(unmatched) > 0) {
     cli_alert_warning("Some Project ClassificationDescription/ClassificationTool values did not match patterns ({length(unmatched)} unique).")
@@ -256,8 +256,18 @@ load_reference_tables <- function(in_dir){
   
   # CA code map
   cacode_sheet_path <- file.path(in_dir, "lookup-tables/VegBank_CrosswalkHierarchyMCV.csv")
+  mv_2019_ass_path <- file.path(in_dir, "lookup-tables/MCV2019_Association.csv")
+  mv_2019_all_path <- file.path(in_dir, "lookup-tables/MCV2019_Alliance.csv")
   
   cacode_map_raw <- read_csv(cacode_sheet_path, progress = FALSE, show_col_types = FALSE)
+  mv_ass <- read_csv(mv_2019_ass_path, progress = FALSE, show_col_types = FALSE) %>% 
+    mutate(ClassifLevel = "Association") %>% 
+    rename(ScientificName = Association)
+  mv_all <- read_csv(mv_2019_all_path, progress = FALSE, show_col_types = FALSE) %>% 
+    mutate(ClassifLevel = "Alliance") %>% 
+    rename(ScientificName = Alliance)
+  
+  cacode_map_raw <- bind_rows(cacode_map_raw, mv_all, mv_ass)
   
   cacode_map <- cacode_map_raw %>%
     mutate(
@@ -322,6 +332,13 @@ assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
     left_join(cc_lookup, by = "comm_code_norm") %>%
     mutate(vb_cc_code = cc_code)
   
+  class_nas <- classification_norm %>% 
+    filter(is.na(vb_cc_code)) %>% 
+    select(Alliance, Association, CaCode, NVC_norm) %>% 
+    distinct()
+  
+  write.csv(class_nas, "data/cacode-nolookup.csv", row.names = F)
+  
   # warn if lots of NAs
   na_ct <- sum(is.na(classification_norm$vb_cc_code))
   if (na_ct > 0) {
@@ -374,12 +391,12 @@ community_loader <- function(in_dir, out_dir){
   
   # TODO: possibly improve messaging here?
   stopifnot(nrow(class_cc_proj) == nrow(community_LT))
-  stopifnot(all(names(c("expert_system","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
+  stopifnot(all(names(c("class_notes","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
   
   # Assigning columns to loader table -------------------------------------------
   community_LT$user_ob_code <- class_cc_proj$SurveyID
   community_LT$user_cl_code <- 1:nrow(class_cc_proj)
-  community_LT$expert_system <- class_cc_proj$expert_system
+  community_LT$class_notes <- class_cc_proj$class_notes
   community_LT$inspection <- class_cc_proj$inspection
   community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
   community_LT$class_confidence <- class_cc_proj$class_confidence
