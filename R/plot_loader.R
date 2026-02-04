@@ -6,18 +6,6 @@ library(vegbankr)
 source("R/build_loader_table.R")
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
-# Remaining Issues (Wait for Update):
-# location_accuracy
-# slope_gradient
-# methodNarrative
-# taxonObservationArea
-# observationNarrative
-# landscapeNarrative
-# tree_Ht
-# basalArea
-# nameOther
-
-# load in CDFW data -----------------------------------------------------------
 
 # convert a data frame with a crs (epsg code) and an easting/northing coordinate ("UTME_final", "UTMN_final") to lat/lon coordinates
 convert_to_ll <- function(df_group) {

@@ -74,12 +74,9 @@ soil_loader(in_dir, out_dir)
 community_loader(in_dir, out_dir)
 ```
 
-```{r}
-un <- plots_merged %>% 
-  distinct(SurveyID, Stand_ID) %>% 
-  group_by(Stand_ID) %>% 
-  summarise(num_surveys = n())
+## Strata, Cover, Taxonomy
 
-t <- plots_merged %>% 
-  filter(Stand_ID == "SNF6A3515")
+```{r}
+stratacover_taxon_loader(in_dir, out_dir)
 ```
+
