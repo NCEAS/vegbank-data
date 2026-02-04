@@ -91,10 +91,15 @@ load_usda_plants <- function(){
   # end TODO
 }
 
-# TODO: rewrite this to use the rappdirs cache
-load_vb_pc <- function(base_url){
+load_vb_pc <- function(base_url, renew_cache = FALSE){
   
-  if (!file.exists("data/pc_all.csv")){
+  cache_dir  <- rappdirs::user_cache_dir("vegbank")
+  cache_file <- file.path(cache_dir, "pl_all.csv")
+  
+  if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
+  
+  if (file.exists(cache_file) & renew_cache) {
+
     vb_set_base_url(base_url)    # (Run this before running functions from vegbankr)
     # CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
     # saved as csv so commented the code
@@ -163,9 +168,9 @@ load_vb_pc <- function(base_url){
     pc_all <- bind_rows(out) %>% distinct()
     message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
     
-    write_csv(pc_all, here("data", "pc_all.csv"))
+    write_csv(pc_all, cache_file)
   } else {
-    pc_all <- read.csv("data/pc_all.csv")
+    pc_all <- read.csv(cache_file)
   }
   return(pc_all)
 }
@@ -188,7 +193,8 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   
   plants_join <- left_join(plants, pc_lookup_no_repeats, by = c("CurrPlantsSymbol" = "plant_code")) %>% 
     left_join(people, by = join_by(SurveyID)) %>% 
-    mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants)))
+    mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
+    mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName))
   
   if (length(which(is.na(plants_join$user_py_code)))){
     cli::cli_alert_warning("{length(which(is.na(plants_join$user_py_code)))} rows have NA values for `user_py_code`. A person and role are required for the taxon interpretations loader table.")
@@ -198,8 +204,8 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
     cli::cli_alert_warning("{length(which(is.na(plants_join$pc_code)))} rows have NA values for the vegbank plant concept code (`pc_code`). A plant concept code is required for ingest into vegbank.")
   }
   
-  #TODO: get current stratumType table from vegbank and map to that field
-  
+  #TODO: figure out if stratum is even required here?
+  vb_strat <- vb_get_stratum_methods(limit = 5000)
   
   # loader tables
   strata_cover_template_fields <- build_loader_table(
@@ -220,20 +226,22 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   #strata_cover_LT$user_sr_code <- plants_join$Stratum
   strata_cover_LT$user_to_code <- plants_join$user_to_code
   strata_cover_LT$user_ob_code <- plants_join$SurveyID
-  strata_cover_LT$author_plant_name <- plants_join$SpeciesName
+  strata_cover_LT$author_plant_name <- plants_join$species_norm
   strata_cover_LT$cover <- plants_join$Species_cover
   
   taxon_LT$user_to_code <- plants_join$user_to_code
   taxon_LT$user_py_code <- plants_join$user_py_code
   taxon_LT$vb_pc_code <- plants_join$pc_code
+  taxon_LT$original_interpretation <- TRUE
+  taxon_LT$current_interpretation <- TRUE
   
   out_path_strata <- file.path(out_dir, "strataCoverLT.csv")
   out_path_tax <- file.path(out_dir, 'taxonInterpretationsLT.csv')
   cli::cli_alert_success("Writing two output files to:")
   cli::cli_ul(c(out_path_strata, out_path_tax))
   
-  write_csv(strata_cover_LT, out_path_strata)
-  write_csv(taxon_LT, out_path_tax)
+  write.csv(strata_cover_LT, out_path_strata, row.names = F)
+  write.csv(taxon_LT, out_path_tax, row.names = F)
     
 }
 
