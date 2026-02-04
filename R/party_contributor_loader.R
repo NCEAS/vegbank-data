@@ -205,6 +205,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # If there is a match between people names from party_LT and party_vegbank,
   # then save py_code as vb_py_code. Otherwise, leave it as NA
   
+  # TODO: check that this makes sense, it seems like one py_code might be repeated for entire dataset
   # df2 subset of distinct vegbank parties (vegbank party)
   veg_subset <- vegbank_names %>% 
     select(full_name, py_code) %>% 
