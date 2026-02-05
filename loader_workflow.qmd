@@ -40,7 +40,68 @@ The two loader tables for Party and Contributor are both extracted from `RAProje
 
 The source data is normalized, moving from wide to long format so that each individual in `DataContact*{n}` columns is in their own row. Emails are checked to ensure they appear valid. Names are then split using whitespace into `given_name`, `middle_name`, and `sur_name`. Unique party codes are generated for each individual (`user_py_code`). Additionally, all unique individuals already in vegbank are retrieved, along with their project codes. Individuals in the source data are matched to existing vegbank parties, and if any are found the existing vegbank identifier is assigned to `vb_py_code`.
 
-`role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. A mapping of role text to role codes can be found within the `party_contributor_loader` function. If no role is found in the source data, the code `ar.46` is assigned. The `contributor_type` field is given a value of "Project" for all rows.
+`role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. These values are standardized and mapped to VegBank role codes using a lookup table. The full mapping used in this process is shown below for transparency and review. If no role is found in the source data, the code ar.46 is assigned. The contributor_type field is given a value of "Project" for all rows.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(stringr)
+library(readr)
+library(DT)
+
+# This is the VegBank role code reference (same as in party_contributor_loader)
+roles <- tribble(
+  ~ar_code, ~role_name,
+  "ar.16",  "Author",
+  "ar.17",  "Contact",
+  "ar.18",  "PI",
+  "ar.19",  "Data Manager",
+  "ar.34",  "Classifier",
+  "ar.36",  "Plot author",
+  "ar.38",  "Co-PI",
+  "ar.39",  "Computer (automated)",
+  "ar.40",  "Consultant",
+  "ar.43",  "Field assistant",
+  "ar.44",  "Guide",
+  "ar.45",  "Land owner",
+  "ar.46",  "Not specified",
+  "ar.47",  "Not specified/Unknown",
+  "ar.48",  "Passive observer",
+  "ar.50",  "Plot contributor",
+  "ar.51",  "Publication author",
+  "ar.53",  "Research advisor",
+  "ar.54",  "System manager",
+  "ar.55",  "Taxonomist",
+  "ar.56",  "Data aggregator"
+)
+
+role_lookup_path <- file.path(in_dir, "lookup-tables", "cdfw-roles-2026-02-02.csv")
+
+role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE) %>%
+  rename(ContactRole = found, role_name = allowed) %>%
+  mutate(
+    ContactRole = str_to_lower(str_squish(ContactRole)),
+    role_name   = str_squish(role_name)
+  )
+
+role_map_final <- role_lookup %>%
+  left_join(roles, by = "role_name") %>%
+  arrange(role_name, ContactRole) %>%
+  mutate(
+    mapping_status = if_else(is.na(ar_code), "UNMAPPED (will trigger warning)", "Mapped")
+  ) %>%
+  select(ContactRole, role_name, ar_code, mapping_status)
+
+datatable(
+  role_map_final,
+  rownames = FALSE,
+  filter = "top",
+  options = list(
+    pageLength = 25,
+    autoWidth = TRUE,
+    scrollX = TRUE
+  )
+)
+```
 
 ```{r}
 party_contributor_loader(in_dir, out_dir)
