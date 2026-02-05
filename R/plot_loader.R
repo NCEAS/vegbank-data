@@ -716,7 +716,7 @@ assign_growth_form <- function(plots_merged){
 check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
-  cache_file <- file.path(cache_dir, "pl_all.csv")
+  cache_file <- file.path(cache_dir, "plots_all.csv")
   
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
   

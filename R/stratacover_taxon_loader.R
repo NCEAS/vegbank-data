@@ -44,6 +44,7 @@ load_stratacover_files <- function(in_dir, out_dir){
 
 create_person_lookup <- function(plots, contrib){
   # organized into most to least likely to be involved in classification
+  #TODO: ask CDFW about this, backstop could also be to put an org or generic entry in if no relevant party is found
   roles <- tibble::tribble(
     ~ar_code, ~role_name,
     "ar.55", "Taxonomist",
@@ -94,23 +95,18 @@ load_usda_plants <- function(){
 load_vb_pc <- function(base_url, renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
-  cache_file <- file.path(cache_dir, "pl_all.csv")
+  cache_file <- file.path(cache_dir, "plant_concept_all.csv")
   
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
   
-  if (file.exists(cache_file) & renew_cache) {
+  if (!file.exists(cache_file) | renew_cache) {
 
-    vb_set_base_url(base_url)    # (Run this before running functions from vegbankr)
-    # CREATING DF BY LOOPING THROUGH "PAGES" OF VALUES
-    # saved as csv so commented the code
-    
-    # Adaptive, resumable pager for VegBank plant concepts
+    vb_set_base_url(base_url)   
     
     page_init <- 5000 # shrink this if there is an error
     page_min <- 500 # don't go smaller than this
     max_pages <- 500 # hard stop
     sleep_sec <- 0.05 # brief pause to avoid error
-    keep_cols <- c("pc_code","plant_name", "plant_code", "current_accepted")
     checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
     save_every <- 10
     
@@ -140,9 +136,6 @@ load_vb_pc <- function(base_url, renew_cache = FALSE){
         chunk$plant_code <- as.character(chunk$plant_code)
       }
       
-      keep <- intersect(keep_cols, names(chunk))
-      if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-      
       if ("pc_code" %in% names(chunk)) {
         new <- !chunk$pc_code %in% seen_codes
         if (!any(new)) { message("  All rows seen already; stopping."); break }
@@ -157,15 +150,29 @@ load_vb_pc <- function(base_url, renew_cache = FALSE){
       if (nrow(chunk) < limit) { message("  Short page; done."); break }
       
       if (save_every > 0 && (i %% save_every == 0)) {
-        tmp <- dplyr::bind_rows(out) %>% distinct()
+        
+        tryCatch(
+          {
+            tmp <- dplyr::bind_rows(out) %>% distinct()
+          },
+          error = function(e) {
+            tmp <<- bind_rows(lapply(out, function(df) mutate(df, across(everything(), as.character))))
+          }
+        )
         saveRDS(tmp, checkpoint)
         message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
       }
       
       if (sleep_sec > 0) Sys.sleep(sleep_sec)
     }
-    
-    pc_all <- bind_rows(out) %>% distinct()
+    tryCatch(
+      {
+        pc_all <- dplyr::bind_rows(out) %>% distinct()
+      },
+      error = function(e) {
+        pc_all <<- bind_rows(lapply(out, function(df) mutate(df, across(everything(), as.character))))
+      }
+    )
     message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
     
     write_csv(pc_all, cache_file)
@@ -181,17 +188,26 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   list2env(l, envir = environment())
   people <- create_person_lookup(plots, contrib)
   
-  pc_all <- load_vb_pc("https://api-dev.vegbank.org")
+  pc_all <- load_vb_pc("https://api-dev.vegbank.org", FALSE)
 
-  # there are repeat USDA codes in the db. same USDA code different vb_pc_code. looks like its mostly
-  # species name in one, species name + citation in another. Taking the shorter one (w/o citation)
-  pc_lookup_no_repeats <- pc_all %>%
-    filter(!is.na(plant_code)) %>% 
-    group_by(plant_code) %>% 
-    arrange(nchar(plant_name)) %>% 
-    slice(1)
+  # try to match most recent USDA codes, moving down through older lists if no matches are found
   
-  plants_join <- left_join(plants, pc_lookup_no_repeats, by = c("CurrPlantsSymbol" = "plant_code")) %>% 
+  pc_usda <- pc_all %>%
+    filter(grepl("USDA Plants", concept_rf_label))
+  
+  pc_usda$concept_rf_label <- factor(pc_usda$concept_rf_label, levels = sort(unique(pc_usda$concept_rf_label)))
+  
+  pc_lookup_no_repeats <- pc_usda %>% 
+    group_by(plant_code) %>% 
+    slice_max(concept_rf_label, n = 1, with_ties = FALSE) %>% 
+    select(pc_code, plant_code, plant_name, concept_rf_label) %>% 
+    ungroup()
+  
+  # for both species name and plant code/symbol, take the most recent one first (SpeciesName, CurrPlantsSymbol). if that
+  # field is NA, take the other (Species_name, CodeSpecies)
+  plants_join <- plants %>% 
+    mutate(usda_norm = if_else(is.na(CurrPlantsSymbol), CodeSpecies, CurrPlantsSymbol)) %>% 
+    left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code")) %>% 
     left_join(people, by = join_by(SurveyID)) %>% 
     mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
     mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName))
@@ -205,6 +221,8 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   }
   
   #TODO: figure out if stratum is even required here?
+  # assign a stratum method for each project, join back to plot obs/strata cover
+  # each row in this table needs to join to strataDefinitionsLT
   vb_strat <- vb_get_stratum_methods(limit = 5000)
   
   # loader tables
