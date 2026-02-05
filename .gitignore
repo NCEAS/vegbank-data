@@ -54,3 +54,4 @@ loader_tables/
 
 # checkpoint rds files
 *.rds
+plantlist.txt
