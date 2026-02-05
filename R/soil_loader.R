@@ -16,7 +16,18 @@ soil_loader <- function(in_dir, out_dir){
   cli::cli_alert_info(paste("Processing", length(plot_files), "soil tables from:"))
   cli::cli_ul(plot_files)
   
-  plot_df_list <- lapply(plot_files, read_csv, progress = FALSE, show_col_types = FALSE)
+  plot_df_list <- lapply(plot_files, function(file) {
+    df <- read_csv(file, progress = FALSE, show_col_types = FALSE)
+    # column typing
+    if ("DesertRip" %in% names(df)) {
+      df$DesertRip <- as.character(df$DesertRip)
+    }
+    if ("PlotOther4" %in% names(df)) {
+      df$PlotOther4 <- as.character(df$PlotOther4)
+    }
+    return(df)
+  })
+  
   plots <- do.call(bind_rows, plot_df_list)
   
   soil_lookup <- read_csv(file.path(in_dir, "lookup-tables/LSoil.csv"), progress = FALSE, show_col_types = FALSE)

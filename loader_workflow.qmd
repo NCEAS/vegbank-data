@@ -79,4 +79,3 @@ community_loader(in_dir, out_dir)
 ```{r}
 stratacover_taxon_loader(in_dir, out_dir)
 ```
-
