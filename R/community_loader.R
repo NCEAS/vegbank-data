@@ -256,18 +256,8 @@ load_reference_tables <- function(in_dir){
   
   # CA code map
   cacode_sheet_path <- file.path(in_dir, "lookup-tables/VegBank_CrosswalkHierarchyMCV.csv")
-  mv_2019_ass_path <- file.path(in_dir, "lookup-tables/MCV2019_Association.csv")
-  mv_2019_all_path <- file.path(in_dir, "lookup-tables/MCV2019_Alliance.csv")
   
   cacode_map_raw <- read_csv(cacode_sheet_path, progress = FALSE, show_col_types = FALSE)
-  mv_ass <- read_csv(mv_2019_ass_path, progress = FALSE, show_col_types = FALSE) %>% 
-    mutate(ClassifLevel = "Association") %>% 
-    rename(ScientificName = Association)
-  mv_all <- read_csv(mv_2019_all_path, progress = FALSE, show_col_types = FALSE) %>% 
-    mutate(ClassifLevel = "Alliance") %>% 
-    rename(ScientificName = Alliance)
-  
-  cacode_map_raw <- bind_rows(cacode_map_raw, mv_all, mv_ass)
   
   cacode_map <- cacode_map_raw %>%
     mutate(
