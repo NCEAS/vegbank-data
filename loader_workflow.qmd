@@ -112,7 +112,7 @@ Disturbance age and extent are not present in the CDFW data. They are set to `NA
 
 The lookup table maps specific impact types from CDFW data to standardized VegBank disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
 
-```{r}
+```{r, echo = FALSE}
 roles <- tribble(
   ~`CDFW Impact Type`,                        ~vegbank_disturbance,
     "Development",                            "Human, general",
@@ -189,7 +189,7 @@ Growth form assignments prioritize the dominant tree type (conifer vs. hardwood)
 
 The lookup table below...
 
-```{r}
+```{r, echo = FALSE}
 lookup_plot_position <- tribble(
     ~MacroTopo,                          ~topo_position,
     "Bottom",                               "Basin floor",
