@@ -104,13 +104,13 @@ party_contributor_loader(in_dir, out_dir)
 
 ## Disturbance
 
-Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table.
+Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table, which provides descriptive labels for impact codes.
 
-Intensity values are checked to ensure they are either 1, 2, or 3, and then these values are converted to low, medium, and high, respectively. Unknown intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field.
+Intensity values are checked to ensure they conform to expected values (1, 2, or 3). Valid intensity codes are converted to descriptive labels: 1 becomes "Low", 2 becomes "Moderate", and 3 becomes "High". Any non-standard intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. Impact codes present in the `CodeImpact` field but missing from the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field.
 
-Disturbance age and extent are not present in the CDFW data so are set to `NA` for all rows in the loader table.
+Disturbance age and extent are not present in the CDFW data. They are set to `NA` for all rows in the loader table.
 
-The lookup table maps specific impact types to standardized disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
+The lookup table maps specific impact types from CDFW data to standardized VegBank disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
 
 ```{r}
 roles <- tribble(
