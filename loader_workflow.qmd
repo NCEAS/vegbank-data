@@ -2,7 +2,6 @@
 title: "Loader Table Workflow"
 format: html
 editor: visual
----2
 ---
 
 ## Introduction
@@ -10,12 +9,17 @@ editor: visual
 This quarto document describes processing and quality assurance steps used to convert CDFW data into the format needed for ingest into vegbank. Each loader table has a function in the family `[table]_loader` which is run on input data and generates output files at the desired location. Messages from the loader functions indicate potential issues with input datasets.
 
 ```{r, echo = FALSE}
-googlesheets4::gs4_auth()
+library(dplyr)
+library(stringr)
+library(readr)
+library(DT)
+#googlesheets4::gs4_auth()
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "R"
-r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
+r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
+  grep("stratadefinitions", ., invert = TRUE, value = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
@@ -43,11 +47,6 @@ The source data is normalized, moving from wide to long format so that each indi
 `role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. These values are standardized and mapped to VegBank role codes using a lookup table. The full mapping used in this process is shown below for transparency and review. If no role is found in the source data, the code ar.46 is assigned. The contributor_type field is given a value of "Project" for all rows.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(stringr)
-library(readr)
-library(DT)
-
 # This is the VegBank role code reference (same as in party_contributor_loader)
 roles <- tribble(
   ~ar_code, ~role_name,
@@ -86,10 +85,7 @@ role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE) %>%
 role_map_final <- role_lookup %>%
   left_join(roles, by = "role_name") %>%
   arrange(role_name, ContactRole) %>%
-  mutate(
-    mapping_status = if_else(is.na(ar_code), "UNMAPPED (will trigger warning)", "Mapped")
-  ) %>%
-  select(ContactRole, role_name, ar_code, mapping_status)
+  select(ContactRole, role_name, ar_code)
 
 datatable(
   role_map_final,
@@ -99,8 +95,7 @@ datatable(
     pageLength = 25,
     autoWidth = TRUE,
     scrollX = TRUE
-  )
-)
+))
 ```
 
 ```{r}
