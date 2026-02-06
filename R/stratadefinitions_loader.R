@@ -55,15 +55,33 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   
   un <- plant_projs %>% 
     group_by(proj_code, `Type of protocols`, StrataDescription, StrataClassDescription) %>% 
-    summarise(stratum_values = paste(unique(Stratum), collapse = ", "))
+    summarise(stratum_values = list(unique(tolower(Stratum))), .groups = "drop")
   
   base_url <- "https://api-dev.vegbank.org"
   vb_set_base_url(base_url)
   vb_strata <- vb_get_stratum_methods(with_nested = TRUE)
   
   vb_strata <- vb_strata %>% 
-    mutate(stratum_names = map_chr(stratum_types, ~ paste(.x$stratum_name, collapse = ", "))) %>% 
+    mutate(stratum_names = map(stratum_types, ~ tolower(.x$stratum_index))) %>%
     select(-stratum_types)
+
+  m <- c()
+  # Find matching methods for each project
+  for (i in 1:nrow(un)){
+    proj_set <- un$stratum_values[i]
+    t <- vb_strata %>% 
+      rowwise() %>% 
+      filter(all(proj_set[[1]] %in% stratum_names))
+    meth <- paste(t$stratum_method_name, collapse = ", ")
+    m <- c(m, meth)
+    
+  }
+  
+  un$possible_matches <- m
+  
+  un$stratum_values <- paste(un$stratum_values, sep = ", ")
+  
+  write.csv(un, "CDFW-strata-method-guess.csv", row.names = F)
   
   strata_template_fields <- build_loader_table(
     sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
