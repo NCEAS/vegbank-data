@@ -106,10 +106,65 @@ party_contributor_loader(in_dir, out_dir)
 
 Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table.
 
-Intensity values are checked to ensure they are either 1, 2, or 3, and then these values are converted to low, medium, and high, respectively. Unknown intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field. Disturbance age and extent are not present in the CDFW data so are set to `NA` for all rows in the loader table.
+Intensity values are checked to ensure they are either 1, 2, or 3, and then these values are converted to low, medium, and high, respectively. Unknown intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field.
+
+Disturbance age and extent are not present in the CDFW data so are set to `NA` for all rows in the loader table.
+
+The lookup table maps specific impact types to standardized disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
 
 ```{r}
-disturbance_loader(in_dir, out_dir)
+roles <- tribble(
+  ~`CDFW Impact Type`,                        ~vegbank_disturbance,
+    "Development",                            "Human, general",
+    "ORV activity",                           "Roads and vehicular traffic",
+    "Agriculture",                            "Cultivation",
+    "Grazing",                                "Grazing, domestic stock",
+    "Competition from exotics",               "Other disturbances",
+    "Logging",                                "Timber harvest, general",
+    "Insufficient population/stand size",     "Other disturbances",
+    "Altered flood/tidal regime",             "Hydrologic alteration",
+    "Mining",                                 "Human, general",
+    "Hybridization",                          "Other disturbances",
+    "Groundwater pumping",                    "Hydrologic alteration",
+    "Dam/inundation",                         "Hydrologic alteration",
+    "Other",                                  "Other disturbances",
+    "Surface water diversion",                "Hydrologic alteration",
+    "Road/trail construction/maint.",         "Roads and vehicular traffic",
+    "Biocides",                               "Herbicide or chemical",
+    "Pollution",                              "Human, general",
+    "Unknown",                                "unknown",
+    "Vandalism/dumping/litter",               "Human, general",
+    "Foot traffic/trampling",                 "Trampling and trails",
+    "Improper burning regime",                "Fire suppression",
+    "Over collecting/poaching",               "Human, general",
+    "Erosion/runoff",                         "Erosion",
+    "Altered thermal regime",                 "Other disturbances",
+    "Landfill",                               "Human, general",
+    "Degrading water quality",                "Hydrologic alteration",
+    "Wood cutting",                           "Timber harvest, selective",
+    "Military operations",                    "Human, general",
+    "Recreational use (non ORV)",              "Trampling and trails",
+    "Nest parasitism",                        "Natural, general",
+    "Non-native predators",                   "Other disturbances",
+    "Rip-rap, bank protection",               "Hydrologic alteration",
+    "Channelization (human caused)",           "Hydrologic alteration",
+    "Feral pigs",                             "Animal, general",
+    "Burros",                                 "Animal, general",
+    "Rills",                                  "Erosion",
+    "Phytogenic mounding",                    "Erosion",
+    "Sudden Oak Death (SODS)",                 "Plant disease",
+    NA, "Unknown"
+)
+
+datatable(
+  roles,
+  rownames = FALSE,
+  filter = "top",
+  options = list(
+    pageLength = 25,
+    autoWidth = TRUE,
+    scrollX = TRUE
+))
 ```
 
 ## Plots
