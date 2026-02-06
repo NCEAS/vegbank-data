@@ -244,6 +244,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   #strata_cover_LT$user_sr_code <- plants_join$Stratum
   strata_cover_LT$user_to_code <- plants_join$user_to_code
   strata_cover_LT$user_ob_code <- plants_join$SurveyID
+  strata_cover_LT$user_sr_code <- plants_join$RAPlantsID
   strata_cover_LT$author_plant_name <- plants_join$species_norm
   strata_cover_LT$cover <- plants_join$Species_cover
   
