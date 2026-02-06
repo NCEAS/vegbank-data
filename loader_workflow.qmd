@@ -169,25 +169,100 @@ datatable(
 
 ## Plots
 
-Plot data is extracted from multiple CSV files, including `RAPlots.csv`, `AltPlots.csv`, and `AltStrata.csv`. These files are all merged into a single table. Empty columns are removed.
+### Data Sources and Initial Merging
 
-Survey dates have been converted to Date format and validation checks ensure dates fall between the year 1900 and present day.
+Plot data is extracted from multiple CSV files, including `RAPlots.csv`, `AltPlots.csv`, and `AltStrata.csv`. These files are all merged into a single table using `SurveyID` as the join key. Empty columns are removed.
 
-GPS datum values are standardized. EPSG codes are assigned based on the combination of datum and UTM zone. UTM coordinates are converted to latitude/longitude using the appropriate coordinate reference system for each plot. State and county assignments are determined by spatially joining plot coordinates with US state and county boundaries from the TIGRIS package. Plots with missing location information trigger warning messages, and manual corrections are applied for specific known locations.
+Survey dates are converted to Date format, and validation checks ensure dates fall between 1900 and the present day.
 
-Elevation values are converted to **meters** when marked as feet in the source data. GPS error measurements are similarly converted to meters. Plot area is normalized by removing unit indicators (assuming square meters), converting hectares to square meters, and calculating area from plot dimensions or view radius when direct area measurements are unavailable. A value of **-1** indicates plots with no defined boundaries. Plot shapes (circle, square, rectangle) are inferred from available dimension data when not explicitly recorded.
+### Coordinate Standardization and Location Assignment
 
-Slope aspect values are standardized, with flat locations coded as **-1** and variable locations as **-2**. Slope gradient is calculated from actual measurements when available. Otherwise, it is derived from slope categories or midpoint calculations.
+GPS datum values are standardized. EPSG codes are assigned based on the combination of datum and UTM zone. UTM coordinates are converted to latitude/longitude using the appropriate coordinate reference system (CRS) for each plot.
 
-Topographic position values from the `MacroTopo` field...
+State and county assignments are determined by spatially joining plot coordinates with US state and county boundaries from the TIGRIS package. Plots with missing location information trigger warning messages, and manual corrections are applied for specific known locations.
 
-Rock and gravel cover...
+Here are the CRS Assignment Rules:
 
-Height measurements for conifer, hardwoods, shrubs, and herbaceous vegetation...
+```{r, echo=FALSE}
+crs_lookup <- tribble(
+  ~author_datum, ~UTM_zone, ~epsg,
+  "WGS84", 10, 32610,
+  "WGS84", 11, 32611,
+  "NAD83", 10, 26910,
+  "NAD83", 11, 26911,
+  "NAD27", 10, 26710,
+  "NAD27", 11, 26711
+)
+
+datatable(
+  crs_lookup,
+  rownames = FALSE,
+  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE)
+)
+```
+
+### Elevation and Location Accuracy
+
+Elevation values are converted to **meters** when marked as feet in the source data. GPS error measurements are similarly converted to meters.
+
+### Plot Area and Shape
+
+Plot area is normalized by removing unit indicators (assuming square meters), converting hectares to square meters, and calculating area from plot dimensions or view radius when direct area measurements are unavailable. A value of **`-1`** indicates plots with no defined boundaries.
+
+Plot shapes (circle, square, rectangle) are inferred from available dimension data when not explicitly recorded.
+
+### Slope and Aspect
+
+Slope aspect values are standardized, with flat locations coded as **`-1`** and variable locations as **`-2`**. Slope gradient is calculated from actual measurements when available. Otherwise, it is derived from slope category ranges using midpoint calculations.
+
+### Substrate Cover (Rock and Gravel)
+
+Rock and gravel cover is computed by summing percent cover values from the `Boulders`, `Stones`, `Cobbles`, and `Gravels` fields after treating `999` as missing. Values above 100 trigger warning messages.
+
+```{r, echo=FALSE}
+rock_gravel_rules <- tribble(
+  ~source_fields, ~missing_rule, ~derived_field, ~derivation,
+  "Boulders, Stones, Cobbles, Gravels", "999 → NA", "percentRockGravel", "row sum of the four fields (na.rm=TRUE); warn if >100"
+)
+
+datatable(
+  rock_gravel_rules,
+  rownames = FALSE,
+  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE)
+)
+```
+
+### Vegetation Height Classes
+
+Height class fields for conifer, hardwood, shrub, and herbaceous vegetation are converted to numeric values by taking midpoints of ranges (e.g., `2–5 m → 3.5`). Less-than ranges (e.g., `<0.5 m`) are converted using a midpoint assumption (half of the threshold value), and "Not recorded" / "Not present" are treated as missing. Values that cannot be parsed trigger warning messages.
+
+This doesn't hardcode every possible value, it just shows representative examples of the transformation rules.
+
+```{r, echo=FALSE}
+height_examples <- tribble(
+  ~example_input, ~rule, ~numeric_output,
+  "2-5 m", "midpoint of range", 3.5,
+  "0.5-1 m", "midpoint of range", 0.75,
+  "<0.5 m", "less-than midpoint rule (half)", 0.25,
+  ">50 m", "greater-than rule (keep value or placeholder)", NA_real_,
+  "Not recorded", "missing token → NA", NA_real_,
+  "Not present", "missing token → NA", NA_real_
+)
+
+datatable(
+  height_examples,
+  rownames = FALSE,
+  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE)
+)
+```
+
+### Tree Growth Form Assignment
 
 Growth form assignments prioritize the dominant tree type (conifer vs. hardwood) based on cover values, with the secondary growth form assigned to the less dominant type.
 
-The lookup table below...
+### Topographic Position
+
+Topographic position values from the MacroTopo field are mapped to VegBank's topo_position values using the lookup table below.
 
 ```{r, echo = FALSE}
 lookup_plot_position <- tribble(
@@ -275,6 +350,57 @@ datatable(
     autoWidth = TRUE,
     scrollX = TRUE
 ))
+```
+
+### Loader Table Field Mapping
+
+The table below shows how processed plot fields are mapped into the VegBank PlotObservations loader table.
+
+```{r, echo=FALSE}
+plot_lt_mapping <- tribble(
+  ~loader_field, ~source_field,
+  "user_ob_code", "SurveyID",
+  "user_pl_code", "Stand_ID",
+  "author_plot_code", "Stand_ID",
+  "latitude", "real_latitude",
+  "longitude", "real_longitude",
+  "location_accuracy", "ErrorMeasurement",
+  "confidentiality_status", "ConfidentialityStatus",
+  "author_e", "UTME_final",
+  "author_n", "UTMN_final",
+  "author_zone", "UTM_zone",
+  "author_datum", "author_datum",
+  "author_location", "SiteLocation",
+  "azimuth", "W_Axis_Bearing",
+  "shape", "PlotShape",
+  "area", "PlotArea",
+  "stand_size", "Stand_Size",
+  "elevation", "Elevation",
+  "slope_aspect", "Aspect_actual",
+  "slope_gradient", "slope",
+  "topo_position", "topo_position",
+  "rock_type", "Substrate",
+  "user_pj_code", "ProjectCode",
+  "obs_start_date", "SurveyDate",
+  "method_narrative", "methodNarrative",
+  "tree_ht", "treeHt",
+  "shrub_ht", "Shrub_ht22",
+  "field_ht", "Herb_ht22",
+  "tree_cover", "treeCover",
+  "shrub_cover", "Shrub_cover",
+  "field_cover", "Herb_cover",
+  "growthform_1_type", "growthform1Type",
+  "growthform_2_type", "growthform2Type",
+  "growthform_1_cover", "growthform1Cover",
+  "growthform_2_cover", "growthform2Cover"
+)
+
+datatable(
+  plot_lt_mapping,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+)
 ```
 
 ## Soils
