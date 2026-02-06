@@ -169,8 +169,112 @@ datatable(
 
 ## Plots
 
+Plot data is extracted from multiple CSV files, including `RAPlots.csv`, `AltPlots.csv`, and `AltStrata.csv`. These files are all merged into a single table. Empty columns are removed.
+
+Survey dates have been converted to Date format and validation checks ensure dates fall between the year 1900 and present day.
+
+GPS datum values are standardized. EPSG codes are assigned based on the combination of datum and UTM zone. UTM coordinates are converted to latitude/longitude using the appropriate coordinate reference system for each plot. State and county assignments are determined by spatially joining plot coordinates with US state and county boundaries from the TIGRIS package. Plots with missing location information trigger warning messages, and manual corrections are applied for specific known locations.
+
+Elevation values are converted to **meters** when marked as feet in the source data. GPS error measurements are similarly converted to meters. Plot area is normalized by removing unit indicators (assuming square meters), converting hectares to square meters, and calculating area from plot dimensions or view radius when direct area measurements are unavailable. A value of **-1** indicates plots with no defined boundaries. Plot shapes (circle, square, rectangle) are inferred from available dimension data when not explicitly recorded.
+
+Slope aspect values are standardized, with flat locations coded as **-1** and variable locations as **-2**. Slope gradient is calculated from actual measurements when available. Otherwise, it is derived from slope categories or midpoint calculations.
+
+Topographic position values from the `MacroTopo` field...
+
+Rock and gravel cover...
+
+Height measurements for conifer, hardwoods, shrubs, and herbaceous vegetation...
+
+Growth form assignments prioritize the dominant tree type (conifer vs. hardwood) based on cover values, with the secondary growth form assigned to the less dominant type.
+
+The lookup table below...
+
 ```{r}
-plots_loader(in_dir, out_dir)
+lookup_plot_position <- tribble(
+    ~MacroTopo,                          ~topo_position,
+    "Bottom",                               "Basin floor",
+    "Lower 1/3 of slope",                   "Lowslope",
+    "Bottom to Lower 1/3 of slope",          "Lowslope",
+    "Bottom to Mid 1/3 of slope",            "Lowslope",
+    "Bottom to Upper 1/3 of slope",          "Midslope",
+    "Entire slope",                          "Midslope",
+    "Middle 1/3 of slope",                   "Midslope",
+    "Middle to Upper 1/3 of slope",          "Midslope",
+    "Lower to Middle 1/3 of slope",           "Midslope",
+    "Lower to Upper 1/3 of slope",            "Midslope",
+    "Upper 1/3 of slope",                    "High slope",
+    "Upper 1/3 of slope to Ridgetop",         "High slope",
+    "Middle 1/3 of slope to Ridgetop",        "High slope",
+    "Lower 1/3 of slope to Ridgetop",         "Midslope",
+    "Ridge top",                             "Interfluve",
+    "upper",                                "High slope",
+    "mid",                                  "Midslope",
+    "Bench",                                "Step in slope",
+    "Channel bed",                           "Channel bed",
+    "Lowslope",                              "Lowslope",
+    "6",                                    "Basin floor",
+    "Not recorded",                          NA_character_,
+    "<Null>",                               NA_character_,
+    "Lower 1/3 of slope to Ridegetop",               "Midslope",
+    "Other",                                        NA_character_,
+    "Wash (channel bed)",                            "Channel bed",
+    "Toeslope",                                     "Toeslope",
+    "Terrace (former shoreline or floodplain)",     "Low level",
+    "Ridge Top",                                    "Interfluve",
+    "Dune/sandfield",                               "Low level",
+    "Draw",                                         "Channel bed",
+    "Pediment",                                     "Lowslope",
+    "Unknown",                                      NA_character_,
+    "Edge of basin/wetland",                        "Basin floor",
+    "* choose one *",                               NA_character_,
+    "Badland (complex of draws & interfluves)",     "Midslope",
+    "High slope",                                   "High slope",
+    "Midslope",                                     "Midslope",
+    "Low level",                                    "Low level",
+    "Step in slope",                                "Step in slope",
+    "Toe-slope",                                    "Toeslope",
+    "Saddle/Summit/Ridgeline",                      "Interfluve",
+    "Mid-slope",                                    "Midslope",
+    "Braided/flood plain",                          "Low level",
+    "Rolling Hills/Ridges",                         "Interfluve",
+    "Broad wash",                                   "Channel bed",
+    "Bar/swale",                                    "Low level",
+    "Bajada",                                       "Toeslope",
+    "Pavements",                                    "High level",
+    "Valley",                                       "Low level",
+    "Playa",                                        "Basin floor",
+    "Narrow wash",                                  "Channel bed",
+    "Deeply dissected hills",                       "Midslope",
+    "Mud hills/Badlands",                           "Midslope",
+    "Entire Slope",                                 "Midslope",
+    "Basin/Wetland",                                "Basin floor",
+    "Eroded Hills",                                 "Midslope",
+    "Flat",                                         "Low level",
+    "Toeslope (alluvial fan/bajada)",               "Toeslope",
+    "High level/summit to HighSlope",               "High slope",
+    "Basin/wetland",                                "Basin floor",
+    "Low- to midslope",                             "Midslope",
+    "High level/summit",                            "High level",
+    "Lower",                                        "Lowslope",
+    "Mid",                                          "Midslope",
+    "Upper",                                        "High slope",
+    "Top",                                          "Interfluve",
+    "High level",                                   "High level",
+    "Basin floor",                                  "Basin floor",
+    "Channel wall",                                 "Channel wall",
+    "Interfluve/Summit",                            "Interfluve",
+    "bottom",                                       "Low level"
+  )
+
+datatable(
+  lookup_plot_position,
+  rownames = FALSE,
+  filter = "top",
+  options = list(
+    pageLength = 25,
+    autoWidth = TRUE,
+    scrollX = TRUE
+))
 ```
 
 ## Soils
