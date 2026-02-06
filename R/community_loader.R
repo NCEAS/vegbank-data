@@ -368,7 +368,16 @@ community_loader <- function(in_dir, out_dir){
     classification = classification,
     cacode_map = refs$cacode_map,
     cc_lookup = refs$cc_lookup
-  )
+  ) %>% 
+    # TODO: drop GXXX values in CaCode
+    # TODO: drop NAs and n/a's in CaCode
+    # they don't get inserted anyway but might as well be explicit about it
+  
+  no_match <- classification_with_cc %>% 
+    filter(is.na(vb_cc_code)) %>% 
+    select(CaCode, Alliance, Association) %>% 
+    filter(!is.na(CaCode)) %>% 
+    distinct()
   
   class_cc_proj <- join_classifications(
     classification_with_cc = classification_with_cc,
