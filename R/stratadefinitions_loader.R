@@ -53,7 +53,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   proj_plots <- left_join(plots, projects, by = c("proj_code" = "ProjectCode"))
   plant_projs <- left_join(plants, proj_plots, by = "SurveyID")
   
-  un <- plant_projs %>% 
+  pro_meth_summary <- plant_projs %>% 
     group_by(proj_code, `Type of protocols`, StrataDescription, StrataClassDescription) %>% 
     summarise(stratum_values = list(unique(tolower(Stratum))), .groups = "drop")
   
@@ -62,24 +62,43 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   vb_strata <- vb_get_stratum_methods(with_nested = TRUE)
   
   vb_strata <- vb_strata %>% 
-    mutate(stratum_names = map(stratum_types, ~ tolower(.x$stratum_index))) %>%
-    select(-stratum_types)
+    mutate(stratum_names = map(stratum_types, ~ tolower(.x$stratum_index), collapse = ", "))
+  
+  vb_full <- vb_strata %>% 
+    unnest(stratum_types) %>% 
+    mutate(stratum_index = tolower(stratum_index)) %>% 
+    rename(Stratum = stratum_index) %>% 
+    select(sm_code, Stratum, sy_code) %>% 
+    group_by(sm_code, Stratum) %>% 
+    slice(1) %>% 
+    ungroup()
 
+  # TODO: rewrite this logic to actually pick the correct method once CDFW sends us a lookup table
+  # this is just for testing
   m <- c()
   # Find matching methods for each project
-  for (i in 1:nrow(un)){
-    proj_set <- un$stratum_values[i]
+  for (i in 1:nrow(pro_meth_summary)){
+    proj_set <- pro_meth_summary$stratum_values[i]
     t <- vb_strata %>% 
       rowwise() %>% 
       filter(all(proj_set[[1]] %in% stratum_names))
-    meth <- paste(t$stratum_method_name, collapse = ", ")
+    #meth <- paste(t$stratum_method_name, collapse = ", ")
+    meth <- t$sm_code[1]
     m <- c(m, meth)
     
   }
   
-  un$possible_matches <- m
+  pro_meth_summary$sm_code <- m
   
-  un$stratum_values <- paste(un$stratum_values, sep = ", ")
+  pro_meth_summary <- pro_meth_summary %>% select(proj_code, sm_code)
+  
+  plant_methods <- plant_projs %>% 
+    left_join(pro_meth_summary, by = join_by(proj_code)) %>% 
+    mutate(Stratum = tolower(Stratum)) %>% 
+    left_join(vb_full, by = join_by(Stratum, sm_code)) %>% 
+    select(SurveyID, Stratum, sm_code, sy_code, RAPlantsID)
+  
+  #pro_meth_summary$stratum_values <- paste(un$stratum_values, sep = ", ")
   
   write.csv(un, "CDFW-strata-method-guess.csv", row.names = F)
   
@@ -90,9 +109,18 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   )
   
   strata_def_LT <- strata_cover_template_fields$template
+  
   # required fields
-  # strata_def_LT$user_ob_code 
-  # strata_def_LT$user_sr_code --> join to stratacover_LT user_sr_code (possibly RAPlantsID)
-  # strata_def_LT$vb_sy_code
+  strata_def_LT$user_ob_code <- plant_methods$SurveyID
+  strata_def_LT$user_sr_code <- plant_methods$RAPlantsID
+  strata_def_LT$vb_sy_code <- plant_methods$sy_code
+  strata_def_LT$vb_sm_code <- plant_methods$sm_code
+  
+  out_path_strata <- file.path(out_dir, "strataCoverLT.csv")
+
+  cli::cli_alert_success("Writing output file to:")
+  cli::cli_ul(out_path_strata)
+  
+  write.csv(strata_def_LT, out_path_strata, row.names = F)
   
 }
