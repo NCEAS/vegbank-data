@@ -118,7 +118,6 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   strata_def_LT$user_ob_code <- plant_methods$SurveyID
   strata_def_LT$user_sr_code <- plant_methods$RAPlantsID
   strata_def_LT$vb_sy_code <- plant_methods$sy_code
-  strata_def_LT$vb_sm_code <- plant_methods$sm_code
   
   out_path_strata <- file.path(out_dir, "strataMethodsLT.csv")
 
