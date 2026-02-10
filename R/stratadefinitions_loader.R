@@ -171,7 +171,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   strata_template_fields <- build_loader_table(
     sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
     sheet = "StrataDefinitions",
-    source_df = plants
+    source_df = plant_methods
   )
   
   strata_def_LT <- strata_template_fields$template
