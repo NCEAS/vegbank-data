@@ -17,7 +17,8 @@ load_stratadef_files <- function(in_dir, out_dir){
                            progress = FALSE,
                            show_col_types = FALSE,
                            guess_max = 20000)
-  plants <- do.call(bind_rows, plants_df_list)
+  plants <- do.call(bind_rows, plants_df_list) %>% 
+    mutate(strata_id = paste(SurveyID, Stratum, sep = "_"))
   
   # read in RAProjects
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
@@ -103,7 +104,8 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   plant_methods <- plant_projs %>% 
     left_join(method_lookup, by = join_by(proj_code)) %>% 
     left_join(vb_full, by = join_by(Stratum, sm_code)) %>% 
-    select(SurveyID, Stratum, sm_code, sy_code, RAPlantsID)
+    select(SurveyID, strata_id, sy_code) %>% 
+    distinct()
   
   
   strata_template_fields <- build_loader_table(
@@ -116,7 +118,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   
   # required fields
   strata_def_LT$user_ob_code <- plant_methods$SurveyID
-  strata_def_LT$user_sr_code <- plant_methods$RAPlantsID
+  strata_def_LT$user_sr_code <- plant_methods$strata_id
   strata_def_LT$vb_sy_code <- plant_methods$sy_code
   
   out_path_strata <- file.path(out_dir, "strataMethodsLT.csv")
