@@ -368,7 +368,7 @@ community_loader <- function(in_dir, out_dir){
     classification = classification,
     cacode_map = refs$cacode_map,
     cc_lookup = refs$cc_lookup
-  ) %>% 
+  ) 
     # TODO: drop GXXX values in CaCode
     # TODO: drop NAs and n/a's in CaCode
     # they don't get inserted anyway but might as well be explicit about it
@@ -392,7 +392,6 @@ community_loader <- function(in_dir, out_dir){
   stopifnot(nrow(class_cc_proj) == nrow(community_LT))
   stopifnot(all(names(c("class_notes","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
   
-  # Assigning columns to loader table -------------------------------------------
   community_LT$user_ob_code <- class_cc_proj$SurveyID
   community_LT$user_cl_code <- 1:nrow(class_cc_proj)
   community_LT$class_notes <- class_cc_proj$class_notes
