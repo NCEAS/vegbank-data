@@ -17,7 +17,8 @@ load_stratadef_files <- function(in_dir, out_dir){
                            progress = FALSE,
                            show_col_types = FALSE,
                            guess_max = 20000)
-  plants <- do.call(bind_rows, plants_df_list)
+  plants <- do.call(bind_rows, plants_df_list) %>% 
+    mutate(strata_id = paste(SurveyID, Stratum, sep = "_"))
   
   # read in RAProjects
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
@@ -45,6 +46,30 @@ load_stratadef_files <- function(in_dir, out_dir){
   return(ret)
 }
 
+# clean up some strata names by project based on feedback from CDFW
+# this ensures strata with a vegbank strata method get the stratum 
+# names correctly assigned to a vb code
+clean_strata_names <- function(plant_projs){
+  
+  method_corrections <- tibble::tribble(~proj_code, ~Stratum, ~Stratum_norm,
+                                        "ALCC", "nv", "non-vasc",
+                                        "ALCC-GR", "nv", "non-vasc",
+                                        "SCRUZ", "shrubs", "shrub",
+                                        "SLAV", "shrubs", "shrub",
+                                        "SLAV", "shrutb", "shrub",
+                                        "SLAV", "shsrub", "shrub"
+                                        )
+  
+  
+  plant_projs_clean <- plant_projs %>% 
+    mutate(Stratum = tolower(Stratum)) %>% 
+    left_join(method_corrections, by = join_by(Stratum, proj_code)) %>% 
+    mutate(Stratum = if_else(!is.na(Stratum_norm), Stratum_norm, Stratum)) %>% 
+    select(-Stratum_norm)
+  
+  return(plant_projs_clean)
+}
+
 stratadefinitions_loader <- function(in_dir, out_dir){
   out <- load_stratadef_files(in_dir, out_dir)
   list2env(out, envir = environment())
@@ -52,10 +77,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   # get a list of unique strata types and strata method descriptions
   proj_plots <- left_join(plots, projects, by = c("proj_code" = "ProjectCode"))
   plant_projs <- left_join(plants, proj_plots, by = "SurveyID")
-  
-  pro_meth_summary <- plant_projs %>% 
-    group_by(proj_code, `Type of protocols`, StrataDescription, StrataClassDescription) %>% 
-    summarise(stratum_values = list(unique(tolower(Stratum))), .groups = "drop")
+  plant_projs <- clean_strata_names(plant_projs)
   
   base_url <- "https://api-dev.vegbank.org"
   vb_set_base_url(base_url)
@@ -72,51 +94,34 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     group_by(sm_code, Stratum) %>% 
     slice(1) %>% 
     ungroup()
-
-  # TODO: rewrite this logic to actually pick the correct method once CDFW sends us a lookup table
-  # this is just for testing
-  m <- c()
-  # Find matching methods for each project
-  for (i in 1:nrow(pro_meth_summary)){
-    proj_set <- pro_meth_summary$stratum_values[i]
-    t <- vb_strata %>% 
-      rowwise() %>% 
-      filter(all(proj_set[[1]] %in% stratum_names))
-    #meth <- paste(t$stratum_method_name, collapse = ", ")
-    meth <- t$sm_code[1]
-    m <- c(m, meth)
-    
-  }
   
-  pro_meth_summary$sm_code <- m
+  method_lookup <- read.csv(file.path(in_dir, "lookup-tables/CDFW-strata-method.csv")) %>% 
+    select(proj_code, stratum_method_name) %>% 
+    left_join(vb_strata, by = join_by(stratum_method_name)) %>% 
+    select(proj_code, sm_code)
   
-  pro_meth_summary <- pro_meth_summary %>% select(proj_code, sm_code)
   
   plant_methods <- plant_projs %>% 
-    left_join(pro_meth_summary, by = join_by(proj_code)) %>% 
-    mutate(Stratum = tolower(Stratum)) %>% 
+    left_join(method_lookup, by = join_by(proj_code)) %>% 
     left_join(vb_full, by = join_by(Stratum, sm_code)) %>% 
-    select(SurveyID, Stratum, sm_code, sy_code, RAPlantsID)
+    select(SurveyID, strata_id, sy_code) %>% 
+    distinct()
   
-  #pro_meth_summary$stratum_values <- paste(un$stratum_values, sep = ", ")
-  
-  write.csv(un, "CDFW-strata-method-guess.csv", row.names = F)
   
   strata_template_fields <- build_loader_table(
     sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
     sheet = "StrataDefinitions",
-    source_df = plants
+    source_df = plant_methods
   )
   
-  strata_def_LT <- strata_cover_template_fields$template
+  strata_def_LT <- strata_template_fields$template
   
   # required fields
   strata_def_LT$user_ob_code <- plant_methods$SurveyID
-  strata_def_LT$user_sr_code <- plant_methods$RAPlantsID
+  strata_def_LT$user_sr_code <- plant_methods$strata_id
   strata_def_LT$vb_sy_code <- plant_methods$sy_code
-  strata_def_LT$vb_sm_code <- plant_methods$sm_code
   
-  out_path_strata <- file.path(out_dir, "strataCoverLT.csv")
+  out_path_strata <- file.path(out_dir, "strataMethodsLT.csv")
 
   cli::cli_alert_success("Writing output file to:")
   cli::cli_ul(out_path_strata)

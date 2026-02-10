@@ -18,8 +18,7 @@ library(DT)
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "R"
-r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
-  grep("stratadefinitions", ., invert = TRUE, value = TRUE)
+r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
 invisible(lapply(r_scripts_source, source))
 ```
 
@@ -434,3 +433,8 @@ community_loader(in_dir, out_dir)
 ```{r}
 stratacover_taxon_loader(in_dir, out_dir)
 ```
+
+```{r}
+stratadefinitions_loader(in_dir, out_dir)
+```
+

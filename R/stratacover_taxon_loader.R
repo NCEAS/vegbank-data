@@ -206,17 +206,18 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   # for both species name and plant code/symbol, take the most recent one first (SpeciesName, CurrPlantsSymbol). if that
   # field is NA, take the other (Species_name, CodeSpecies)
   plants_join <- plants %>% 
+    mutate(strata_id = paste(SurveyID, Stratum, sep = "_")) %>% 
     mutate(usda_norm = if_else(is.na(CurrPlantsSymbol), CodeSpecies, CurrPlantsSymbol)) %>% 
     left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code")) %>% 
     left_join(people, by = join_by(SurveyID)) %>% 
     mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
     mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName))
-  
-  if (length(which(is.na(plants_join$user_py_code)))){
+
+  if (length(which(is.na(plants_join$user_py_code))) > 0){
     cli::cli_alert_warning("{length(which(is.na(plants_join$user_py_code)))} rows have NA values for `user_py_code`. A person and role are required for the taxon interpretations loader table.")
   }
   
-  if (length(which(is.na(plants_join$pc_code)))){
+  if (length(which(is.na(plants_join$pc_code))) > 0){
     cli::cli_alert_warning("{length(which(is.na(plants_join$pc_code)))} rows have NA values for the vegbank plant concept code (`pc_code`). A plant concept code is required for ingest into vegbank.")
   }
   
@@ -244,7 +245,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   #strata_cover_LT$user_sr_code <- plants_join$Stratum
   strata_cover_LT$user_to_code <- plants_join$user_to_code
   strata_cover_LT$user_ob_code <- plants_join$SurveyID
-  strata_cover_LT$user_sr_code <- plants_join$RAPlantsID
+  strata_cover_LT$user_sr_code <- plants_join$strata_id
   strata_cover_LT$author_plant_name <- plants_join$species_norm
   strata_cover_LT$cover <- plants_join$Species_cover
   
