@@ -2,6 +2,8 @@ library(tidyverse)
 library(vegbankr)
 library(remotes)
 library(httr)
+library(cli)
+library(glue)
 source('R/build_loader_table.R')
 
 
@@ -13,12 +15,20 @@ load_stratacover_files <- function(in_dir, out_dir){
   plant_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
   
+  if (length(plant_files) == 0) {
+    cli_abort("No RAPlants.csv files found under {in_dir}.")
+  }
+  
   plants_df_list <- lapply(plant_files, 
                            read_csv,
                            progress = FALSE,
                            show_col_types = FALSE,
                            guess_max = 20000)
   plants <- do.call(bind_rows, plants_df_list)
+  
+  if (nrow(plants) == 0) {
+    cli_abort("RAPlants.csv files were found but produced 0 rows after reading.")
+  }
   
   # generate a lookup table to link observations to contributors
   ctib_path <- file.path(out_dir, "contributorLT.csv")
@@ -205,20 +215,38 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   
   # for both species name and plant code/symbol, take the most recent one first (SpeciesName, CurrPlantsSymbol). if that
   # field is NA, take the other (Species_name, CodeSpecies)
+  n0 <- nrow(plants)
+  
   plants_join <- plants %>% 
     mutate(strata_id = paste(SurveyID, Stratum, sep = "_")) %>% 
     mutate(usda_norm = if_else(is.na(CurrPlantsSymbol), CodeSpecies, CurrPlantsSymbol)) %>% 
-    left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code")) %>% 
+    left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code"))
+  
+  if (nrow(plants_join) != n0) {
+    cli_alert_warning("Row count changed after joining plant concepts: {n0} -> {nrow(plants_join)}. This indicates duplicate plant_code values in the lookup.")
+  }
+  
+  plants_join <- plants_join %>%
     left_join(people, by = join_by(SurveyID)) %>% 
-    mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
+    mutate(user_to_code = paste0("CDFW_plant_", row_number())) %>% 
     mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName))
+  
+  if (nrow(plants_join) != n1) {
+    cli_alert_warning("Row count changed after joining people: {n1} -> {nrow(plants_join)}. This indicates duplicate SurveyID values in the people lookup.")
+  }
 
   if (length(which(is.na(plants_join$user_py_code))) > 0){
     cli::cli_alert_warning("{length(which(is.na(plants_join$user_py_code)))} rows have NA values for `user_py_code`. A person and role are required for the taxon interpretations loader table.")
   }
   
-  if (length(which(is.na(plants_join$pc_code))) > 0){
-    cli::cli_alert_warning("{length(which(is.na(plants_join$pc_code)))} rows have NA values for the vegbank plant concept code (`pc_code`). A plant concept code is required for ingest into vegbank.")
+  if (any(is.na(plants_join$pc_code))) {
+    cli_alert_warning("{sum(is.na(plants_join$pc_code))} rows have NA `pc_code` (required for ingest).")
+    bad <- plants_join %>%
+      filter(is.na(pc_code), !is.na(usda_norm), str_squish(usda_norm) != "") %>%
+      distinct(usda_norm) %>%
+      pull(usda_norm)
+    cli_text("Sample unmapped USDA codes:")
+    cli_ul(head(bad, 15))
   }
   
   #TODO: figure out if stratum is even required here?

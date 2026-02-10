@@ -423,4 +423,3 @@ stratacover_taxon_loader(in_dir, out_dir)
 ```{r}
 stratadefinitions_loader(in_dir, out_dir)
 ```
-

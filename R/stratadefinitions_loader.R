@@ -1,6 +1,8 @@
 library(tidyverse)
 library(vegbankr)
 library(purrr)
+library(cli)
+library(glue)
 source('R/build_loader_table.R')
 
 
@@ -12,6 +14,10 @@ load_stratadef_files <- function(in_dir, out_dir){
   plant_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
   
+  if (length(plant_files) == 0) {
+    cli_abort("No RAPlants.csv files found under {in_dir}.")
+  }
+  
   plants_df_list <- lapply(plant_files, 
                            read_csv,
                            progress = FALSE,
@@ -19,6 +25,10 @@ load_stratadef_files <- function(in_dir, out_dir){
                            guess_max = 20000)
   plants <- do.call(bind_rows, plants_df_list) %>% 
     mutate(strata_id = paste(SurveyID, Stratum, sep = "_"))
+  
+  if (nrow(plants) == 0) {
+    cli_abort("RAPlants.csv files were found but produced 0 rows after reading.")
+  }
   
   # read in RAProjects
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
@@ -79,6 +89,19 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   plant_projs <- left_join(plants, proj_plots, by = "SurveyID")
   plant_projs <- clean_strata_names(plant_projs)
   
+  missing_proj <- proj_plots %>%
+    filter(is.na(`Type of protocols`) & is.na(StrataDescription) & is.na(StrataClassDescription)) %>% # basically “no projects match”
+    distinct(proj_code) %>%
+    pull(proj_code)
+  
+  if (length(missing_proj) > 0) {
+    cli_alert_warning(
+      "Some proj_code values from plotsLT.csv did not match RAProjects.csv ProjectCode ({length(missing_proj)} codes)."
+    )
+    cli_text("Sample missing proj_code values:")
+    cli_ul(head(missing_proj, 15))
+  }
+  
   base_url <- "https://api-dev.vegbank.org"
   vb_set_base_url(base_url)
   vb_strata <- vb_get_stratum_methods(with_nested = TRUE)
@@ -100,13 +123,50 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     left_join(vb_strata, by = join_by(stratum_method_name)) %>% 
     select(proj_code, sm_code)
   
+  if (any(is.na(method_lookup$sm_code))) {
+    bad <- method_lookup %>% filter(is.na(sm_code)) %>% distinct(proj_code) %>% pull(proj_code)
+    cli_alert_warning("{length(bad)} proj_code values did not map to a VegBank stratum method (sm_code).")
+    cli_text("Sample proj_code with missing sm_code:")
+    cli_ul(head(bad, 15))
+  }
   
-  plant_methods <- plant_projs %>% 
-    left_join(method_lookup, by = join_by(proj_code)) %>% 
-    left_join(vb_full, by = join_by(Stratum, sm_code)) %>% 
-    select(SurveyID, strata_id, sy_code) %>% 
+  n0 <- nrow(plant_projs)
+  
+  tmp <- plant_projs %>%
+    left_join(method_lookup, by = join_by(proj_code))
+  
+  if (nrow(tmp) != n0) {
+    cli_alert_warning(
+      "Row count changed after joining method_lookup: {n0} -> {nrow(tmp)}. This indicates duplicate proj_code rows in method_lookup."
+    )
+  }
+  
+  n1 <- nrow(tmp)
+  
+  tmp2 <- tmp %>%
+    left_join(vb_full, by = join_by(Stratum, sm_code))
+  
+  if (nrow(tmp2) != n1) {
+    cli_alert_warning(
+      "Row count changed after joining vb_full: {n1} -> {nrow(tmp2)}. This indicates duplicate (Stratum, sm_code) keys in vb_full."
+    )
+  }
+  
+  plant_methods <- tmp2 %>%
+    select(SurveyID, strata_id, sy_code) %>%
     distinct()
   
+  if (any(is.na(plant_methods$sy_code))) {
+    cli_alert_warning("{sum(is.na(plant_methods$sy_code))} strata rows have NA vb_sy_code (cannot ingest those strata definitions).")
+    
+    bad_strata <- plant_methods %>%
+      filter(is.na(sy_code)) %>%
+      distinct(strata_id) %>%
+      pull(strata_id)
+    
+    cli_text("Sample strata_id with missing vb_sy_code:")
+    cli_ul(head(bad_strata, 15))
+  }
   
   strata_template_fields <- build_loader_table(
     sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
