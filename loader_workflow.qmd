@@ -410,8 +410,53 @@ soil_loader(in_dir, out_dir)
 
 ## Community
 
+### Data Sources and Merging
+Community classification data is extracted from `RAClassifications.csv` files, along with `RAPlots.csv` and `RAProjects.csv` files. These files are all merged into a single table using `ProjectCode` as the join key. Empty columns are removed.
+
+Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned. 
+
+### Class Confidence
+Confidence values from the `Confidence_ID` field are normalized to three categories: "High", "Medium" and "Low". The function handles multiple input formats including single letters (H, M, L), full words (High, Medium, Low), and percentage values. Percentages of 75% or greater are mapped to "High", while values below 75% are mapped to "Medium". Missing value indicators are converted to NA. Any unparse-able or unexpected confidence values trigger warnings. The confidence identifiers and percentages are mapped below.
+
 ```{r}
-community_loader(in_dir, out_dir)
+class_confidence <- tribble(
+  ~`Confidence Letter`, ~`Confidence Class`,
+  "H", "High",
+  "M", "Medium",
+  "L", "Low"
+)
+
+datatable(
+  class_confidence,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+)
+```
+
+```{r}
+percentage_confidence <- tribble(
+  ~`Confidence Percentage`, ~`Confidence Class`,
+  ">= 75%", "High",
+  "< 75%", "Medium"
+)
+
+datatable(
+  percentage_confidence,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+)
+```
+
+### Community Concept Matching
+Community concepts are downloaded from the VegBank API and cached locally. Only currently accepted concepts are used for matching. California vegetation codes (`CaCode`) from the CDFW data are matched to NVC (National Vegetation Classification) codes using a crosswalk table (`VegBank_CrosswalkHierarchyMCV.csv`). NVC codes are then matched to VegBank community concept codes (`cc_code`). 
+For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. Records without successful matches (no corresponding VegBank community concept) are flagged and exported to a separate file (`cacode-nolookup.csv`) for review. The total count of unmatched records is reported via warning message.
+
+The final loader table links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
+
+```{r}
+
 ```
 
 ## Strata, Cover, Taxonomy
@@ -423,4 +468,3 @@ stratacover_taxon_loader(in_dir, out_dir)
 ```{r}
 stratadefinitions_loader(in_dir, out_dir)
 ```
-
