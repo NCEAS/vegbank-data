@@ -75,7 +75,7 @@ create_person_lookup <- function(plots, contrib){
   obs_proj_lookup <- full_join(plots, contrib, relationship = "many-to-many", by = "proj_code") %>% 
     group_by(SurveyID) %>%
     slice_min(vb_ar_code, n = 1, with_ties = FALSE) %>% 
-    select(SurveyID, user_py_code)
+    select(SurveyID, user_py_code, vb_ar_code)
   
   return(obs_proj_lookup)
 }
@@ -211,7 +211,8 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
     left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code")) %>% 
     left_join(people, by = join_by(SurveyID)) %>% 
     mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
-    mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName))
+    mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName)) %>% 
+    mutate(user_ti_code = as.character(1:nrow(plants)))
 
   if (length(which(is.na(plants_join$user_py_code))) > 0){
     cli::cli_alert_warning("{length(which(is.na(plants_join$user_py_code)))} rows have NA values for `user_py_code`. A person and role are required for the taxon interpretations loader table.")
@@ -251,7 +252,9 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   
   taxon_LT$user_to_code <- plants_join$user_to_code
   taxon_LT$user_py_code <- plants_join$user_py_code
+  taxon_LT$user_ti_code <- plants_join$user_ti_code
   taxon_LT$vb_pc_code <- plants_join$pc_code
+  taxon_LT$vb_ro_code <- plants_join$vb_ar_code
   taxon_LT$original_interpretation <- TRUE
   taxon_LT$current_interpretation <- TRUE
   
