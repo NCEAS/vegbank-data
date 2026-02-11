@@ -456,7 +456,7 @@ For CaCodes that map to multiple NVC codes, only the first mapping is used to pr
 The final loader table links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
 
 ```{r}
-
+community_loader(in_dir, out_dir)
 ```
 
 ## Strata, Cover, Taxonomy
