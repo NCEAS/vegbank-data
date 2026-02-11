@@ -103,13 +103,16 @@ party_contributor_loader(in_dir, out_dir)
 
 ## Disturbance
 
+### Data Sources and Merging
 Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table, which provides descriptive labels for impact codes.
 
+### Intensity Disturbance Values
 Intensity values are checked to ensure they conform to expected values (1, 2, or 3). Valid intensity codes are converted to descriptive labels: 1 becomes "Low", 2 becomes "Moderate", and 3 becomes "High". Any non-standard intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. Impact codes present in the `CodeImpact` field but missing from the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field.
 
 Disturbance age and extent are not present in the CDFW data. They are set to `NA` for all rows in the loader table.
 
-The lookup table maps specific impact types from CDFW data to standardized VegBank disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
+### Final Loader Table
+The lookup table maps (`disturbanceLT.csv`) specific impact types from CDFW data to standardized VegBank disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
 
 ```{r, echo = FALSE}
 roles <- tribble(
@@ -411,12 +414,15 @@ soil_loader(in_dir, out_dir)
 ## Community
 
 ### Data Sources and Merging
+
 Community classification data is extracted from `RAClassifications.csv` files, along with `RAPlots.csv` and `RAProjects.csv` files. These files are all merged into a single table using `ProjectCode` as the join key. Empty columns are removed.
 
 ### Standardized Classification Methods
-Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned. 
+
+Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned.
 
 ### Class Confidence
+
 Confidence values from the `Confidence_ID` field are normalized to three categories: "High", "Medium" and "Low". The function handles multiple input formats including single letters (H, M, L), full words (High, Medium, Low), and percentage values. Percentages of 75% or greater are mapped to "High", while values below 75% are mapped to "Medium". Missing value indicators are converted to NA. Any unparse-able or unexpected confidence values trigger warnings. The confidence identifiers and percentages are mapped below.
 
 ```{r}
@@ -451,15 +457,16 @@ datatable(
 ```
 
 ### Community Concept Matching
-Community concepts are downloaded from the VegBank API and cached locally. Only currently accepted concepts are used for matching. California vegetation codes (`CaCode`) from the CDFW data are matched to NVC (National Vegetation Classification) codes using a crosswalk table (`VegBank_CrosswalkHierarchyMCV.csv`). NVC codes are then matched to VegBank community concept codes (`cc_code`). 
-For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. Records without successful matches (no corresponding VegBank community concept) are flagged and exported to a separate file (`cacode-nolookup.csv`) for review. The total count of unmatched records is reported via warning message. Attached below is the matching process workflow.
 
-1. Normalize `CaCode` values (lowercase, trim whitespace)
-2. Map `CaCode` -> NVC code (via crosswalk table)
-3. Map NVC Code -> VegBank community concept code (via VegBank API data)
+Community concepts are downloaded from the VegBank API and cached locally. Only currently accepted concepts are used for matching. California vegetation codes (`CaCode`) from the CDFW data are matched to NVC (National Vegetation Classification) codes using a crosswalk table (`VegBank_CrosswalkHierarchyMCV.csv`). NVC codes are then matched to VegBank community concept codes (`cc_code`). For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. Records without successful matches (no corresponding VegBank community concept) are flagged and exported to a separate file (`cacode-nolookup.csv`) for review. The total count of unmatched records is reported via warning message. Attached below is the matching process workflow.
+
+1.  Normalize `CaCode` values (lowercase, trim whitespace)
+2.  Map `CaCode` -\> NVC code (via crosswalk table)
+3.  Map NVC Code -\> VegBank community concept code (via VegBank API data)
 
 ### Final Loader Table
-The final loader table links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
+
+The final loader table (`communityClassificationsLT.csv`) links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
 
 ```{r}
 community_loader(in_dir, out_dir)
@@ -468,10 +475,66 @@ community_loader(in_dir, out_dir)
 ## Strata, Cover, Taxonomy
 
 ### Data Sources and Merging
-Plant species data and vegetration strata are extracted from `RAPlants.csv` files, while project-level stratum methodology descriptions are from `RAProjects.csv` files. Each unique combination of `SurveyID` and stratum layer **(!!FIX!!)** creates a distinct stratum identifier (`SurveyID_Stratum`). The data is processed to create two interconnected loader tables: one for strata cover (species abundance by vegetation layer) and one for taxonomic interpretations (linking species names to standardized plant concepts). 
+
+Plant species data and vegetration strata are extracted from `RAPlants.csv` files, while project-level stratum methodology descriptions are from `RAProjects.csv` files. Each unique combination of `SurveyID` and stratum layer **(!!FIX!!)** creates a distinct stratum identifier (`SurveyID_Stratum`). The data is processed to create two interconnected loader tables: one for strata cover (species abundance by vegetation layer) and one for taxonomic interpretations (linking species names to standardized plant concepts).
 
 ### Person Assignment for Taxonomic Interpretations
-Each plant observation requires attribution to a person who made the taxonomic identification. The system...
+
+Each plant observation requires attribution to a person who made the taxonomic identification. The system prioritizes contributor roles in the following order to determine the most appropriate identifier:
+
+1.  Taxonomist
+2.  Classifier
+3.  PI
+4.  Co-PI
+5.  Author
+6.  Publication Author
+7.  Plot Author
+8.  Research Advisor
+9.  Data Manager
+10. Plot Contributor
+11. Consultant
+12. Contact
+13. System Manager
+14. Data Aggregator
+15. Computer (Automated)
+16. Field Assistant
+17. Guide
+18. Passive Observer
+19. Land Owner
+20. Not Specified/Unknown
+
+For each survey observation, the person with the highest-priority role is assigned as the taxon interpreter. This information is derived by joining plot data with contributor data through project codes.
+
+### Plant Concept Matching
+
+All plant concepts are downloaded from the VegBank API and cached locally. The matching process prioritizes USDA Plants reference lists, with preference given to the most recent version when a plant code appears in multiple lists.
+
+Plant names and codes from CDFW data are normalized using the following hierarchy:
+
+1.  If `CurrPlantsSymbol` (current USDA Plants symbol) is available, use it.
+2.  Otherwise, fall back to `CodeSpecies` (older plant code).
+3.  Similarly, `SpeciesName` takes precedence over `Species_name` for scientific names.
+
+Normalized USDA plant codes are matched to VegBank plant concept codes (`pc_code`) through the plant concept database. Records without successful matches (missing `pc_code`) are flagged via warning messages, as plant concept codes are required for VegBank ingest.
+
+### Strata Identification
+Each plant observation is assigned a unique stratum identifier by concatenating the survey ID and stratum layer **(!!FIX!!)**. This links individual plant records to their vertical position in the vegetation structure (tree layer, shrub layer, herb layer, etc.)
+
+### Strata Standardization
+Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following manual corrections are applied:
+
+```{r}
+strata_standardization <- tribble(
+  ~`Project Code`, ~`Original Stratum`, ~`Corrected Stratum`,
+  "ALCC", "nv", "non-vasc"
+)
+```
+
+### Final Loader Table
+Two loader tables are generated:
+
+1. **Strata Cover Data** (`strataCoverLT.csv`) contains species abundance information, including the plant name as recorded by the author, the cover percentage, and links to the survey observation and stratum definition.
+2. **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
 
 ```{r}
 stratacover_taxon_loader(in_dir, out_dir)
