@@ -413,6 +413,7 @@ soil_loader(in_dir, out_dir)
 ### Data Sources and Merging
 Community classification data is extracted from `RAClassifications.csv` files, along with `RAPlots.csv` and `RAProjects.csv` files. These files are all merged into a single table using `ProjectCode` as the join key. Empty columns are removed.
 
+### Standardized Classification Methods
 Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned. 
 
 ### Class Confidence
@@ -451,8 +452,13 @@ datatable(
 
 ### Community Concept Matching
 Community concepts are downloaded from the VegBank API and cached locally. Only currently accepted concepts are used for matching. California vegetation codes (`CaCode`) from the CDFW data are matched to NVC (National Vegetation Classification) codes using a crosswalk table (`VegBank_CrosswalkHierarchyMCV.csv`). NVC codes are then matched to VegBank community concept codes (`cc_code`). 
-For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. Records without successful matches (no corresponding VegBank community concept) are flagged and exported to a separate file (`cacode-nolookup.csv`) for review. The total count of unmatched records is reported via warning message.
+For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. Records without successful matches (no corresponding VegBank community concept) are flagged and exported to a separate file (`cacode-nolookup.csv`) for review. The total count of unmatched records is reported via warning message. Attached below is the matching process workflow.
 
+1. Normalize `CaCode` values (lowercase, trim whitespace)
+2. Map `CaCode` -> NVC code (via crosswalk table)
+3. Map NVC Code -> VegBank community concept code (via VegBank API data)
+
+### Final Loader Table
 The final loader table links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
 
 ```{r}
@@ -460,6 +466,12 @@ community_loader(in_dir, out_dir)
 ```
 
 ## Strata, Cover, Taxonomy
+
+### Data Sources and Merging
+Plant species data and vegetration strata are extracted from `RAPlants.csv` files, while project-level stratum methodology descriptions are from `RAProjects.csv` files. Each unique combination of `SurveyID` and stratum layer **(!!FIX!!)** creates a distinct stratum identifier (`SurveyID_Stratum`). The data is processed to create two interconnected loader tables: one for strata cover (species abundance by vegetation layer) and one for taxonomic interpretations (linking species names to standardized plant concepts). 
+
+### Person Assignment for Taxonomic Interpretations
+Each plant observation requires attribution to a person who made the taxonomic identification. The system...
 
 ```{r}
 stratacover_taxon_loader(in_dir, out_dir)

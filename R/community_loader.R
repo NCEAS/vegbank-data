@@ -294,7 +294,7 @@ load_reference_tables <- function(in_dir){
 }
 
 assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
-  
+
   cacode_map_1to1 <- cacode_map %>%
     group_by(CaCode_norm) %>%
     summarise(
