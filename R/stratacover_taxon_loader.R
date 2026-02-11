@@ -226,6 +226,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
     cli_alert_warning("Row count changed after joining plant concepts: {n0} -> {nrow(plants_join)}. This indicates duplicate plant_code values in the lookup.")
   }
   
+  n1 <- nrow(plants_join)
   plants_join <- plants_join %>%
     left_join(people, by = join_by(SurveyID)) %>% 
     mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
