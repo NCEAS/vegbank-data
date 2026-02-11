@@ -1090,6 +1090,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$longitude <- plots_merged$real_longitude
   plots_LT$real_longitude <- plots_merged$real_longitude
   plots_LT$real_latitude <- plots_merged$real_latitude
+  plots_LT$author_location <- plots_merged$Location_name 
   plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
   plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
   plots_LT$author_e <- plots_merged$UTME_final
