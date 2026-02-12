@@ -13,7 +13,7 @@ library(dplyr)
 library(stringr)
 library(readr)
 library(DT)
-#googlesheets4::gs4_auth()
+# googlesheets4::gs4_auth()
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
@@ -464,6 +464,12 @@ Community concepts are downloaded from the VegBank API and cached locally. Only 
 2.  Map `CaCode` -\> NVC code (via crosswalk table)
 3.  Map NVC Code -\> VegBank community concept code (via VegBank API data)
 
+### Community Names
+
+Each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced. 
+
+The `CommunityNames` table has two rows for each single plant present in the `CommunityConcepts` table. Between the two rows, the variables `user_cc_code`, `name_type`, and `name` will differ based on whether the row represents the scientific name or the code name.
+
 ### Final Loader Table
 
 The final loader table (`communityClassificationsLT.csv`) links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
@@ -476,32 +482,45 @@ community_loader(in_dir, out_dir)
 
 ### Data Sources and Merging
 
-Plant species data and vegetration strata are extracted from `RAPlants.csv` files, while project-level stratum methodology descriptions are from `RAProjects.csv` files. Each unique combination of `SurveyID` and stratum layer **(!!FIX!!)** creates a distinct stratum identifier (`SurveyID_Stratum`). The data is processed to create two interconnected loader tables: one for strata cover (species abundance by vegetation layer) and one for taxonomic interpretations (linking species names to standardized plant concepts).
+Plant species data and vegetration strata are extracted from `RAPlants.csv` files, while project-level stratum methodology descriptions are from `RAProjects.csv` files. Each unique combination of `SurveyID` and stratum layer (`Stratum`) creates a distinct stratum identifier (i.e., `ALCC001_Shrub`). The data is processed to create two interconnected loader tables: one for strata cover (species abundance by vegetation layer) and one for taxonomic interpretations (linking species names to standardized plant concepts).
 
 ### Person Assignment for Taxonomic Interpretations
 
-Each plant observation requires attribution to a person who made the taxonomic identification. The system prioritizes contributor roles in the following order to determine the most appropriate identifier:
+Each plant observation requires attribution to a person who made the taxonomic identification. The system prioritizes contributor roles in the following order to determine the most appropriate identifier (along with the associated AR code):
 
-1.  Taxonomist
-2.  Classifier
-3.  PI
-4.  Co-PI
-5.  Author
-6.  Publication Author
-7.  Plot Author
-8.  Research Advisor
-9.  Data Manager
-10. Plot Contributor
-11. Consultant
-12. Contact
-13. System Manager
-14. Data Aggregator
-15. Computer (Automated)
-16. Field Assistant
-17. Guide
-18. Passive Observer
-19. Land Owner
-20. Not Specified/Unknown
+```{r}
+taxonomic_identifiers <- tibble::tribble(
+    ~ar_code, ~role_name,
+    "ar.55", "Taxonomist",
+    "ar.34", "Classifier",
+    "ar.18", "PI",
+    "ar.38", "Co-PI",
+    "ar.16", "Author",
+    "ar.51", "Publication author",
+    "ar.36", "Plot author",
+    "ar.53", "Research advisor",
+    "ar.19", "Data Manager",
+    "ar.50", "Plot contributor",
+    "ar.40", "Consultant",
+    "ar.17", "Contact",
+    "ar.54", "System manager",
+    "ar.56", "Data aggregator",
+    "ar.39", "Computer (automated)",
+    "ar.43", "Field assistant",
+    "ar.44", "Guide",
+    "ar.48", "Passive observer",
+    "ar.45", "Land owner",
+    "ar.46", "Not specified",
+    "ar.47", "Not specified/Unknown"
+  )
+
+datatable(
+  taxonomic_identifiers,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+)
+```
 
 For each survey observation, the person with the highest-priority role is assigned as the taxon interpreter. This information is derived by joining plot data with contributor data through project codes.
 
@@ -518,7 +537,7 @@ Plant names and codes from CDFW data are normalized using the following hierarch
 Normalized USDA plant codes are matched to VegBank plant concept codes (`pc_code`) through the plant concept database. Records without successful matches (missing `pc_code`) are flagged via warning messages, as plant concept codes are required for VegBank ingest.
 
 ### Strata Identification
-Each plant observation is assigned a unique stratum identifier by concatenating the survey ID and stratum layer **(!!FIX!!)**. This links individual plant records to their vertical position in the vegetation structure (tree layer, shrub layer, herb layer, etc.)
+Each plant observation is assigned a unique stratum identifier by concatenating the survey ID (`SurveyID`) and stratum layer (`Stratum`). This links individual plant records to their vertical position in the vegetation structure (tree layer, shrub layer, herb layer, etc.)
 
 ### Strata Standardization
 Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following manual corrections are applied:
@@ -526,14 +545,27 @@ Stratum names are normalized to lowercase and corrected based on project-specifi
 ```{r}
 strata_standardization <- tribble(
   ~`Project Code`, ~`Original Stratum`, ~`Corrected Stratum`,
-  "ALCC", "nv", "non-vasc"
+  "ALCC", "nv", "non-vasc",
+  "ALCC-GR", "nv", "non-vasc",
+  "SCRUZ", "shrubs", "shrub",
+  "SLAV", "shrubs", "shrub",
+  "SLAV", "shrutb", "shrub",
+  "SLAV", "shsrub", "shrub"
+)
+
+datatable(
+  strata_standardization,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
 )
 ```
 
 ### Final Loader Table
-Two loader tables are generated:
+Three loader tables are generated:
 
-1. **Strata Cover Data** (`strataCoverLT.csv`) contains species abundance information, including the plant name as recorded by the author, the cover percentage, and links to the survey observation and stratum definition.
+1. **Strata Cover Data** (`strataCoverLT.csv`) contains species abundance information, including the plant name as recorded by the author and the cover percentage. 
+2. **Strata Definitions Data** (`strataDefinitionsLT.csv`) links to the survey observation and stratum definition.
 2. **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
 
 ```{r}
