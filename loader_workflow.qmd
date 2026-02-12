@@ -464,6 +464,12 @@ Community concepts are downloaded from the VegBank API and cached locally. Only 
 2.  Map `CaCode` -\> NVC code (via crosswalk table)
 3.  Map NVC Code -\> VegBank community concept code (via VegBank API data)
 
+### Community Names
+
+Each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced. 
+
+The `CommunityNames` table has two rows for each single plant present in the `CommunityConcepts` table. Between the two rows, the variables `user_cc_code`, `name_type`, and `name` will differ based on whether the row represents the scientific name or the code name.
+
 ### Final Loader Table
 
 The final loader table (`communityClassificationsLT.csv`) links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
@@ -483,7 +489,7 @@ Plant species data and vegetration strata are extracted from `RAPlants.csv` file
 Each plant observation requires attribution to a person who made the taxonomic identification. The system prioritizes contributor roles in the following order to determine the most appropriate identifier (along with the associated AR code):
 
 ```{r}
-roles <- tibble::tribble(
+taxonomic_identifiers <- tibble::tribble(
     ~ar_code, ~role_name,
     "ar.55", "Taxonomist",
     "ar.34", "Classifier",
@@ -509,7 +515,7 @@ roles <- tibble::tribble(
   )
 
 datatable(
-  roles,
+  taxonomic_identifiers,
   rownames = FALSE,
   filter = "top",
   options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
