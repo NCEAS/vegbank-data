@@ -199,7 +199,9 @@ crs_lookup <- tribble(
 datatable(
   crs_lookup,
   rownames = FALSE,
-  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE)
+  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE,
+                 columnDefs = list(list(className = 'dt-center',
+                                        targets = '_all')))
 )
 ```
 
@@ -464,11 +466,46 @@ Community concepts are downloaded from the VegBank API and cached locally. Only 
 2.  Map `CaCode` -\> NVC code (via crosswalk table)
 3.  Map NVC Code -\> VegBank community concept code (via VegBank API data)
 
-### Community Names
-
-Each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced. 
+Additionally, each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced. 
 
 The `CommunityNames` table has two rows for each single plant present in the `CommunityConcepts` table. Between the two rows, the variables `user_cc_code`, `name_type`, and `name` will differ based on whether the row represents the scientific name or the code name.
+
+Here is a table that shows an example of what the data would look like within `CommunityNames`, based on one example entry.
+
+```{r}
+community_names <- tribble(
+  ~user_cc_code, ~name, ~user_rf_code, ~user_status_rf_code, ~comm_concept_status,
+  ~user_parent_cc_code, ~comm_level, ~start_date, ~vb_status_py_code,
+  "21.100.00", "Abronia latifolia – Ambrosia chamissonis", "MVC 2019", "MVC 2019",
+  "accepted", "NA", "association", "2019-01-01", "py.512"
+)
+
+datatable(
+  community_names,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+)
+```
+
+Here is a table that shows an example of what the data would look like within `CommunityConcepts`, corresponding to the example entry shown from `CommunityNames`. The first row represents the scientific name, with the following row representing the code name.
+
+```{r}
+# Community Concepts Table
+community_concepts <- tribble(
+  ~user_cc_code, ~name_type, ~name, ~name_status, ~usage_start, ~vb_usage_py_code,
+  "21.100.00", "Scientific", "Abronia latifolia – Ambrosia chamissonis",
+  "Standard", "2019-01-01", "py.512",
+  "21.100.00", "Code", "21.100.00", "Standard", "2019-01-01", "py.512"
+)
+
+datatable(
+  community_concepts,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+)
+```
 
 ### Final Loader Table
 
