@@ -320,8 +320,8 @@ assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
     left_join(cacode_map_1to1 %>% select(CaCode_norm, NVC_norm), by = "CaCode_norm") %>%
     mutate(comm_code_norm = NVC_norm) %>%
     left_join(cc_lookup, by = "comm_code_norm") %>%
-    mutate(vb_cc_code = cc_code) %>% 
-    filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$"))
+    mutate(vb_cc_code = cc_code) #%>% 
+    #filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$"))
   
   
   # warn if lots of NAs
