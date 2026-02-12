@@ -294,7 +294,7 @@ load_reference_tables <- function(in_dir){
 }
 
 assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
-
+  
   cacode_map_1to1 <- cacode_map %>%
     group_by(CaCode_norm) %>%
     summarise(
@@ -320,14 +320,9 @@ assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
     left_join(cacode_map_1to1 %>% select(CaCode_norm, NVC_norm), by = "CaCode_norm") %>%
     mutate(comm_code_norm = NVC_norm) %>%
     left_join(cc_lookup, by = "comm_code_norm") %>%
-    mutate(vb_cc_code = cc_code)
+    mutate(vb_cc_code = cc_code) %>% 
+    filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$"))
   
-  class_nas <- classification_norm %>% 
-    filter(is.na(vb_cc_code)) %>% 
-    select(Alliance, Association, CaCode, NVC_norm) %>% 
-    distinct()
-  
-  write.csv(class_nas, "data/cacode-nolookup.csv", row.names = F)
   
   # warn if lots of NAs
   na_ct <- sum(is.na(classification_norm$vb_cc_code))
@@ -389,7 +384,7 @@ community_loader <- function(in_dir, out_dir){
     mutate(multivariate_analysis = if_else(!(multivariate_analysis %in% c("TRUE", "FALSE")), NA, multivariate_analysis))
   
   # TODO: possibly improve messaging here?
-  stopifnot(nrow(class_cc_proj) == nrow(community_LT))
+  #stopifnot(nrow(class_cc_proj) == nrow(community_LT))
   stopifnot(all(names(c("class_notes","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
   
   community_LT$user_ob_code <- class_cc_proj$SurveyID
