@@ -13,7 +13,7 @@ library(dplyr)
 library(stringr)
 library(readr)
 library(DT)
-#googlesheets4::gs4_auth()
+# googlesheets4::gs4_auth()
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
