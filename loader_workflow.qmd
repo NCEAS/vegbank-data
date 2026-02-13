@@ -104,14 +104,17 @@ party_contributor_loader(in_dir, out_dir)
 ## Disturbance
 
 ### Data Sources and Merging
+
 Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table, which provides descriptive labels for impact codes.
 
 ### Intensity Disturbance Values
+
 Intensity values are checked to ensure they conform to expected values (1, 2, or 3). Valid intensity codes are converted to descriptive labels: 1 becomes "Low", 2 becomes "Moderate", and 3 becomes "High". Any non-standard intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. Impact codes present in the `CodeImpact` field but missing from the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field.
 
 Disturbance age and extent are not present in the CDFW data. They are set to `NA` for all rows in the loader table.
 
 ### Final Loader Table
+
 The lookup table maps (`disturbanceLT.csv`) specific impact types from CDFW data to standardized VegBank disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
 
 ```{r, echo = FALSE}
@@ -466,7 +469,7 @@ Community concepts are downloaded from the VegBank API and cached locally. Only 
 2.  Map `CaCode` -\> NVC code (via crosswalk table)
 3.  Map NVC Code -\> VegBank community concept code (via VegBank API data)
 
-Additionally, each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced. 
+Additionally, each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced.
 
 The `CommunityNames` table has two rows for each single plant present in the `CommunityConcepts` table. Between the two rows, the variables `user_cc_code`, `name_type`, and `name` will differ based on whether the row represents the scientific name or the code name.
 
@@ -574,9 +577,11 @@ Plant names and codes from CDFW data are normalized using the following hierarch
 Normalized USDA plant codes are matched to VegBank plant concept codes (`pc_code`) through the plant concept database. Records without successful matches (missing `pc_code`) are flagged via warning messages, as plant concept codes are required for VegBank ingest.
 
 ### Strata Identification
+
 Each plant observation is assigned a unique stratum identifier by concatenating the survey ID (`SurveyID`) and stratum layer (`Stratum`). This links individual plant records to their vertical position in the vegetation structure (tree layer, shrub layer, herb layer, etc.)
 
 ### Strata Standardization
+
 Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following manual corrections are applied:
 
 ```{r}
@@ -599,11 +604,12 @@ datatable(
 ```
 
 ### Final Loader Table
+
 Three loader tables are generated:
 
-1. **Strata Cover Data** (`strataCoverLT.csv`) contains species abundance information, including the plant name as recorded by the author and the cover percentage. 
-2. **Strata Definitions Data** (`strataDefinitionsLT.csv`) links to the survey observation and stratum definition.
-2. **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
+1.  **Strata Cover Data** (`strataCoverLT.csv`) contains species abundance information, including the plant name as recorded by the author and the cover percentage.
+2.  **Strata Definitions Data** (`strataDefinitionsLT.csv`) links to the survey observation and stratum definition.
+3.  **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
 
 ```{r}
 stratacover_taxon_loader(in_dir, out_dir)

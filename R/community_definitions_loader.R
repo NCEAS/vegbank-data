@@ -122,9 +122,66 @@ build_community_concepts <- function(mcv) {
 #$ usage_start      <date> 2019-01-01 same for all rows
 #$ vb_usage_py_code <chr> "py.512" (same for all rows)
 
+build_community_names <- function(comm_concepts) {
+  
+  required_cols <- c("user_cc_code", "name")
+  missing_cols <- setdiff(required_cols, names(comm_concepts))
+  if (length(missing_cols) > 0) {
+    cli_abort("comm_concepts is missing required columns: {paste(missing_cols, collapse = ', ')}")
+  }
+  
+  # row 1: Scientific name
+  comm_names_scientific <- comm_concepts %>%
+    transmute(
+      user_cc_code     = user_cc_code,
+      name_type        = "Scientific",
+      name             = name,
+      name_status      = "Standard",
+      usage_start      = as.Date("2019-01-01"),
+      vb_usage_py_code = "py.512"
+    )
+  
+  # row 2: Code
+  comm_names_code <- comm_concepts %>%
+    transmute(
+      user_cc_code     = user_cc_code,
+      name_type        = "Code",
+      name             = user_cc_code,
+      name_status      = "Standard",
+      usage_start      = as.Date("2019-01-01"),
+      vb_usage_py_code = "py.512"
+    )
+  
+  comm_names <- bind_rows(comm_names_scientific, comm_names_code)
+  
+  if (any(is.na(comm_names$user_cc_code) | comm_names$user_cc_code == "")) {
+    cli_abort("CommunityNames has missing/blank user_cc_code values.")
+  }
+  
+  missing_scientific <- comm_names_scientific %>%
+    filter(is.na(name) | name == "") %>%
+    distinct(user_cc_code) %>%
+    pull(user_cc_code)
+  
+  if (length(missing_scientific) > 0) {
+    cli_alert_warning(
+      "Some CommunityNames scientific rows have missing names ({length(missing_scientific)} concepts)."
+    )
+    cli_ul(head(missing_scientific, 10))
+  }
+  
+  expected <- 2 * nrow(comm_concepts)
+  if (nrow(comm_names) != expected) {
+    cli_alert_warning("CommunityNames row count is not 2x CommunityConcepts ({nrow(comm_names)} vs {expected}).")
+  }
+  
+  return(comm_names)
+}
+
 community_definitions_loader <- function(in_dir, out_dir){
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
   comm_concepts <- build_community_concepts(mcv)
+  comm_names <- build_community_names(comm_concepts)
 }
 
