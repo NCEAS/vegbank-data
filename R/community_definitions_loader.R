@@ -39,6 +39,44 @@ load_community_def_files <- function(in_dir) {
   return(mcv)
 }
 
+load_classification_cacodes <- function(in_dir) {
+  
+  sub_folders <- dir(in_dir, full.names = TRUE) %>%
+    grep(pattern = "data", value = TRUE)
+  
+  classification_files <- dir(sub_folders, full.names = TRUE) %>%
+    grep(pattern = "RAClassification.csv", value = TRUE)
+  
+  if (length(classification_files) == 0) {
+    cli_abort("No RAClassification.csv files found under {in_dir}.")
+  }
+  
+  class_df_list <- lapply(
+    classification_files,
+    read_csv,
+    progress = FALSE,
+    show_col_types = FALSE,
+    guess_max = 20000
+  )
+  classification <- bind_rows(class_df_list)
+  
+  if (!("CaCode" %in% names(classification))) {
+    cli_abort("Expected column `CaCode` not found in RAClassification.csv data.")
+  }
+  
+  cacodes <- classification %>%
+    transmute(CaCode = str_squish(as.character(CaCode))) %>%
+    filter(!is.na(CaCode), CaCode != "") %>%
+    distinct() %>%
+    pull(CaCode)
+  
+  if (length(cacodes) == 0) {
+    cli_abort("No non-empty CaCode values found in RAClassification.csv data.")
+  }
+  
+  return(cacodes)
+}
+
 # comm_level
 normalize_comm_level <- function(mcv) {
   
@@ -181,7 +219,7 @@ build_community_names <- function(comm_concepts) {
 community_definitions_loader <- function(in_dir, out_dir){
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
+  cacodes <- load_classification_cacodes(in_dir)
   comm_concepts <- build_community_concepts(mcv)
   comm_names <- build_community_names(comm_concepts)
 }
-
