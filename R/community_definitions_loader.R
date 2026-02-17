@@ -32,8 +32,8 @@ load_community_def_files <- function(in_dir) {
   alliance <- read_csv(alliance_path, show_col_types = FALSE, progress = FALSE)
   association <- read_csv(association_path, show_col_types = FALSE, progress = FALSE)
   
-  mcv <- bind_rows(alliance, association) %>% 
-    mutate(name = if_else(is.na(Alliance), Association, Alliance)) %>% 
+  mcv <- bind_rows(alliance, association) %>%
+    mutate(name = coalesce(Alliance, Association)) %>%
     select(-Alliance, -Association)
   
   return(mcv)
@@ -42,7 +42,7 @@ load_community_def_files <- function(in_dir) {
 load_classification_cacodes <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "data", value = TRUE)
+    grep(pattern = "VegBankProject", value = TRUE)
   
   classification_files <- dir(sub_folders, full.names = TRUE) %>%
     grep(pattern = "RAClassification.csv", value = TRUE)
@@ -114,6 +114,26 @@ normalize_comm_level <- function(mcv) {
   return(mcv)
 }
 
+filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
+  
+  before_n <- nrow(mcv)
+  
+  cacodes_in_data <- str_squish(as.character(cacodes_in_data))
+  
+  mcv_f <- mcv %>%
+    mutate(CaCode = str_squish(as.character(CaCode))) %>%
+    filter(CaCode %in% cacodes_in_data)
+  
+  after_n <- nrow(mcv_f)
+  
+  if (after_n == 0) {
+    cli_abort("After filtering to CaCodes in RAClassification, 0 rows remain in MCV data. Check that CaCode formats match.")
+  }
+  
+  cli_alert_info("Filtered MCV rows: {before_n} -> {after_n} (kept CaCodes present in RAClassification).")
+  
+  return(mcv_f)
+}
 
 build_community_concepts <- function(mcv) {
   
@@ -217,9 +237,31 @@ build_community_names <- function(comm_concepts) {
 }
 
 community_definitions_loader <- function(in_dir, out_dir){
+  cacodes <- load_classification_cacodes(in_dir)
+  
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
-  cacodes <- load_classification_cacodes(in_dir)
+  mcv <- filter_mcv_to_classification(mcv, cacodes)
+
   comm_concepts <- build_community_concepts(mcv)
   comm_names <- build_community_names(comm_concepts)
+  
+  if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+  
+  out_path_concepts <- file.path(out_dir, "communityConceptsLT.csv")
+  out_path_names    <- file.path(out_dir, "communityNamesLT.csv")
+  
+  cli_alert_success("Writing two output files to:")
+  cli_ul(c(out_path_concepts, out_path_names))
+  
+  write_csv(comm_concepts, out_path_concepts)
+  write_csv(comm_names, out_path_names)
+  
+  invisible(list(comm_concepts = comm_concepts, comm_names = comm_names))
 }
+
+in_dir <- '/var/data/curation/vegbank/'
+out_dir <- 'data/loader-tables'
+
+community_definitions_loader(in_dir, out_dir)
+
