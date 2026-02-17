@@ -476,18 +476,39 @@ The `CommunityNames` table has two rows for each single plant present in the `Co
 Here is a table that shows an example of what the data would look like within `CommunityNames`, based on one example entry.
 
 ```{r}
-community_names <- tribble(
-  ~user_cc_code, ~name, ~user_rf_code, ~user_status_rf_code, ~comm_concept_status,
-  ~user_parent_cc_code, ~comm_level, ~start_date, ~vb_status_py_code,
-  "21.100.00", "Abronia latifolia – Ambrosia chamissonis", "MVC 2019", "MVC 2019",
-  "accepted", "NA", "association", "2019-01-01", "py.512"
-)
+# CommunityNames Table
+# Load Community Loader
+community_loader(in_dir, out_dir)
 
+# Load Reference Table
+refs <- load_reference_tables(in_dir)
+
+# Extract cacode_map from Reference Table
+cacode_map <- refs$cacode_map
+
+# Find duplicate cacode
+dup <- cacode_map %>% 
+  count(CaCode_norm) %>% 
+  filter(n > 1)
+
+duplicate_mappings <- cacode_map %>% 
+  filter(CaCode_norm %in% dup$CaCode_norm) %>% 
+  select(CaCode, CaCode_norm, `2009/NVC_Code`, NVC_norm, ScientificName) %>% 
+  arrange(CaCode_norm)
+
+# Display CommunityNames Table
 datatable(
-  community_names,
+  duplicate_mappings, 
   rownames = FALSE,
   filter = "top",
-  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  options = list(
+    pageLength = 25,
+    autoWidth = TRUE,
+    columnDefs = list(
+      list(className = 'dt-left', targets = c(0, 4)),
+      list(className = 'dt-center', targets = c(1, 2, 3))
+    )
+  )
 )
 ```
 
@@ -495,19 +516,7 @@ Here is a table that shows an example of what the data would look like within `C
 
 ```{r}
 # Community Concepts Table
-community_concepts <- tribble(
-  ~user_cc_code, ~name_type, ~name, ~name_status, ~usage_start, ~vb_usage_py_code,
-  "21.100.00", "Scientific", "Abronia latifolia – Ambrosia chamissonis",
-  "Standard", "2019-01-01", "py.512",
-  "21.100.00", "Code", "21.100.00", "Standard", "2019-01-01", "py.512"
-)
 
-datatable(
-  community_concepts,
-  rownames = FALSE,
-  filter = "top",
-  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
-)
 ```
 
 ### Final Loader Table
