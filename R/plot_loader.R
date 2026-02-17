@@ -1129,6 +1129,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_LT$growthform_1_type <- plots_merged$growthform1Type
   plots_LT$growthform_2_type <- plots_merged$growthform2Type
   plots_LT$total_cover <- plots_merged$Veg_cover
+  plots_LT$percent_bedrock <- plots_merged$Bedrock
   
   plots_LT <- plots_LT %>% 
     select(-user_parent_pl_code, -vb_prev_ob_code)
