@@ -2,8 +2,10 @@
 title: "Loader Table Workflow"
 format:
   html:
-    output-dir: docs
-editor: visual
+    output-dir: ./docs
+    toc: true
+    number-sections: true
+    css: style.css
 ---
 
 ## Introduction
@@ -15,37 +17,44 @@ library(dplyr)
 library(stringr)
 library(readr)
 library(DT)
+library(downloadthis)
 # googlesheets4::gs4_auth()
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
-file_path <- "R"
+file_path <- "../R"
 r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
 invisible(lapply(r_scripts_source, source))
 ```
 
 ```{r}
 in_dir <- '/var/data/curation/vegbank/'
-out_dir <- 'data/loader-tables'
+out_dir <- '../data/loader-tables'
 ```
 
 ## Projects
+
+```{r}
+#| classes: styled-output
+project_loader(in_dir, out_dir)
+```
 
 Project loader table data is extracted from `RAProjects` files.
 
 The project start and stop dates are converted from date-time formats to date formats (dropping the time). Date values are checked to ensure they are reasonable.
 
-```{r}
-project_loader(in_dir, out_dir)
-```
-
 ## Party and Contributor
+
+```{r}
+#| classes: styled-output
+party_contributor_loader(in_dir, out_dir)
+```
 
 The two loader tables for Party and Contributor are both extracted from `RAProjects` files.
 
 The source data is normalized, moving from wide to long format so that each individual in `DataContact*{n}` columns is in their own row. Emails are checked to ensure they appear valid. Names are then split using whitespace into `given_name`, `middle_name`, and `sur_name`. Unique party codes are generated for each individual (`user_py_code`). Additionally, all unique individuals already in vegbank are retrieved, along with their project codes. Individuals in the source data are matched to existing vegbank parties, and if any are found the existing vegbank identifier is assigned to `vb_py_code`.
 
-`role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. These values are standardized and mapped to VegBank role codes using a lookup table. The full mapping used in this process is shown below for transparency and review. If no role is found in the source data, the code ar.46 is assigned. The contributor_type field is given a value of "Project" for all rows.
+`role` (a vegbank code starting with `ar.`) is derived from the `DataContactRole{n}` columns, which are free text. These values are standardized and mapped to VegBank role codes using a lookup table. The full mapping used in this process is shown below for transparency and review. If no role is found in the source data, the code ar.46 is assigned. The `contributor_type` field is given a value of "Project" for all rows.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # This is the VegBank role code reference (same as in party_contributor_loader)
@@ -93,34 +102,39 @@ datatable(
   rownames = FALSE,
   filter = "top",
   options = list(
-    pageLength = 25,
-    autoWidth = TRUE,
-    scrollX = TRUE
+    pageLength = 10
 ))
-```
 
-```{r}
-party_contributor_loader(in_dir, out_dir)
+role_map_final %>% 
+downloadthis::download_this(
+  path = "cdfw_role_mappings.csv",
+  output_name = "role_map",
+  button_label = "Download Role Mappings as CSV",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download"
+)
 ```
 
 ## Disturbance
+
+```{r}
+#| classes: styled-output
+disturbance_loader(in_dir, out_dir)
+```
 
 ### Data Sources and Merging
 
 Disturbance data is extracted from `RAImpacts.csv` files, as well as the `LImpacts.csv` lookup table, which provides descriptive labels for impact codes.
 
-### Intensity Disturbance Values
-
 Intensity values are checked to ensure they conform to expected values (1, 2, or 3). Valid intensity codes are converted to descriptive labels: 1 becomes "Low", 2 becomes "Moderate", and 3 becomes "High". Any non-standard intensity values are left as `NA`. Unknown values in the `CodeImpact` field not present in the impacts lookup table are identified. Impact codes present in the `CodeImpact` field but missing from the impacts lookup table are identified. These values are converted to `NA` in the `disturbance_type` field.
 
 Disturbance age and extent are not present in the CDFW data. They are set to `NA` for all rows in the loader table.
 
-### Final Loader Table
-
-The lookup table maps (`disturbanceLT.csv`) specific impact types from CDFW data to standardized VegBank disturbance categories. Detailed impact descriptions (i.e., "Development", "ORV activity", "Grazing", etc.) are converted into broader, standardized categories (i.e., "Human, general", "Roads and vehicular traffic", etc.) The full mapping used in this process is shown below for transparency and review.
+The table below maps specific impact types from CDFW data to standardized VegBank disturbance categories.
 
 ```{r, echo = FALSE}
-roles <- tribble(
+dist <- tribble(
   ~`CDFW Impact Type`,                        ~vegbank_disturbance,
     "Development",                            "Human, general",
     "ORV activity",                           "Roads and vehicular traffic",
@@ -164,15 +178,30 @@ roles <- tribble(
 )
 
 datatable(
-  roles,
+  dist,
   rownames = FALSE,
   filter = "top",
   options = list(
     pageLength = 25
 ))
+
+dist %>% 
+downloadthis::download_this(
+  path = "cdfw_disturbance_mappings.csv",
+  output_name = "disturbance_map",
+  button_label = "Download Disturbance Mappings as CSV",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download"
+)
 ```
 
 ## Plots
+
+```{r}
+#| classes: styled-output
+plots_loader(in_dir, out_dir)
+```
 
 ### Data Sources and Initial Merging
 
@@ -183,8 +212,6 @@ Survey dates are converted to Date format, and validation checks ensure dates fa
 ### Coordinate Standardization and Location Assignment
 
 GPS datum values are standardized. EPSG codes are assigned based on the combination of datum and UTM zone. UTM coordinates are converted to latitude/longitude using the appropriate coordinate reference system (CRS) for each plot.
-
-State and county assignments are determined by spatially joining plot coordinates with US state and county boundaries from the TIGRIS package. Plots with missing location information trigger warning messages, and manual corrections are applied for specific known locations.
 
 Here are the CRS Assignment Rules:
 
@@ -226,32 +253,19 @@ Slope aspect values are standardized, with flat locations coded as **`-1`** and 
 
 Rock and gravel cover is computed by summing percent cover values from the `Boulders`, `Stones`, `Cobbles`, and `Gravels` fields after treating `999` as missing. Values above 100 trigger warning messages.
 
-```{r, echo=FALSE}
-rock_gravel_rules <- tribble(
-  ~source_fields, ~missing_rule, ~derived_field, ~derivation,
-  "Boulders, Stones, Cobbles, Gravels", "999 → NA", "percentRockGravel", "row sum of the four fields (na.rm=TRUE); warn if >100"
-)
-
-datatable(
-  rock_gravel_rules,
-  rownames = FALSE,
-  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE)
-)
-```
-
 ### Vegetation Height Classes
 
-Height class fields for conifer, hardwood, shrub, and herbaceous vegetation are converted to numeric values by taking midpoints of ranges (e.g., `2–5 m → 3.5`). Less-than ranges (e.g., `<0.5 m`) are converted using a midpoint assumption (half of the threshold value), and "Not recorded" / "Not present" are treated as missing. Values that cannot be parsed trigger warning messages.
+Height class fields for conifer, hardwood, shrub, and herbaceous vegetation are converted to numeric values by taking midpoints of ranges (e.g., `2–5 m - 3.5`). Less-than ranges (e.g., `<0.5 m`) are converted using a midpoint assumption (half of the threshold value), and "Not recorded" / "Not present" are treated as missing. Values that cannot be parsed trigger warning messages.
 
-This doesn't hardcode every possible value, it just shows representative examples of the transformation rules.
+The table below shows representative examples of the transformation rules.
 
 ```{r, echo=FALSE}
 height_examples <- tribble(
   ~example_input, ~rule, ~numeric_output,
   "2-5 m", "midpoint of range", 3.5,
   "0.5-1 m", "midpoint of range", 0.75,
-  "<0.5 m", "less-than midpoint rule (half)", 0.25,
-  ">50 m", "greater-than rule (keep value or placeholder)", NA_real_,
+  "<0.5 m", "midpoint of range assuming 0 as low end", 0.25,
+  ">50 m", "higher than 50 m", 55,
   "Not recorded", "missing token → NA", NA_real_,
   "Not present", "missing token → NA", NA_real_
 )
@@ -355,64 +369,23 @@ datatable(
   options = list(
     pageLength = 25
 ))
-```
 
-### Loader Table Field Mapping
-
-The table below shows how processed plot fields are mapped into the VegBank PlotObservations loader table.
-
-```{r, echo=FALSE}
-plot_lt_mapping <- tribble(
-  ~loader_field, ~source_field,
-  "user_ob_code", "SurveyID",
-  "user_pl_code", "Stand_ID",
-  "author_plot_code", "Stand_ID",
-  "latitude", "real_latitude",
-  "longitude", "real_longitude",
-  "location_accuracy", "ErrorMeasurement",
-  "confidentiality_status", "ConfidentialityStatus",
-  "author_e", "UTME_final",
-  "author_n", "UTMN_final",
-  "author_zone", "UTM_zone",
-  "author_datum", "author_datum",
-  "author_location", "SiteLocation",
-  "azimuth", "W_Axis_Bearing",
-  "shape", "PlotShape",
-  "area", "PlotArea",
-  "stand_size", "Stand_Size",
-  "elevation", "Elevation",
-  "slope_aspect", "Aspect_actual",
-  "slope_gradient", "slope",
-  "topo_position", "topo_position",
-  "rock_type", "Substrate",
-  "user_pj_code", "ProjectCode",
-  "obs_start_date", "SurveyDate",
-  "method_narrative", "methodNarrative",
-  "tree_ht", "treeHt",
-  "shrub_ht", "Shrub_ht22",
-  "field_ht", "Herb_ht22",
-  "tree_cover", "treeCover",
-  "shrub_cover", "Shrub_cover",
-  "field_cover", "Herb_cover",
-  "growthform_1_type", "growthform1Type",
-  "growthform_2_type", "growthform2Type",
-  "growthform_1_cover", "growthform1Cover",
-  "growthform_2_cover", "growthform2Cover"
-)
-
-datatable(
-  plot_lt_mapping,
-  rownames = FALSE,
-  filter = "top",
-  options = list(pageLength = 25)
-)
-```
-
-```{r}
-plots_loader(in_dir, out_dir)
+lookup_plot_position %>% 
+downloadthis::download_this(
+  path = "cdfw_plot_position_mappings.csv",
+  output_name = "plot_position_map",
+  button_label = "Download Plot Position Mappings as CSV",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 
 ## Community
+
+```{r}
+#| classes: styled-output
+community_loader(in_dir, out_dir)
+```
 
 ### Data Sources and Merging
 
@@ -422,59 +395,38 @@ Community classification data is extracted from `RAClassifications.csv` files, a
 
 Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned.
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260202.csv")) %>% 
+  rename(vegbank_method = technique)
+
+DT::datatable(method_lookup,
+              rownames = FALSE,
+              filter = "top",
+              options = list(
+                pageLength = 25
+              ))
+
+method_lookup %>% 
+downloadthis::download_this(
+  path = "cdfw_method_lookup_mappings.csv",
+  output_name = "method_lookup_map",
+  button_label = "Download Method Lookup Mappings as CSV",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
+```
+
 ### Class Confidence
 
 Confidence values from the `Confidence_ID` field are normalized to three categories: "High", "Medium" and "Low". The function handles multiple input formats including single letters (H, M, L), full words (High, Medium, Low), and percentage values. Percentages of 75% or greater are mapped to "High", while values below 75% are mapped to "Medium". Missing value indicators are converted to NA. Any unparse-able or unexpected confidence values trigger warnings. The confidence identifiers and percentages are mapped below.
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-class_confidence <- tribble(
-  ~`Confidence Letter`, ~`Confidence Class`,
-  "H", "High",
-  "M", "Medium",
-  "L", "Low"
-)
-
-datatable(
-  class_confidence,
-  rownames = FALSE,
-  filter = "top",
-  options = list(pageLength = 25)
-)
-```
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-percentage_confidence <- tribble(
-  ~`Confidence Percentage`, ~`Confidence Class`,
-  ">= 75%", "High",
-  "< 75%", "Medium"
-)
-
-datatable(
-  percentage_confidence,
-  rownames = FALSE,
-  filter = "top",
-  options = list(pageLength = 25)
-)
-```
-
 ### Community Concept Matching
 
-Community concepts are downloaded from the VegBank API and cached locally. Only currently accepted concepts are used for matching. California vegetation codes (`CaCode`) from the CDFW data are matched to NVC (National Vegetation Classification) codes using a crosswalk table (`VegBank_CrosswalkHierarchyMCV.csv`). NVC codes are then matched to VegBank community concept codes (`cc_code`). For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. Records without successful matches (no corresponding VegBank community concept) are flagged and exported to a separate file (`cacode-nolookup.csv`) for review. The total count of unmatched records is reported via warning message. Attached below is the matching process workflow.
+Community concepts are downloaded from the VegBank API and cached locally. Only currently accepted concepts are used for matching. California vegetation codes (`CaCode`) from the CDFW data are matched to NVC (National Vegetation Classification) codes using a crosswalk table (`VegBank_CrosswalkHierarchyMCV.csv`). NVC codes are then matched to VegBank community concept codes (`cc_code`). For CaCodes that map to multiple NVC codes, only the first mapping is used to prevent row duplication, although a warning is issued. The total count of unmatched records is reported via warning message. Attached below is the matching process workflow.
 
-1.  Normalize `CaCode` values (lowercase, trim whitespace)
-2.  Map `CaCode` -\> NVC code (via crosswalk table)
-3.  Map NVC Code -\> VegBank community concept code (via VegBank API data)
-
-Additionally, each community concept in VegBank requires two names to be fully documented: a scientific name and a code. This dual naming system ensures communities can be referenced.
-
-The `CommunityNames` table has two rows for each single plant present in the `CommunityConcepts` table. Between the two rows, the variables `user_cc_code`, `name_type`, and `name` will differ based on whether the row represents the scientific name or the code name.
-
-Here is a table that shows an example of what the data would look like within `CommunityNames`, based on one example entry.
+Duplicated CaCode from the `VegBank_CrosswalkHierarchyMCV.csv` file are shown below.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# CommunityNames Table
-# Load Community Loader
-community_loader(in_dir, out_dir)
 
 # Load Reference Table
 refs <- load_reference_tables(in_dir)
@@ -506,24 +458,28 @@ datatable(
     )
   )
 )
-```
 
-Here is a table that shows an example of what the data would look like within `CommunityConcepts`, corresponding to the example entry shown from `CommunityNames`. The first row represents the scientific name, with the following row representing the code name.
-
-```{r}
-# Community Concepts Table
-
-```
-
-### Final Loader Table
-
-The final loader table (`communityClassificationsLT.csv`) links each survey observation to its community classification, confidence level, classification methods used, and corresponding VegBank community concept code.
-
-```{r}
-community_loader(in_dir, out_dir)
+duplicate_mappings %>% 
+downloadthis::download_this(
+  path = "cdfw_cacode_duplicate_mapings.csv",
+  output_name = "cacaode_duplicates",
+  button_label = "Download Duplicated CaCode Mappings as CSV",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 
 ## Strata, Cover, Taxonomy
+
+```{r}
+#| classes: styled-output
+stratacover_taxon_loader(in_dir, out_dir)
+```
+
+```{r}
+#| classes: styled-output
+stratadefinitions_loader(in_dir, out_dir)
+```
 
 ### Data Sources and Merging
 
@@ -531,7 +487,7 @@ Plant species data and vegetration strata are extracted from `RAPlants.csv` file
 
 ### Person Assignment for Taxonomic Interpretations
 
-Each plant observation requires attribution to a person who made the taxonomic identification. The system prioritizes contributor roles in the following order to determine the most appropriate identifier (along with the associated AR code):
+Each plant observation requires attribution to a person who made the taxonomic identification. To assign a person, all people listed under the project are joined to an observation. Then, the person who seems most likely to have made the classification according to their listed role is assigned to the record, and other personnel are dropped. The system prioritizes contributor roles in the following order to determine the most appropriate person (along with the associated AR code):
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 taxonomic_identifiers <- tibble::tribble(
@@ -567,27 +523,33 @@ datatable(
 )
 ```
 
-For each survey observation, the person with the highest-priority role is assigned as the taxon interpreter. This information is derived by joining plot data with contributor data through project codes.
-
 ### Plant Concept Matching
 
 All plant concepts are downloaded from the VegBank API and cached locally. The matching process prioritizes USDA Plants reference lists, with preference given to the most recent version when a plant code appears in multiple lists.
 
-Plant names and codes from CDFW data are normalized using the following hierarchy:
-
-1.  If `CurrPlantsSymbol` (current USDA Plants symbol) is available, use it.
-2.  Otherwise, fall back to `CodeSpecies` (older plant code).
-3.  Similarly, `SpeciesName` takes precedence over `Species_name` for scientific names.
+If `CurrPlantsSymbol` (current USDA Plants symbol) is available, it is used to match to the USDA codes in vegbank. If not available, `CodeSpecies` is used. Similarly, `SpeciesName` takes precedence over `Species_name` for scientific names.
 
 Normalized USDA plant codes are matched to VegBank plant concept codes (`pc_code`) through the plant concept database. Records without successful matches (missing `pc_code`) are flagged via warning messages, as plant concept codes are required for VegBank ingest.
 
-### Strata Identification
+### Strata Identification and Standardization
 
 Each plant observation is assigned a unique stratum identifier by concatenating the survey ID (`SurveyID`) and stratum layer (`Stratum`). This links individual plant records to their vertical position in the vegetation structure (tree layer, shrub layer, herb layer, etc.)
 
-### Strata Standardization
+Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following lookup table is applied to determine which of the available vegbank methods best fits the project.
 
-Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following manual corrections are applied:
+```{r}
+method_lookup <- read.csv(file.path(in_dir, "lookup-tables/CDFW-strata-method.csv")) %>% 
+  select(proj_code, stratum_method_name, Notes)
+
+datatable(
+  method_lookup,
+  rownames = FALSE,
+  filter = "top",
+  options = list(pageLength = 25)
+)
+```
+
+Based on the above, minor corrections were made to the projects and strata below.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 strata_standardization <- tribble(
@@ -608,26 +570,17 @@ datatable(
 )
 ```
 
-### Final Loader Table
-
 Three loader tables are generated:
 
 1.  **Strata Cover Data** (`strataCoverLT.csv`) contains species abundance information, including the plant name as recorded by the author and the cover percentage.
 2.  **Strata Definitions Data** (`strataDefinitionsLT.csv`) links to the survey observation and stratum definition.
 3.  **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
 
-```{r}
-stratacover_taxon_loader(in_dir, out_dir)
-```
-
-```{r}
-stratadefinitions_loader(in_dir, out_dir)
-```
-
-
 ## New Community Concepts
 
+Documentation will be written...
+
 ```{r}
+#| classes: styled-output
 community_definitions_loader(in_dir, out_dir)
 ```
-

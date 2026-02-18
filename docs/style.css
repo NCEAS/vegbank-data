@@ -1,0 +1,10 @@
+/*
+Source - https://stackoverflow.com/a/76610918
+Posted by Shafee, modified by community. See post 'Timeline' for change history
+Retrieved 2026-02-18, License - CC BY-SA 4.0
+*/
+
+.styled-output .cell-output {
+  background-color: honeydew;
+  border-radius: 4px;
+}
