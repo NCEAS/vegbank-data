@@ -1,6 +1,8 @@
 ---
 title: "Loader Table Workflow"
-format: html
+format:
+  html:
+    output-dir: docs
 editor: visual
 ---
 
@@ -8,7 +10,7 @@ editor: visual
 
 This quarto document describes processing and quality assurance steps used to convert CDFW data into the format needed for ingest into vegbank. Each loader table has a function in the family `[table]_loader` which is run on input data and generates output files at the desired location. Messages from the loader functions indicate potential issues with input datasets.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 library(dplyr)
 library(stringr)
 library(readr)
@@ -166,9 +168,7 @@ datatable(
   rownames = FALSE,
   filter = "top",
   options = list(
-    pageLength = 25,
-    autoWidth = TRUE,
-    scrollX = TRUE
+    pageLength = 25
 ))
 ```
 
@@ -202,7 +202,7 @@ crs_lookup <- tribble(
 datatable(
   crs_lookup,
   rownames = FALSE,
-  options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE,
+  options = list(pageLength = 10,
                  columnDefs = list(list(className = 'dt-center',
                                         targets = '_all')))
 )
@@ -353,9 +353,7 @@ datatable(
   rownames = FALSE,
   filter = "top",
   options = list(
-    pageLength = 25,
-    autoWidth = TRUE,
-    scrollX = TRUE
+    pageLength = 25
 ))
 ```
 
@@ -406,14 +404,12 @@ datatable(
   plot_lt_mapping,
   rownames = FALSE,
   filter = "top",
-  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  options = list(pageLength = 25)
 )
 ```
 
-## Soils
-
 ```{r}
-soil_loader(in_dir, out_dir)
+plots_loader(in_dir, out_dir)
 ```
 
 ## Community
@@ -430,7 +426,7 @@ Classification methods are standardized using a lookup table that maps project c
 
 Confidence values from the `Confidence_ID` field are normalized to three categories: "High", "Medium" and "Low". The function handles multiple input formats including single letters (H, M, L), full words (High, Medium, Low), and percentage values. Percentages of 75% or greater are mapped to "High", while values below 75% are mapped to "Medium". Missing value indicators are converted to NA. Any unparse-able or unexpected confidence values trigger warnings. The confidence identifiers and percentages are mapped below.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 class_confidence <- tribble(
   ~`Confidence Letter`, ~`Confidence Class`,
   "H", "High",
@@ -442,11 +438,11 @@ datatable(
   class_confidence,
   rownames = FALSE,
   filter = "top",
-  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  options = list(pageLength = 25)
 )
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 percentage_confidence <- tribble(
   ~`Confidence Percentage`, ~`Confidence Class`,
   ">= 75%", "High",
@@ -457,7 +453,7 @@ datatable(
   percentage_confidence,
   rownames = FALSE,
   filter = "top",
-  options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  options = list(pageLength = 25)
 )
 ```
 
@@ -475,7 +471,7 @@ The `CommunityNames` table has two rows for each single plant present in the `Co
 
 Here is a table that shows an example of what the data would look like within `CommunityNames`, based on one example entry.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # CommunityNames Table
 # Load Community Loader
 community_loader(in_dir, out_dir)
@@ -537,7 +533,7 @@ Plant species data and vegetration strata are extracted from `RAPlants.csv` file
 
 Each plant observation requires attribution to a person who made the taxonomic identification. The system prioritizes contributor roles in the following order to determine the most appropriate identifier (along with the associated AR code):
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 taxonomic_identifiers <- tibble::tribble(
     ~ar_code, ~role_name,
     "ar.55", "Taxonomist",
@@ -593,7 +589,7 @@ Each plant observation is assigned a unique stratum identifier by concatenating 
 
 Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following manual corrections are applied:
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 strata_standardization <- tribble(
   ~`Project Code`, ~`Original Stratum`, ~`Corrected Stratum`,
   "ALCC", "nv", "non-vasc",
@@ -627,3 +623,11 @@ stratacover_taxon_loader(in_dir, out_dir)
 ```{r}
 stratadefinitions_loader(in_dir, out_dir)
 ```
+
+
+## New Community Concepts
+
+```{r}
+community_definitions_loader(in_dir, out_dir)
+```
+
