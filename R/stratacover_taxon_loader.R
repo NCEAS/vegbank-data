@@ -4,7 +4,6 @@ library(remotes)
 library(httr)
 library(cli)
 library(glue)
-source('R/build_loader_table.R')
 
 
 load_stratacover_files <- function(in_dir, out_dir){

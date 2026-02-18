@@ -1,5 +1,4 @@
 library(tidyverse)
-source("R/build_loader_table.R")
 
 # load in CDFW data -------------------------------------------------------
 
@@ -11,9 +10,6 @@ disturbance_loader <- function(in_dir, out_dir){
   # read in RAImpacts
   impact_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = "RAImpacts.csv", value = TRUE)
-  
-  cli::cli_alert_info(paste("Processing", length(impact_files), "disturbance tables from:"))
-  cli::cli_ul(impact_files)
   
   impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE)
   impacts <- do.call(bind_rows, impacts_df_list)

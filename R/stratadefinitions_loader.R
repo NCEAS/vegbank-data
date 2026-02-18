@@ -3,7 +3,6 @@ library(vegbankr)
 library(purrr)
 library(cli)
 library(glue)
-source('R/build_loader_table.R')
 
 
 load_stratadef_files <- function(in_dir, out_dir){

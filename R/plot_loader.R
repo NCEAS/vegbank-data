@@ -3,7 +3,6 @@ library(sf)
 library(tigris)
 library(rnaturalearth)
 library(vegbankr)
-source("R/build_loader_table.R")
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
 
@@ -1050,7 +1049,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- load_plot_files(in_dir)
   plots_merged <- normalize_elevation(plots_merged)
   plots_merged <- normalize_coordinates(plots_merged)
-  plots_merged <- assign_state_county(plots_merged)
+  #plots_merged <- assign_state_county(plots_merged)
   plots_merged <- normalize_area_shape(plots_merged)
   plots_merged <- normalize_slope_aspect(plots_merged)
   plots_merged <- normalize_methods(plots_merged)

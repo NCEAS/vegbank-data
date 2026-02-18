@@ -1,7 +1,5 @@
 library(tidyverse)
 library(stringr)
-source("R/build_loader_table.R")
-
 # load in CDFW data -------------------------------------------------------
 # RAPlots
 

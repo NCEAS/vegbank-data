@@ -1,5 +1,4 @@
 library(tidyverse)
-source("R/build_loader_table.R")
 
 #' Extract project loader table data from CDFW project files
 #'
@@ -18,9 +17,6 @@ project_loader <- function(in_dir, out_dir){
   # read in RAProjects
   project_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = "RAProjects.csv", value = TRUE)
-  
-  cli::cli_alert_info(paste("Processing", length(project_files), "people/contributor tables from:"))
-  cli::cli_ul(project_files)
   
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   

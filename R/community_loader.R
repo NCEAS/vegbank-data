@@ -3,7 +3,6 @@ library(stringr)
 library(googlesheets4)
 library(cli)
 library(glue)
-source("R/build_loader_table.R")
 
 # load in CDFW data -----------------------------------------------------------
 
