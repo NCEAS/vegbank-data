@@ -3,19 +3,6 @@ library(stringr)
 library(cli)
 library(glue)
 library(readr)
-source("R/build_loader_table.R")
-# example data for CommunityConcepts table
-
-#$user_cc_code        <chr> "21.100.00" (CaCode column)
-#$ name                <chr> ""Abronia latifolia – Ambrosia chamissonis" (Alliance or Association column depending on file)
-#$ user_rf_code        <chr> MVC 2019" (same for all rows) 
-#$ user_status_rf_code <chr> "MVC 2019" (same for all rows) 
-#$ comm_concept_status <chr> "accepted" (same for all rows)
-#$ user_parent_cc_code <chr> NA
-#$ comm_level          <chr> "association" (normalized from the MVC level column)
-#$ start_date          <date> 2019-01-01 same for all rows
-#$ vb_status_py_code   <chr> "py.512" (same for all rows)
-
 
 load_community_def_files <- function(in_dir) {
   
@@ -39,7 +26,7 @@ load_community_def_files <- function(in_dir) {
   return(mcv)
 }
 
-load_classification_cacodes <- function(in_dir) {
+load_cdfw_cacodes <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
@@ -67,6 +54,7 @@ load_classification_cacodes <- function(in_dir) {
   cacodes <- classification %>%
     transmute(CaCode = str_squish(as.character(CaCode))) %>%
     filter(!is.na(CaCode), CaCode != "") %>%
+    filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$")) %>% 
     distinct() %>%
     pull(CaCode)
   
@@ -159,27 +147,6 @@ build_community_concepts <- function(mcv) {
   return(community_concepts)
 }
 
-# TODO: build community names table matching this description:
-
-# example data for CommunityNames table
-# for each row in the comm_concepts data frame, there are two rows in the comm_names table
-
-# row 1: scientific name
-#$ user_cc_code     <chr> "21.100.00" (CaCode column)
-#$ name_type        <chr> "Scientific" (same for all rows)
-#$ name             <chr> "Abronia latifolia – Ambrosia chamissonis" (name column)
-#$ name_status      <chr> "Standard" (same for all rows)
-#$ usage_start      <date> 2019-01-01 same for all rows
-#$ vb_usage_py_code <chr> "py.512" (same for all rows)
-
-# row 2: code
-#$ user_cc_code     <chr> "21.100.00" (CaCode column)
-#$ name_type        <chr> "Code" (same for all rows)
-#$ name             <chr> "21.100.00" (CaCode column)
-#$ name_status      <chr> "Standard" (same for all rows)
-#$ usage_start      <date> 2019-01-01 same for all rows
-#$ vb_usage_py_code <chr> "py.512" (same for all rows)
-
 build_community_names <- function(comm_concepts) {
   
   required_cols <- c("user_cc_code", "name")
@@ -237,7 +204,7 @@ build_community_names <- function(comm_concepts) {
 }
 
 community_definitions_loader <- function(in_dir, out_dir){
-  cacodes <- load_classification_cacodes(in_dir)
+  cacodes <- load_cdfw_cacodes(in_dir)
   
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
@@ -256,12 +223,5 @@ community_definitions_loader <- function(in_dir, out_dir){
   
   write_csv(comm_concepts, out_path_concepts)
   write_csv(comm_names, out_path_names)
-  
-  invisible(list(comm_concepts = comm_concepts, comm_names = comm_names))
 }
-
-in_dir <- '/var/data/curation/vegbank/'
-out_dir <- 'data/loader-tables'
-
-community_definitions_loader(in_dir, out_dir)
 
