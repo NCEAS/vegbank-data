@@ -934,6 +934,7 @@ truncate_fields <- function(plots_merged){
 }
 
 # handle duplicate plot data
+# TODO: redo this and 
 deduplicate_plot_data <- function(plots_LT){
   
   plot_fields <- c(
@@ -993,39 +994,23 @@ deduplicate_plot_data <- function(plots_LT){
     needs_suffix,
     by = join_by(
       user_pl_code,
-      real_latitude,
-      real_longitude,
       latitude,
       longitude,
       location_accuracy,
       confidentiality_status,
-      confidentiality_reason,
       author_e,
       author_n,
       author_zone,
       author_datum,
       author_location,
-      location_narrative,
       azimuth,
-      dsgpoly,
       shape,
       area,
       stand_size,
-      placement_method,
-      permanence,
-      layout_narrative,
       elevation,
-      elevation_accuracy,
-      elevation_range,
       slope_aspect,
-      min_slope_aspect,
-      max_slope_aspect,
       slope_gradient,
-      min_slope_gradient,
-      max_slope_gradient,
       topo_position,
-      landform,
-      surficial_deposits,
       rock_type
     )
   ) %>% 
@@ -1038,9 +1023,6 @@ deduplicate_plot_data <- function(plots_LT){
   
   return(plots_LT_fixed)
   
-  
-
-
 }
 
 plots_loader <- function(in_dir, out_dir){
@@ -1070,69 +1052,57 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- plots_merged %>% 
     mutate(SurveyDate = as_date(ymd(SurveyDate)))
   
-  
-  plots_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "PlotObservations",
-    source_df = plots_merged
-  )
-  
-  plots_LT <- plots_template_fields$template
-  
-  # fix column names
-  # user ob code?
-  plots_LT$user_ob_code <- plots_merged$SurveyID
-  #plots_LT$author_ob_code <- plots_merged$SurveyID
-  plots_LT$user_pl_code <- plots_merged$Stand_ID
-  plots_LT$author_plot_code <- plots_merged$Stand_ID
-  plots_LT$latitude <- plots_merged$real_latitude
-  plots_LT$longitude <- plots_merged$real_longitude
-  plots_LT$real_longitude <- plots_merged$real_longitude
-  plots_LT$real_latitude <- plots_merged$real_latitude
-  plots_LT$author_location <- plots_merged$Location_name 
-  plots_LT$location_accuracy <- plots_merged$ErrorMeasurement
-  plots_LT$confidentiality_status <- plots_merged$ConfidentialityStatus
-  plots_LT$author_e <- plots_merged$UTME_final
-  plots_LT$author_n <- plots_merged$UTMN_final
-  plots_LT$author_zone <- plots_merged$UTM_zone
-  plots_LT$author_datum <- plots_merged$author_datum
-  plots_LT$author_location <- plots_merged$SiteLocation
-  plots_LT$azimuth <- plots_merged$W_Axis_Bearing
-  plots_LT$shape <- plots_merged$PlotShape
-  plots_LT$area <- plots_merged$PlotArea
-  plots_LT$stand_size <- plots_merged$Stand_Size
-  plots_LT$elevation <- plots_merged$Elevation
-  plots_LT$slope_aspect <- plots_merged$Aspect_actual
-  plots_LT$slope_gradient <- plots_merged$slope
-  plots_LT$topo_position <- plots_merged$topo_position
-  plots_LT$rock_type <- plots_merged$Substrate
-  plots_LT$user_pj_code <- plots_merged$ProjectCode
-  plots_LT$obs_start_date <- plots_merged$SurveyDate
-  plots_LT$method_narrative <- plots_merged$methodNarrative
-  plots_LT$successional_status = plots_merged$Trend
-  plots_LT$basal_area <- plots_merged$BasalStem
-  plots_LT$hydrologic_regime <- plots_merged$Upl_Wet_text
-  plots_LT$percent_litter <- plots_merged$Litter
-  plots_LT$percent_bare_soil <- plots_merged$Bare_fines
-  plots_LT$percent_water <- plots_merged$Water
-  plots_LT$tree_ht <- plots_merged$treeHt
-  plots_LT$shrub_ht <- plots_merged$Shrub_ht22
-  plots_LT$field_ht <- plots_merged$Herb_ht22 
-  plots_LT$tree_cover <- plots_merged$treeCover
-  plots_LT$shrub_cover <- plots_merged$Shrub_cover
-  plots_LT$field_cover <- plots_merged$Herb_cover
-  plots_LT$nonvascular_cover <- plots_merged$NonVasc_Veg_cover
-  plots_LT$dominant_stratum <- plots_merged$DomForm
-  plots_LT$growthform_1_cover <- plots_merged$growthform1Cover
-  plots_LT$growthform_2_cover <- plots_merged$growthform2Cover
-  plots_LT$growthform_1_type <- plots_merged$growthform1Type
-  plots_LT$growthform_2_type <- plots_merged$growthform2Type
-  plots_LT$total_cover <- plots_merged$Veg_cover
-  plots_LT$percent_bedrock <- plots_merged$Bedrock
-  plots_LT$percent_rock_gravel <- plots_merged$percentRockGravel
-  
-  plots_LT <- plots_LT %>% 
-    select(-user_parent_pl_code, -vb_prev_ob_code)
+
+  plots_LT <- plots_merged %>%
+    select(
+      user_ob_code = SurveyID,
+      user_pl_code = Stand_ID,
+      author_plot_code = Stand_ID,
+      latitude = real_latitude,
+      longitude = real_longitude,
+      real_longitude,
+      real_latitude,
+      author_location = SiteLocation,
+      location_accuracy = ErrorMeasurement,
+      confidentiality_status = ConfidentialityStatus,
+      author_e = UTME_final,
+      author_n = UTMN_final,
+      author_zone = UTM_zone,
+      author_datum,
+      azimuth = W_Axis_Bearing,
+      shape = PlotShape,
+      area = PlotArea,
+      stand_size = Stand_Size,
+      elevation = Elevation,
+      slope_aspect = Aspect_actual,
+      slope_gradient = slope,
+      topo_position,
+      rock_type = Substrate,
+      user_pj_code = ProjectCode,
+      obs_start_date = SurveyDate,
+      method_narrative = methodNarrative,
+      successional_status = Trend,
+      basal_area = BasalStem,
+      hydrologic_regime = Upl_Wet_text,
+      percent_litter = Litter,
+      percent_bare_soil = Bare_fines,
+      percent_water = Water,
+      tree_ht = treeHt,
+      shrub_ht = Shrub_ht22,
+      field_ht = Herb_ht22,
+      tree_cover = treeCover,
+      shrub_cover = Shrub_cover,
+      field_cover = Herb_cover,
+      nonvascular_cover = NonVasc_Veg_cover,
+      dominant_stratum = DomForm,
+      growthform_1_cover = growthform1Cover,
+      growthform_2_cover = growthform2Cover,
+      growthform_1_type = growthform1Type,
+      growthform_2_type = growthform2Type,
+      total_cover = Veg_cover,
+      percent_bedrock = Bedrock,
+      percent_rock_gravel = percentRockGravel
+    )
   
   plots_LT <- deduplicate_plot_data(plots_LT)
   
