@@ -30,20 +30,6 @@ soil_loader <- function(in_dir, out_dir){
   
   soil_lookup <- read_csv(file.path(in_dir, "lookup-tables/LSoil.csv"), progress = FALSE, show_col_types = FALSE)
   
-  # creating loader table ---------------------------------------------------
-  
-  soil_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "SoilData",
-    source_df = plots
-  )
-  
-  soil_LT <- soil_template_fields$template
-  
-  # Checking values ---------------------------------------------------------
-  
-  
-  # tidying CDFW data -----------------------------------------------------------
   
   # clean up strings
   plots_clean <- plots %>% 
@@ -64,11 +50,10 @@ soil_loader <- function(in_dir, out_dir){
     cli::cli_ul(no_lookup$Soil_text)
   }
   
-  # Assigning column to loader table ---------------------------------------
-  # For now there is only one variable that mapped to the Soil Data Loader table (Soil_text from RAPlots)
-  
-  soil_LT$user_ob_code = plots$SurveyID
-  soil_LT$texture = plots$Soil_text
+
+  soil_LT <- plots %>% 
+    select(user_ob_code = SurveyID,
+           texture = Soil_text)
   
   # save filled in loader table
   out_path <- file.path(out_dir, "soilLT.csv")
