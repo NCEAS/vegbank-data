@@ -22,16 +22,6 @@ project_loader <- function(in_dir, out_dir){
   
   projects <- do.call(bind_rows, projects_df_list)
   
-  # creating loader table -------------------------------------------------------
-  
-  project_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "Project",
-    source_df = projects
-  )
-  
-  project_LT <- project_template_fields$template
-  
   # tidying CDFW data -----------------------------------------------------------
   
   ### Converting Start Date and End Time to just Dates ###
@@ -59,12 +49,11 @@ project_loader <- function(in_dir, out_dir){
   
   # assigning columns to loader table -------------------------------------------
   
-  
-  project_LT$user_pj_code <- projects$ProjectCode
-  project_LT$project_name <- projects$ProjectName
-  project_LT$project_description <- projects$ProjectDescription
-  project_LT$start_date <- projects$ProjectStartDate
-  project_LT$stop_date <- projects$ProjectEndDate
+  project_LT <- projects %>% rename(user_pj_code = ProjectCode,
+                                    project_name = ProjectName,
+                                    project_description = ProjectDescription,
+                                    start_date = ProjectStartDate,
+                                    stop_date = ProjectEndDate)
   
   project_LT <- project_LT %>%
     group_by(user_pj_code) %>% 

@@ -3,8 +3,6 @@ library(stringr)
 library(vctrs)
 library(glue)
 
-# load in CDFW data -------------------------------------------------------
-
 party_contributor_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
@@ -17,23 +15,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   projects <- do.call(bind_rows, projects_df_list)
   
-  # creating loader table ---------------------------------------------------
-  party_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "Party",
-    source_df = projects
-  )
-  
-  contributor_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "Contributor",
-    source_df = projects
-  )
-  
-  party_LT <- party_template_fields$template
-  contributor_LT <- contributor_template_fields$template
-  
-  # Tidying Data ------------------------------------------------------
+
   
   # Changing to RAProjects to long format to have one row per contact
   # Remove unnecessary variables (can add back later if needed)
@@ -57,11 +39,6 @@ party_contributor_loader <- function(in_dir, out_dir){
   name_count <- projects_long %>%
     mutate(word_count = str_count(ContactName, "\\S+"))
   
-  if (any(name_count$word_count > 2)){
-    names <- name_count$ContactName[which(name_count$word_count > 2)]
-    #warning(glue("Some ContactName entries contain more than two words. The loader table does not accept middle names. The following names may need special attention to ensure correct parsing: {names}"))
-  }
-  
   # Email should be a valid email address
   
   email_pattern <- "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
@@ -70,27 +47,6 @@ party_contributor_loader <- function(in_dir, out_dir){
   
   if (nrow(invalid_emails) > 0){
     cli::cli_alert_warning("Some email addresses appear to be invalid: {.emph {paste(invalid_emails$ContactEmail, collapse = ', ')}}")
-  }
-  
-  # Adjusting number of rows in party_LT to account for pivot
-  needed_n <- nrow(projects_long)
-  have_n <- nrow(party_LT)
-  need <- needed_n - have_n
-  
-  if (need > 0) {
-    # create `need` NA rows with the SAME types as party_LT
-    blank_rows <- as_tibble(
-      map(party_LT, ~ vec_init(.x, n = need))
-    )
-    party_LT <- bind_rows(party_LT, blank_rows)
-  }
-  
-  if (need > 0) {
-    # create `need` NA rows with the SAME types as contributor_LT
-    blank_rows <- as_tibble(
-      map(contributor_LT, ~ vec_init(.x, n = need))
-    )
-    contributor_LT <- bind_rows(contributor_LT, blank_rows)
   }
   
   ### given_name (Party) + surname (Party) ###
@@ -200,8 +156,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # Check if the person matches from party_LT to party_vegbank
   # If there is a match between people names from party_LT and party_vegbank,
   # then save py_code as vb_py_code. Otherwise, leave it as NA
-  
-  # TODO: check that this makes sense, it seems like one py_code might be repeated for entire dataset
+
   # df2 subset of distinct vegbank parties (vegbank party)
   veg_subset <- vegbank_names %>% 
     select(full_name, py_code) %>% 
@@ -216,23 +171,26 @@ party_contributor_loader <- function(in_dir, out_dir){
     warning("Joining vegbank party identifiers resulted in duplicated rows. This could indicate an issue with the vegbank party codes, the input data, or both.")
   }
   
+  party_LT <- projects %>%
+    select(
+      user_py_code,
+      surname = LastName,
+      organization_name = ContactOrg,
+      given_name = FirstName,
+      email = ContactEmail,
+      middle_name = MiddleName
+    )
+
+  contributor_LT <- project_names_j %>%
+    select(
+      user_cr_code,
+      vb_py_code = py_code,
+      user_py_code,
+      vb_ar_code = ar_code,
+      contributor_type,
+      record_identifier = ProjectCode
+    )
   
-  # Assigning columns to loader table ---------------------------------------
-  party_LT$user_py_code <- projects$user_py_code
-  party_LT$surname <- projects$LastName
-  party_LT$organization_name <- projects$ContactOrg
-  party_LT$given_name <- projects$FirstName
-  party_LT$email <- projects$ContactEmail
-  party_LT$middle_name <- projects$MiddleName
-  
-  contributor_LT$user_cr_code <- project_names_j$user_cr_code
-  contributor_LT$vb_py_code <- project_names_j$py_code
-  contributor_LT$user_py_code <- project_names_j$user_py_code
-  contributor_LT$vb_ar_code <- project_names_j$ar_code
-  contributor_LT$contributor_type <- project_names_j$contributor_type
-  contributor_LT$record_identifier <- project_names_j$ProjectCode
-  
-  # saved filled in loader table --------------------------------------------
   out_path_party <- file.path(out_dir, "partyLT.csv")
   out_path_contributor <- file.path(out_dir, 'contributorLT.csv')
   cli::cli_alert_success("Writing two output files to:")

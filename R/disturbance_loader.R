@@ -1,7 +1,5 @@
 library(tidyverse)
 
-# load in CDFW data -------------------------------------------------------
-
 disturbance_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
@@ -16,19 +14,6 @@ disturbance_loader <- function(in_dir, out_dir){
 
   
   impacts_lookup <- read_csv(file.path(in_dir, "lookup-tables/LImpacts.csv"), progress = FALSE, show_col_types = FALSE)
-  
-
-  # creating loader table ---------------------------------------------------
-  
-  disturb_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "DisturbanceData",
-    source_df = impacts
-  )
-  
-  disturb_LT <- disturb_template_fields$template
-  
-  # Checking values ---------------------------------------------------------
   
   # Intensity should be 1, 2, or 3
   # how will we handle values: 0, 10, 999, and 52?
@@ -51,10 +36,6 @@ disturbance_loader <- function(in_dir, out_dir){
     cli::cli_ul(impacts_lookup_missing$CodeImpact)
   }
   
-  
-  
-  
-  # Tidying CDFW data -------------------------------------------------------
   
   lookup_disturbance <- tibble::tribble(
     ~`Impact type`,                                   ~vegbank_disturbance,
@@ -113,21 +94,12 @@ disturbance_loader <- function(in_dir, out_dir){
     mutate(Other = paste(Other, `Impact type`, sep = "; ")) %>% 
     mutate(Other = gsub("NA; ", "", Other))
   
-  
-  
-
-  
-  
-  # Assigning columns to loader table ---------------------------------------
-  disturb_LT$user_do_code <- seq(1:nrow(disturb_LT))
-  disturb_LT$user_ob_code <- impacts_merged$SurveyID
-  disturb_LT$type <- impacts_merged$vegbank_disturbance
-  disturb_LT$comment <- impacts_merged$Other
-  disturb_LT$intensity <- impacts_merged$Intensity
-  
-  # disturbance age and extent not present in CDFW data:
-  disturb_LT$age <- 'NA'
-  disturb_LT$extent <- 'NA'
+  disturb_LT <- impacts_merged %>%
+    select(user_ob_code = SurveyID,
+           type = vegbank_disturbance,
+           comment = Other,
+           intensity = Intensity) %>% 
+    mutate(user_do_code = row_number())
   
   # save filled in loader table
   out_path <- file.path(out_dir, "disturbanceLT.csv")
