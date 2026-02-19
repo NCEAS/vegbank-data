@@ -126,7 +126,7 @@ filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
 build_community_concepts <- function(mcv) {
   
   community_concepts <- mcv %>%
-    transmute(
+    mutate(
       user_cc_code        = CaCode,
       name                = name,     
       user_rf_code        = "MVC 2019",
@@ -157,7 +157,7 @@ build_community_names <- function(comm_concepts) {
   
   # row 1: Scientific name
   comm_names_scientific <- comm_concepts %>%
-    transmute(
+    mutate(
       user_cc_code     = user_cc_code,
       name_type        = "Scientific",
       name             = name,
@@ -168,7 +168,7 @@ build_community_names <- function(comm_concepts) {
   
   # row 2: Code
   comm_names_code <- comm_concepts %>%
-    transmute(
+    mutate(
       user_cc_code     = user_cc_code,
       name_type        = "Code",
       name             = user_cc_code,

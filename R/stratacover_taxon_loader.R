@@ -251,41 +251,31 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
     cli_ul(head(bad, 15))
   }
   
-  #TODO: figure out if stratum is even required here?
-  # assign a stratum method for each project, join back to plot obs/strata cover
-  # each row in this table needs to join to strataDefinitionsLT
   vb_strat <- vb_get_stratum_methods(limit = 5000)
   
-  # loader tables
-  strata_cover_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "StrataCoverData",
-    source_df = plants
-  )
+  strata_cover_LT <- plants_join %>%
+    select(
+      user_to_code,
+      user_ob_code = SurveyID,
+      user_sr_code = strata_id,
+      author_plant_name = species_norm,
+      cover = Species_cover
+    )
   
-  taxon_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "TaxonInterpretations",
-    source_df = plants
-  )
-  
-  strata_cover_LT <- strata_cover_template_fields$template
-  taxon_LT <- taxon_template_fields$template
-  
-  #strata_cover_LT$user_sr_code <- plants_join$Stratum
-  strata_cover_LT$user_to_code <- plants_join$user_to_code
-  strata_cover_LT$user_ob_code <- plants_join$SurveyID
-  strata_cover_LT$user_sr_code <- plants_join$strata_id
-  strata_cover_LT$author_plant_name <- plants_join$species_norm
-  strata_cover_LT$cover <- plants_join$Species_cover
-  
-  taxon_LT$user_to_code <- plants_join$user_to_code
-  taxon_LT$user_py_code <- plants_join$user_py_code
-  taxon_LT$user_ti_code <- plants_join$user_ti_code
-  taxon_LT$vb_pc_code <- plants_join$pc_code
-  taxon_LT$vb_ro_code <- plants_join$vb_ar_code
-  taxon_LT$original_interpretation <- TRUE
-  taxon_LT$current_interpretation <- TRUE
+  taxon_LT <- plants_join %>%
+    mutate(
+      original_interpretation = TRUE,
+      current_interpretation = TRUE
+    ) %>%
+    select(
+      user_to_code,
+      user_py_code,
+      user_ti_code,
+      vb_pc_code = pc_code,
+      vb_ro_code = vb_ar_code,
+      original_interpretation,
+      current_interpretation
+    )
   
   out_path_strata <- file.path(out_dir, "strataCoverLT.csv")
   out_path_tax <- file.path(out_dir, 'taxonInterpretationsLT.csv')

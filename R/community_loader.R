@@ -53,21 +53,11 @@ load_community_files <- function(in_dir) {
     arrange(desc(nchar(ProjectDescription))) %>% 
     slice(1)
   
-  # create blank Loader Table dataframe -----------------------------------------------------
-  community_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "CommunityClassifications",
-    source_df = classification
-  )
-  
-  community_LT <- community_template_fields$template
-  
   plots <- plots
   classification <- classification
   projects <- projects
-  community_LT <- community_LT
   
-  out <- list("plots" = plots, "classification" = classification, "projects" = projects, "community_LT" = community_LT)
+  out <- list("plots" = plots, "classification" = classification, "projects" = projects)
   
   return(out)
 }
@@ -386,13 +376,17 @@ community_loader <- function(in_dir, out_dir){
   #stopifnot(nrow(class_cc_proj) == nrow(community_LT))
   stopifnot(all(names(c("class_notes","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
   
-  community_LT$user_ob_code <- class_cc_proj$SurveyID
-  community_LT$user_cl_code <- 1:nrow(class_cc_proj)
-  community_LT$class_notes <- class_cc_proj$class_notes
-  community_LT$inspection <- class_cc_proj$inspection
-  community_LT$multivariate_analysis <- class_cc_proj$multivariate_analysis
-  community_LT$class_confidence <- class_cc_proj$class_confidence
-  community_LT$vb_cc_code <- class_cc_proj$vb_cc_code
+  community_LT <- class_cc_proj %>%
+    mutate(user_cl_code = row_number()) %>%
+    select(
+      user_ob_code = SurveyID,
+      user_cl_code,
+      class_notes,
+      inspection,
+      multivariate_analysis,
+      class_confidence,
+      vb_cc_code
+    )
   
   # save filled in loader table
   out_path <- file.path(out_dir, "communityClassificationsLT.csv")
