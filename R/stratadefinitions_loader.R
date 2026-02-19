@@ -167,18 +167,14 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     cli_ul(head(bad_strata, 15))
   }
   
-  strata_template_fields <- build_loader_table(
-    sheet_url = "https://docs.google.com/spreadsheets/d/1ORubguw1WDkTkfiuVp2p59-eX0eA8qMQUEOfz1TWfH0/edit?gid=2109807393#gid=2109807393",
-    sheet = "StrataDefinitions",
-    source_df = plant_methods
-  )
-  
-  strata_def_LT <- strata_template_fields$template
   
   # required fields
-  strata_def_LT$user_ob_code <- plant_methods$SurveyID
-  strata_def_LT$user_sr_code <- plant_methods$strata_id
-  strata_def_LT$vb_sy_code <- plant_methods$sy_code
+  strata_def_LT <- plant_methods %>%
+    select(
+      user_ob_code = SurveyID,
+      user_sr_code = strata_id,
+      vb_sy_code = sy_code
+    )
   
   out_path_strata <- file.path(out_dir, "strataDefinitionsLT.csv")
 
