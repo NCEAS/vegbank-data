@@ -18,12 +18,12 @@ library(stringr)
 library(readr)
 library(DT)
 library(downloadthis)
-# googlesheets4::gs4_auth()
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "../R"
-r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$")
+r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
+  grep("altplots", ., invert = TRUE, value = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
@@ -379,6 +379,35 @@ downloadthis::download_this(
   has_icon = TRUE,
   icon = "fa fa-download")
 ```
+
+### Duplicates
+
+Some `StandID` values were duplicated. Since `StandID` gets mapped to `user_pl_id`, the primary key of the plots table, duplicates in this field are not allowed. To resolve this issue, a suffix of `_{n}` was added to the end of duplicated plot ids. The table below shows the duplicated rows.
+
+```{r}
+plot_dupes <- read.csv(file.path(out_dir, "plotsLT.csv")) %>% 
+  filter(grepl("_[0-9]$", user_pl_code)) %>% 
+  select(user_pl_code, latitude, longitude, user_pj_code, user_ob_code)
+
+datatable(
+  plot_dupes,
+  rownames = FALSE,
+  filter = "top",
+  options = list(
+    pageLength = 10
+))
+
+plot_dupes %>% 
+downloadthis::download_this(
+  path = "cdfw_duplicate_plots.csv",
+  output_name = "duplicate_plots",
+  button_label = "Download Duplicate Plots as CSV",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
+
+```
+
 
 ## Community
 
