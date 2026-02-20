@@ -2,16 +2,67 @@ library(tidyverse)
 library(here)
 library(stringr)
 
+load_altplots_files <- function(in_dir, out_dir) {
+  
+  sub_folders <- dir(in_dir, full.names = TRUE) %>% 
+    grep(pattern = "VegBankProject", value = TRUE)
+  
+  # Read in AltPlots
+  altplot_files <- dir(sub_folders, full.names = TRUE) %>% 
+    grep(pattern = "AltPlots.csv", value = TRUE)
+  
+  
+  altplots_df_list <- lapply(altplot_files, read_csv, progress = FALSE,
+                             show_col_types = FALSE)
+  
+  # Addressing character and double combo error
+  altplots_df_list <- lapply(altplots_df_list, function(df) {
+    if ("Representative" %in% names(df)) {
+      df$Representative <- as.character(df$Representative) 
+    }
+    return(df)
+  })
+  
+  altplots <- do.call(bind_rows, altplots_df_list)
+  
+  # Read in RAPlots
+  raplot_files <- dir(sub_folders, full.names = TRUE) %>%
+    grep(pattern = "RAPlots.csv", value = TRUE)
+  
+  raplots_df_list <- lapply(raplot_files, read_csv, progress = FALSE,
+                            show_col_types = FALSE)
+  
+  # Addressing character and double combo error
+  raplots_df_list <- lapply(raplots_df_list, function(df) {
+    if ("DesertRip" %in% names(df)) {
+      df$DesertRip <- as.character(df$DesertRip)
+    }
+    if ("PlotOther4" %in% names(df)) {
+      df$PlotOther4 <- as.character(df$PlotOther4)
+    }
+    return(df)
+  })
+  
+  raplots <- do.call(bind_rows, raplots_df_list)
+  
+  altplots <- altplots
+  raplots <- raplots
+  
+  out <- list("altplots" = altplots, "raplots" = raplots)
+  
+  return(out)
+}
+
 # load in CDFW data -----------------------------------------------------------
 
 # AltPlots
 # TODO: read from out_dir instead of your local path here. see any of the other loader functions for examples. this is true for all read calls below
-csv_path <- here("data", "AltPlots.csv")
-altplots <- read_csv(csv_path, show_col_types = FALSE)
+# csv_path <- here("data", "AltPlots.csv")
+# altplots <- read_csv(csv_path, show_col_types = FALSE)
 
 # RAPlots
-csv_path <- here("data", "RAPlots.csv")
-raplots <- read_csv(csv_path, show_col_types = FALSE)
+# csv_path <- here("data", "RAPlots.csv")
+# raplots <- read_csv(csv_path, show_col_types = FALSE)
 
 # tidying data ----------------------------------------------------------------
 
@@ -24,16 +75,6 @@ plotsLT <- read_csv("data/loader-tables/plotsLT.csv")
 
 # load current PlotObservations loader table's mappings
 plotsLT_path <- file.path("data/loader-tables/plotsLT.csv")
-
-# if (file.exists(plotsLT_path)) {
-#   plotsLT <- read_csv(plotsLT_path, show_col_types = FALSE)
-#   
-#   cli::cli_h2("Current PlotObservations fields from plots_loader.R:")
-#   cli::cli_ul(names(plotsLT)[!is.na(plotsLT[1,])])  # Fields that have values
-#   
-# } else {
-#   cli::cli_alert_warning("plotsLT.csv not found at {plots_LT_path}")
-# }
 
 # testing ---------------------------------------------------------------------
 cli::cli_h2("AltPlots Columns:")
