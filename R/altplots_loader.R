@@ -5,6 +5,7 @@ library(stringr)
 # load in CDFW data -----------------------------------------------------------
 
 # AltPlots
+# TODO: read from out_dir instead of your local path here. see any of the other loader functions for examples. this is true for all read calls below
 csv_path <- here("data", "AltPlots.csv")
 altplots <- read_csv(csv_path, show_col_types = FALSE)
 

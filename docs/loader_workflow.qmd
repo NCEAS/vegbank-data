@@ -30,6 +30,9 @@ invisible(lapply(r_scripts_source, source))
 ```{r}
 in_dir <- '/var/data/curation/vegbank/'
 out_dir <- '../data/loader-tables'
+if (!exists(out_dir)){
+  dir.create(out_dir)
+}
 ```
 
 ## Projects
