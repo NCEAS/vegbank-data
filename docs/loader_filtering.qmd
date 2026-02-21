@@ -10,6 +10,7 @@ execute:
   message: false
 ---
 
+
 ```{r, echo=FALSE}
 library(tidyverse)
 library(readr)
@@ -17,7 +18,7 @@ library(DT)
 library(cli)
 library(glue)
 
-out_dir <- "../loader_tables"
+out_dir <- "../data/loader-tables"
 
 read_lt <- function(filename) {
   path <- file.path(out_dir, filename)
@@ -44,27 +45,27 @@ dt <- function(x, pageLength = 25) {
 ```
 
 ```{r}
-plots <- read_lt("PlotObservationsLT.csv")
-projects <- read_lt("ProjectLT.csv")
+plots <- read_lt("plotsLT.csv")
+projects <- read_lt("projectLT.csv")
 party <- read_lt("partyLT.csv")
 contrib <- read_lt("contributorLT.csv")
 dist <- read_lt("disturbanceLT.csv")
 comm <- read_lt("communityClassificationsLT.csv")
 strat <- read_lt("strataCoverLT.csv") %>%
   select(where(~ !all(is.na(.)))) %>%
-  mutate(user_tm_code = user_to_code) # convenience alias used in earlier scratch
-tax           <- read_lt("taxonInterpretationsLT.csv") %>%
+  mutate(user_tm_code = user_to_code)
+tax <- read_lt("taxonInterpretationsLT.csv") %>%
   select(where(~ !all(is.na(.))))
-strat_methods <- read_lt("strataMethodsLT.csv")
+
+# NOTE: StrataMethodsLT.csv does not exist for now
 
 required_cols <- list(
-  projects      = c("user_pj_code"),
-  plots         = c("user_pj_code", "user_ob_code", "latitude", "longitude"),
-  dist          = c("user_ob_code"),
-  comm          = c("user_ob_code", "vb_cc_code"),
-  strat_methods = c("user_ob_code", "user_sr_code", "vb_sy_code"),
-  strat         = c("user_ob_code", "user_sr_code", "author_plant_name", "user_to_code"),
-  tax           = c("user_to_code", "vb_pc_code") 
+  projects = c("user_pj_code"),
+  plots    = c("user_pj_code", "user_ob_code", "latitude", "longitude"),
+  dist     = c("user_ob_code"),
+  comm     = c("user_ob_code", "vb_cc_code"),
+  strat    = c("user_ob_code", "user_sr_code", "author_plant_name", "user_to_code"),
+  tax      = c("user_to_code", "vb_pc_code")
 )
 
 missing_report <- imap(required_cols, function(cols, nm) {
@@ -88,6 +89,7 @@ proj_codes <- projects %>%
   filter(!is.na(user_pj_code), user_pj_code != "") %>%
   distinct() %>%
   pull(user_pj_code)
+
 # Plots
 a1 <- filter_with_audit(
   plots,
@@ -137,30 +139,7 @@ a5 <- filter_with_audit(
 comm_semi <- a5$kept %>% select(where(~ !all(is.na(.))))
 audit[["community_missing_vb_cc_code"]] <- a5$dropped
 
-# Strata methods
-a6 <- filter_with_audit(
-  strat_methods,
-  user_ob_code %in% plot_obs_codes,
-  "strataMethods: user_ob_code not found in filtered plotsLT"
-)
-strat_methods_step1 <- a6$kept
-audit[["strataMethods_missing_plot_link"]] <- a6$dropped
-
-a7 <- filter_with_audit(
-  strat_methods_step1,
-  !is.na(vb_sy_code) & vb_sy_code != "",
-  "strataMethods: missing vb_sy_code (no method mapping)"
-)
-strat_methods_semi <- a7$kept
-audit[["strataMethods_missing_vb_sy_code"]] <- a7$dropped
-
-strata_sr_codes <- strat_methods_semi %>%
-  transmute(user_sr_code = str_squish(as.character(user_sr_code))) %>%
-  filter(!is.na(user_sr_code), user_sr_code != "") %>%
-  distinct() %>%
-  pull(user_sr_code)
-
-# Strata Cover
+# Strata Cover (no StrataMethodsLT to validate user_sr_code against)
 a8 <- filter_with_audit(
   strat,
   user_ob_code %in% plot_obs_codes,
@@ -179,11 +158,11 @@ audit[["strataCover_missing_author_plant_name"]] <- a9$dropped
 
 a10 <- filter_with_audit(
   strat_step2,
-  user_sr_code %in% strata_sr_codes,
-  "strataCover: user_sr_code not found in filtered strataMethodsLT"
+  !is.na(user_sr_code) & str_squish(as.character(user_sr_code)) != "",
+  "strataCover: missing user_sr_code (no StrataMethodsLT available to validate)"
 )
 strat_semi <- a10$kept
-audit[["strataCover_missing_strata_method_link"]] <- a10$dropped
+audit[["strataCover_missing_user_sr_code"]] <- a10$dropped
 
 taxon_to_codes <- strat_semi %>%
   transmute(user_to_code = str_squish(as.character(user_to_code))) %>%
@@ -226,11 +205,9 @@ summary_tbl <- tibble(
     "disturbance: missing plot link",
     "community: missing plot link",
     "community: missing vb_cc_code",
-    "strataMethods: missing plot link",
-    "strataMethods: missing vb_sy_code",
     "strataCover: missing plot link",
     "strataCover: missing author_plant_name",
-    "strataCover: missing strata method link",
+    "strataCover: missing user_sr_code (no StrataMethodsLT)",
     if (has_vb_ro) "taxon: missing vb_pc_code/vb_ro_code" else "taxon: missing vb_pc_code",
     "taxon: missing strataCover link"
   ),
@@ -240,8 +217,6 @@ summary_tbl <- tibble(
     nrow(a3$dropped),
     nrow(a4$dropped),
     nrow(a5$dropped),
-    nrow(a6$dropped),
-    nrow(a7$dropped),
     nrow(a8$dropped),
     nrow(a9$dropped),
     nrow(a10$dropped),
@@ -253,5 +228,78 @@ summary_tbl <- tibble(
 
 ```{r}
 dt(summary_tbl, pageLength = 25)
+```
+
+# plots lat/lon
+```{r}
+x <- audit[["plots_missing_latlon"]] %>%
+  select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "latitude", "longitude", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# plots: project code not found in projectsLT
+```{r}
+x <- audit[["plots_missing_project_link"]] %>%
+  select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# disturbance dropped: not linked to existing plot obs
+```{r}
+x <- audit[["disturbance_missing_plot_link"]] %>%
+  select(any_of(c("user_ob_code", "disturbance_type", "intensity", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# community dropped: not linked to a kept plot obs
+```{r}
+x <- audit[["community_missing_plot_link"]] %>%
+  select(any_of(c("user_ob_code", "vb_cc_code", "comm_level", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# community: missing vb_cc_code
+```{r}
+x <- audit[["community_missing_vb_cc_code"]] %>%
+  select(any_of(c("user_ob_code", "vb_cc_code", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# strataCover: not linked to a kept plot obs
+```{r}
+x <- audit[["strataCover_missing_plot_link"]] %>%
+  select(any_of(c("user_ob_code", "user_sr_code", "user_to_code", "author_plant_name", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# strataCover: missing author_plant_name
+```{r}
+x <- audit[["strataCover_missing_author_plant_name"]] %>%
+  select(any_of(c("user_ob_code", "user_sr_code", "user_to_code", "author_plant_name", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# Taxon dropped: missing required VegBank codes
+```{r}
+cols <- c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason")
+x <- audit[["taxon_missing_required_vb_codes"]] %>%
+  select(any_of(cols)) %>%
+  head(500)
+dt(x, pageLength = 25)
+```
+
+# taxon dropped: not linked to filtered strata cover
+```{r}
+x <- audit[["taxon_missing_strataCover_link"]] %>%
+  select(any_of(c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason"))) %>%
+  head(500)
+dt(x, pageLength = 25)
 ```
 
