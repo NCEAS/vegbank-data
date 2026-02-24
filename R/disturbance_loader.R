@@ -8,6 +8,17 @@ library(tidyverse)
 #' @param out_dir Directory of data to write to
 #' 
 #' @return None. Writes loader tables disturbanceLT.csv to `out_dir`
+#' 
+#' @details 
+#' The function performs the following operations:
+#' \itemize{
+#'   \item Validates intensity values (expected: 1, 2, or 3)
+#'   \item Checks for impact codes not present in the LImpacts.csv lookup table
+#'   \item Maps detailed impact descriptions to standardized VegBank disturbance categories
+#'   \item Converts numeric intensity codes to descriptive labels
+#'   \item Concatenates free-text comments with impact type descriptions
+#'   \item Generates sequential disturbance observation codes (user_do_code)
+#' }
 disturbance_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
