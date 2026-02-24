@@ -11,6 +11,18 @@ library(glue)
 #'
 #' @return None. Writes loader tables partyLT.csv and contributorLT.csv to `out_dir`.
 #'
+#' @details
+#' The function performs the following operations:
+#' \itemize{
+#'   \item Reshapes wide-format contact data (DataContactName1, DataContactName2, etc.)
+#'         into long format with one row per contact person
+#'   \item Validates email addresses using regex pattern matching
+#'   \item Splits contact names into given name, middle name (if present), and surname
+#'   \item Generates unique user party codes (ca_001, ca_002, etc.)
+#'   \item Maps CDFW role descriptions to standardized VegBank role codes (ar.*)
+#'   \item Queries VegBank API to match parties with existing VegBank records
+#'   \item Creates party and contributor loader tables with appropriate foreign keys
+#' }
 party_contributor_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
