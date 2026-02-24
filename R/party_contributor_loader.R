@@ -3,6 +3,14 @@ library(stringr)
 library(vctrs)
 library(glue)
 
+#' Extract party and contributor information from RAProjects files
+#' and writes to a vegbank loader table.
+#'
+#' @param in_dir Directory of vegbank data to read from
+#' @param out_dir Directory of data to write to
+#'
+#' @return None. Writes loader tables partyLT.csv and contributorLT.csv to `out_dir`.
+#'
 party_contributor_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%

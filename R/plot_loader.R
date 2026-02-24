@@ -6,7 +6,12 @@ library(vegbankr)
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
 
-# convert a data frame with a crs (epsg code) and an easting/northing coordinate ("UTME_final", "UTMN_final") to lat/lon coordinates
+#' Convert a data frame with a CRS (epsg code) and an easting/northing 
+#' coordinate ("UTME_final", "UTMN_final") to lat/lon coordinates
+#'
+#' @param df_group data.frame with `crs`, `UTME_final`, `UTMN_final` columns
+#'
+#' @return data.frame with a row identifier, latitude, and longitude column
 convert_to_ll <- function(df_group) {
   crs_utm <- unique(df_group$crs)
   if (length(crs_utm) != 1 || is.na(crs_utm)) return(NULL)

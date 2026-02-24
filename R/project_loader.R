@@ -1,14 +1,12 @@
 library(tidyverse)
 
-#' Extract project loader table data from CDFW project files
+#' Extract project information from RAProjects files
+#' and writes to a vegbank loader table.
 #'
-#' @param in_path Directory of files to read from. Function will look for files called RAProjects.csv
-#' @param out_path Path to write output file to.
+#' @param in_dir Directory of vegbank data to read from
+#' @param out_dir Directory of data to write to
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return None. Writes loader tables projectLT.csv to `out_dir`.
 project_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
