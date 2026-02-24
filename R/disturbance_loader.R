@@ -1,5 +1,13 @@
 library(tidyverse)
 
+#' Extracts disturbance data from RAImpacts.csv files, validates intensity values,
+#' maps impact types to standardized VegBank disturbance categories, and generates a
+#' disturbance loader table for VegBank ingest
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes loader tables disturbanceLT.csv to `out_dir`
 disturbance_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
