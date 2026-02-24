@@ -53,18 +53,15 @@ load_altplots_files <- function(in_dir, out_dir) {
   return(out)
 }
 
-# load in CDFW data -----------------------------------------------------------
-
-# AltPlots
-# TODO: read from out_dir instead of your local path here. see any of the other loader functions for examples. this is true for all read calls below
-# csv_path <- here("data", "AltPlots.csv")
-# altplots <- read_csv(csv_path, show_col_types = FALSE)
-
-# RAPlots
-# csv_path <- here("data", "RAPlots.csv")
-# raplots <- read_csv(csv_path, show_col_types = FALSE)
-
 # tidying data ----------------------------------------------------------------
+
+# call the function to load the data
+in_dir <- '/var/data/curation/vegbank/'
+out_dir <- '../data/loader-tables'
+
+data <- load_altplots_files(in_dir, out_dir)
+altplots <- data$altplots
+raplots <- data$raplots
 
 # link AltPlots records to RAPlots by SurveyID
 alt_ra_plots <- raplots %>% 
