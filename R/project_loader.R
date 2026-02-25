@@ -57,7 +57,7 @@ project_loader <- function(in_dir, out_dir){
   
   # assigning columns to loader table -------------------------------------------
   
-  project_LT <- projects %>% rename(user_pj_code = ProjectCode,
+  project_LT <- projects %>% select(user_pj_code = ProjectCode,
                                     project_name = ProjectName,
                                     project_description = ProjectDescription,
                                     start_date = ProjectStartDate,
