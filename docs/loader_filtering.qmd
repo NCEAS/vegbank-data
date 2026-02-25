@@ -10,6 +10,9 @@ execute:
   message: false
 ---
 
+This document shows rows that had to be dropped prior to ingest, and the reason that they were removed.
+
+Below is a summary of all dropped rows:
 
 ```{r, echo=FALSE}
 library(tidyverse)
@@ -17,6 +20,7 @@ library(readr)
 library(DT)
 library(cli)
 library(glue)
+library(downloadthis)
 
 out_dir <- "../data/loader-tables"
 
@@ -102,7 +106,7 @@ audit[["plots_missing_latlon"]] <- a1$dropped
 a2 <- filter_with_audit(
   plots_step1,
   user_pj_code %in% proj_codes,
-  "plots: user_pj_code not found in projectLT"
+  "plots: ProjectCode not found in projectLT"
 )
 plots_semi <- a2$kept
 audit[["plots_missing_project_link"]] <- a2$dropped
@@ -117,7 +121,7 @@ plot_obs_codes <- plots_semi %>%
 a3 <- filter_with_audit(
   dist,
   user_ob_code %in% plot_obs_codes,
-  "disturbance: user_ob_code not found in filtered plotsLT"
+  "disturbance: SurveyID not found in filtered plotsLT"
 )
 dist_semi <- a3$kept
 audit[["disturbance_missing_plot_link"]] <- a3$dropped
@@ -126,7 +130,7 @@ audit[["disturbance_missing_plot_link"]] <- a3$dropped
 a4 <- filter_with_audit(
   comm,
   user_ob_code %in% plot_obs_codes,
-  "community: user_ob_code not found in filtered plotsLT"
+  "community: SurveyID not found in filtered plotsLT"
 )
 comm_step1 <- a4$kept
 audit[["community_missing_plot_link"]] <- a4$dropped
@@ -143,7 +147,7 @@ audit[["community_missing_vb_cc_code"]] <- a5$dropped
 a8 <- filter_with_audit(
   strat,
   user_ob_code %in% plot_obs_codes,
-  "strataCover: user_ob_code not found in filtered plotsLT"
+  "strataCover: SurveyID not found in filtered plotsLT"
 )
 strat_step1 <- a8$kept
 audit[["strataCover_missing_plot_link"]] <- a8$dropped
@@ -230,62 +234,128 @@ summary_tbl <- tibble(
 dt(summary_tbl, pageLength = 25)
 ```
 
-# plots lat/lon
+<!-- # plots lat/lon
 ```{r}
 x <- audit[["plots_missing_latlon"]] %>%
   select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "latitude", "longitude", "drop_reason"))) %>%
   head(500)
 dt(x, pageLength = 25)
 ```
-
+-->
 # plots: project code not found in projectsLT
+
+**Unique unmatched project codes: CPVC, HETH**
+
 ```{r}
 x <- audit[["plots_missing_project_link"]] %>%
   select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "drop_reason"))) %>%
+  rename(SurveyID = user_ob_code, StandID = user_pl_code, ProjectCode = user_pj_code) %>% 
   head(500)
 dt(x, pageLength = 25)
+
+x %>% 
+downloadthis::download_this(
+  path = "plots_missing_project_link.csv",
+  output_name = "plots_missing_project_link",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download"
+)
 ```
 
 # disturbance dropped: not linked to existing plot obs
 ```{r}
 x <- audit[["disturbance_missing_plot_link"]] %>%
-  select(any_of(c("user_ob_code", "disturbance_type", "intensity", "drop_reason"))) %>%
+  select(any_of(c("user_ob_code", "type", "intensity", "drop_reason"))) %>%
+  rename(SurveyID = user_ob_code) %>% 
   head(500)
 dt(x, pageLength = 25)
+
+x %>% 
+downloadthis::download_this(
+  path = "disturbance_missing_plot_link.csv",
+  output_name = "disturbance_missing_plot_link",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 
-# community dropped: not linked to a kept plot obs
+# community classification dropped: not linked to a kept plot obs
 ```{r}
 x <- audit[["community_missing_plot_link"]] %>%
-  select(any_of(c("user_ob_code", "vb_cc_code", "comm_level", "drop_reason"))) %>%
+  select(any_of(c("user_ob_code", "drop_reason"))) %>%
+  rename(SurveyID = user_ob_code) %>% 
   head(500)
 dt(x, pageLength = 25)
+
+x %>% 
+downloadthis::download_this(
+  path = "community_missing_plot_link.csv",
+  output_name = "community_missing_plot_link",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 
+<!--
 # community: missing vb_cc_code
 ```{r}
 x <- audit[["community_missing_vb_cc_code"]] %>%
   select(any_of(c("user_ob_code", "vb_cc_code", "drop_reason"))) %>%
   head(500)
 dt(x, pageLength = 25)
-```
 
-# strataCover: not linked to a kept plot obs
+x %>% 
+downloadthis::download_this(
+  path = "community_missing_vb_cc_code.csv",
+  output_name = "community_missing_vb_cc_code",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
+```
+-->
+
+# strataCover (plants): not linked to a kept plot obs
 ```{r}
 x <- audit[["strataCover_missing_plot_link"]] %>%
-  select(any_of(c("user_ob_code", "user_sr_code", "user_to_code", "author_plant_name", "drop_reason"))) %>%
+  select(any_of(c("user_ob_code", "author_plant_name", "drop_reason"))) %>%
+  rename(SurveyID = user_ob_code) %>% 
   head(500)
 dt(x, pageLength = 25)
+
+x %>% 
+downloadthis::download_this(
+  path = "strataCover_missing_plot_link.csv",
+  output_name = "strataCover_missing_plot_link.csv",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 
-# strataCover: missing author_plant_name
+# strataCover (plants): missing author_plant_name
 ```{r}
 x <- audit[["strataCover_missing_author_plant_name"]] %>%
-  select(any_of(c("user_ob_code", "user_sr_code", "user_to_code", "author_plant_name", "drop_reason"))) %>%
+  select(any_of(c("user_ob_code", "author_plant_name", "drop_reason"))) %>%
   head(500)
 dt(x, pageLength = 25)
+
+x %>% 
+downloadthis::download_this(
+  path = "strataCover_missing_author_plant_name.csv",
+  output_name = "strataCover_missing_author_plant_name",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 
+
+<!--
 # Taxon dropped: missing required VegBank codes
 ```{r}
 cols <- c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason")
@@ -294,6 +364,7 @@ x <- audit[["taxon_missing_required_vb_codes"]] %>%
   head(500)
 dt(x, pageLength = 25)
 ```
+-->
 
 # taxon dropped: not linked to filtered strata cover
 ```{r}
@@ -301,5 +372,14 @@ x <- audit[["taxon_missing_strataCover_link"]] %>%
   select(any_of(c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason"))) %>%
   head(500)
 dt(x, pageLength = 25)
+
+x %>% 
+downloadthis::download_this(
+  path = "taxon_missing_strataCover_link.csv",
+  output_name = "taxon_missing_strataCover_link",
+  button_label = "Download",
+  button_type = "primary",
+  has_icon = TRUE,
+  icon = "fa fa-download")
 ```
 

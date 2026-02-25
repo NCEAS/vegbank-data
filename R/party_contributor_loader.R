@@ -72,12 +72,8 @@ party_contributor_loader <- function(in_dir, out_dir){
     mutate(
       MiddleName = na_if(MiddleName, ""),
       across(c(FirstName, MiddleName, LastName), str_squish)
-    )
-  
-  ### user_py_code (Party) ###
-  # Create a unique code for each individual (ca_***)
-  projects <- projects %>%
-    mutate(user_py_code = sprintf("ca_%03d", seq_len(n()))) 
+    ) %>% 
+    mutate(ContactEmail = tolower(ContactEmail))
   
   roles <- tibble::tribble(
     ~ar_code, ~role_name,
@@ -133,21 +129,20 @@ party_contributor_loader <- function(in_dir, out_dir){
       contributor_type = "Project"
     )
   
-  ### vb_py_code (Contributor) ###
-  # If the person matches, turn user_py_code into vb_py_code
-  
-  # Turn get_all_parties() output into a dataframe
-  suppressMessages(vegbankr::vb_set_base_url("https://api-dev.vegbank.org"))
-  party_vegbank <- as.data.frame(vegbankr::vb_get_parties(limit = 5000))
-  
-  # Create a "full_name" key in both data frames
-  project_names <- projects %>% 
+  # TODO: clean this up more?
+  people <- projects %>% 
+    select(FirstName, MiddleName, LastName, ContactEmail, ContactOrg) %>% 
+    distinct() %>% 
     mutate(
       full_name = pmap_chr(
         list(FirstName, MiddleName, LastName),
         ~ str_trim(str_to_lower(paste(na.omit(c(...)), collapse = " ")))
       )
     )
+  
+  # get existing vb parties by name
+  suppressMessages(vegbankr::vb_set_base_url("https://api-dev.vegbank.org"))
+  party_vegbank <- as.data.frame(vegbankr::vb_get_parties(limit = 5000))
   
   vegbank_names <- party_vegbank %>%
     mutate(
@@ -158,7 +153,7 @@ party_contributor_loader <- function(in_dir, out_dir){
     )
   
   # Check for matching names across data sets 
-  matching_names <- intersect(project_names$full_name, vegbank_names$full_name)
+  matching_names <- intersect(people$full_name, vegbank_names$full_name)
   
   # Keep 63 entries; keep party_LT; keep df1
   # Check if the person matches from party_LT to party_vegbank
@@ -171,25 +166,32 @@ party_contributor_loader <- function(in_dir, out_dir){
     distinct(full_name, .keep_all = TRUE)
   
   # Left join to get vb_py_code
-  project_names_j <- project_names %>% 
+  people_j <- people %>% 
     left_join(veg_subset, by = "full_name") %>% 
-    mutate(user_cr_code = sprintf("ca_cr_%03d", seq_len(n())))
+    select(-full_name) %>% 
+    mutate(user_py_code = sprintf("ca_pt_%03d", seq_len(n())))
   
-  if (nrow(project_names_j) > nrow(project_names)){
+  if (nrow(people_j) > nrow(people)){
     warning("Joining vegbank party identifiers resulted in duplicated rows. This could indicate an issue with the vegbank party codes, the input data, or both.")
   }
   
-  party_LT <- projects %>%
+  party_LT <- people_j %>%
     select(
       user_py_code,
+      given_name = FirstName,
+      middle_name = MiddleName,
       surname = LastName,
       organization_name = ContactOrg,
-      given_name = FirstName,
-      email = ContactEmail,
-      middle_name = MiddleName
+      email = ContactEmail
     )
+  
+  # then join back to projects to get contrib and roles?
+  ctrib <- left_join(projects, people_j, by = join_by(FirstName, MiddleName, LastName, ContactEmail, ContactOrg)) %>% 
+    select(ProjectCode, ar_code, py_code, user_py_code) %>% 
+    mutate(contributor_type = "Project") %>% 
+    mutate(user_cr_code = sprintf("ca_cr_%03d", seq_len(n())))
 
-  contributor_LT <- project_names_j %>%
+  contributor_LT <- ctrib %>%
     select(
       user_cr_code,
       vb_py_code = py_code,
