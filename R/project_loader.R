@@ -7,6 +7,16 @@ library(tidyverse)
 #' @param out_dir Directory of data to write to
 #'
 #' @return None. Writes loader tables projectLT.csv to `out_dir`.
+#' 
+#' @details
+#' The function performs the following operations:
+#' \itemize{
+#'   \item Converts project start and end dates from datetime to date format
+#'   \item Validates date ranges
+#'   \item Handles duplicate project codes by retaining only the record with the longest
+#'         (most detailed) project description
+#'   \item Maps CDFW field names to VegBank loader table field names
+#' }
 project_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%

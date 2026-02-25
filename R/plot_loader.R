@@ -12,6 +12,12 @@ options(tigris_use_cache = TRUE, tigris_class = "sf")
 #' @param df_group data.frame with `crs`, `UTME_final`, `UTMN_final` columns
 #'
 #' @return data.frame with a row identifier, latitude, and longitude column
+#' 
+#' @details
+#' This function is designed to work with grouped data (split by CRS) to handle
+#' different coordinate reference systems. It converts UTM coordinates to
+#' geographic coordinates (WGS84, EPSG:4326) using the sf package.
+#' 
 convert_to_ll <- function(df_group) {
   crs_utm <- unique(df_group$crs)
   if (length(crs_utm) != 1 || is.na(crs_utm)) return(NULL)
@@ -30,6 +36,21 @@ convert_to_ll <- function(df_group) {
     select(.row_id, real_longitude, real_latitude)
 }
 
+#' Reads RAPlots.csv, AltPlots.csv, and AltStrata.csv files from VegBank
+#' subdirectories and merges them by SurveyID
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return Merged data frame containing all plot data with validated survey dates
+#' 
+#' @details
+#' \itemize{
+#'   \item Left joins AltPlots and AltStrata to RAPlots by SurveyID
+#'   \item Drops columns that are entirely NA
+#'   \item Converts SurveyDate from datetime to date format
+#'   \item Validates dates
+#' }
 # read in files from input directory and join into one table
 load_plot_files <- function(in_dir) {
   
@@ -91,6 +112,19 @@ load_plot_files <- function(in_dir) {
   
 }
 
+#' Converts elevation and GPS error measurements to meters 
+#' 
+#' @param plots_merged Data frame containing plot data with elevation fields
+#' 
+#' @return Data frame with elevation and error measurements in meters
+#' 
+#' @details
+#' **Conversions**
+#' \itemize{
+#'   \item Elevation: Converts from feet to meters if `ft_mElevation` starts with 'f' or 'F'
+#'   \item ErrorMeasurement: Converts from feet to meters if `ErrorUnits` starts with 'f' or 'F'
+#'   \item Conversion factor: 1 foot = 0.3048 meters
+#' }
 # normalize elevation with correct units, and error measurement
 normalize_elevation <- function(plots_merged){
   
@@ -125,6 +159,22 @@ normalize_elevation <- function(plots_merged){
   
 }
 
+#' Standardizes GPS datum values, assigns EPSG codes, and converts UTM coordinates
+#' to WGS84 latitude/longitude
+#' 
+#' @param plots_merged Data frame containing plot data with coordinate fields
+#' 
+#' @return Data frame with standardized datums, EPSG codes, and latitude/longitude
+#'         coordinates
+#'         
+#' @details
+#' **Coordinate Conversion**
+#' \itemize{
+#'   \item Uses `UTME_final` and `UTMN_final` (falls back to `UTME` and `UTMN` if NA)
+#'   \item Splits data by CRS, converts each group separately
+#'   \item Merges converted coordinates back by row ID
+#'   \item Missing datum defaults to NAD83 (difference from WGS84 is 1-2 meters)
+#' }
 # normalize CRS and convert to lat/lon
 normalize_coordinates <- function(plots_merged){
   
@@ -187,6 +237,28 @@ normalize_coordinates <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Determines state and county for each plot by spatially joining coordinates
+#' with US state and county boundaries from the TIGRIS package
+#' 
+#' @param plots_merged Data frame containing plot data with latitude/longitude
+#'                     coordinates
+#'                     
+#' @return Data frame with state, county, country, and continent fields populated
+#' 
+#' @details
+#' **Spatial Matching:**
+#' \itemize{
+#'   \item Downloads US state and county boundaries via TIGRIS
+#'   \item Performs spatial intersection to assign locations
+#'   \item Warns about plots with missing location information
+#' }
+#' **Manual Corrections:**
+#' Some known locations with problematic coordinates are manually assigned:
+#' \itemize{
+#'   \item Quail Hollow Quarry Conservation Areas → Santa Cruz County
+#'   \item Fish Slough areas → California
+#'   \item Pickel Meadows → California
+#' }
 assign_state_county <- function(plots_merged){
   # getting state boundaries
   suppressMessages(states_sf <- tigris::states(progress_bar = FALSE) %>% 
@@ -247,6 +319,31 @@ assign_state_county <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Standardizes plot area measurements to square meters and infers plot shapes 
+#' from dimensions when not explicitly recorded
+#' 
+#' @param plots_merged Data frame containing plot data with area and shape fields
+#' 
+#' @return Data frame with normalized area (square meters) and shape fields
+#' 
+#' @details
+#' **Area Normalization:**
+#' \itemize{
+#'   \item Removes unit designators (m², sq m, etc.)
+#'   \item Converts hectares to square meters (1 hectare = 10,000 m²)
+#'   \item Handles fractional hectares (e.g., "1/2 Hectare" → 5000 m²)
+#'   \item Calculates area from ViewRadius if direct measurement unavailable
+#'   \item Calculates area from SurveyLength × SurveyWidth if dimensions available
+#'   \item Sets area to -1 if plot has no defined boundaries
+#'   \item Converts problematic values (%, "Entire Polygon") to NA
+#' }
+#' **Shape Inference:**
+#' When PlotShape is missing, shape is inferred from measurements:
+#' \itemize{
+#'   \item ViewRadius > 0 → "circle"
+#'   \item Length ≈ Width (within 2% tolerance) → "square"
+#'   \item Length ≠ Width → "rectangle"
+#' }
 # TODO: fix this after feedback from CDFW. need to deal with rows that have % in them
 normalize_area_shape <- function(plots_merged){
   
