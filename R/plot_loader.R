@@ -420,6 +420,31 @@ normalize_area_shape <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Standardizes slope aspect codes and calculates numeric slope gradient from
+#' categorical or measured values
+#' 
+#' @param plots_merged Data frame containing plot data with slope fields
+#' 
+#' @return Data frame with normalized aspect and gradient values
+#' 
+#' @details
+#' **Aspect Codes:**
+#' \itemize{
+#'   \item Flat locations: -1
+#'   \item Variable aspect: -2
+#'   \item Otherwise: Uses actual measured aspect (0-360 degrees)
+#' }
+#' **Gradient Calculation:**
+#' Priority order:
+#' \enumerate{
+#'   \item Slope_actual (measured value, treats 999 as NA)
+#'   \item If Slope_gen indicates ">25", uses 35
+#'   \item Calculates midpoint from Slope_gen ranges (e.g., "10-15" → 12.5)
+#' }
+#'
+#' @note
+#' All flat locations are coded as -1 regardless of whether they were originally
+#' recorded as 0, 999, or blank.
 normalize_slope_aspect <- function(plots_merged){
   ### slope_aspect (PlotObservations) ###
   # Aspect_actual (RAPlots) to Aspect_gen (RAPlots)
@@ -462,6 +487,11 @@ normalize_slope_aspect <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Standardizes survey type descriptions by converting to lowercase
+#' 
+#' @param plots_merged Data frame containing plot data with Survey_Type field
+#' 
+#' @return Data frame with lowercase methodNarrative field
 normalize_methods <- function(plots_merged){
   ### methodNarrative (PlotObservations) ###
   # Survey_Type (RAPlots) and AdditionalNotes (AltPlots)
@@ -474,6 +504,26 @@ normalize_methods <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Maps detailed macrotopographic position descriptions to standardized
+#' VegBank topographic position categories
+#' 
+#' @param plots_merged Data frame containing plot data with MacroTopo field
+#' 
+#' @return Data frame with standardized topo_position field
+#' 
+#' @details
+#' Uses a comprehensive lookup table mapping 70+ position descriptions to
+#' standardized categories including:
+#' \itemize{
+#'   \item Basin floor
+#'   \item Lowslope
+#'   \item Midslope
+#'   \item High slope
+#'   \item Interfluve
+#'   \item Channel bed
+#'   \item Toeslope
+#'   \item Low level / High level
+#' }
 normalize_topo_position <- function(plots_merged){
   ### topo_position (PlotObservations) ###
   # MacroTopo (RAPlots)
@@ -572,6 +622,11 @@ normalize_topo_position <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Sums boulder, stone, cobble, and gravel cover into a single percentage 
+#' 
+#' @param plots_merged Data frame containing rock/gravel cover fields
+#' 
+#' @return Data frame with calculated percentRockGravel field
 calc_percent_rock <- function(plots_merged){
   ### percentOther (PlotObservations) ###
   # Boulders/Stones/Cobbles/Gravels (RAPlots) - percentRockGravel (plots)
@@ -594,6 +649,11 @@ calc_percent_rock <- function(plots_merged){
   
 }
 
+#' Sums hardwood, conifer, and regenerating tree cover into a single percentage
+#' 
+#' @param plots_merged Data frame containing tree cover fields
+#' 
+#' @return Data frame with calculated treeCover field
 calc_tree_cover <- function(plots_merged){
   # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
   # Need to combine 3 columns into one
@@ -609,6 +669,15 @@ calc_tree_cover <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Converts categorical conifer height ranges to numeric midpoint values
+#' 
+#' @param plots_merged Data frame containing Conif_ht2 field
+#' 
+#' @return Data frame with calculated Conif_ht22 numeric field
+#' 
+#' @details
+#' Manually maps all observed conifer height categories to numeric values
+#' 
 calc_conif_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###_rat
   # Conif_ht2 and Hdwd_ht2 (RAPlots)
@@ -667,6 +736,15 @@ calc_conif_height <- function(plots_merged){
   
 }
 
+#' Converts categorical hardwood height ranges to numeric midpoint values
+#' 
+#' @param plots_merged Data frame containing Hdwd_ht2 field
+#' 
+#' @return Data frame containing Hdwd_ht22 field
+#' 
+#' @details
+#' Manually maps all observed hardwood height categories to numeric values
+#' 
 calc_hdwd_height <- function(plots_merged){
   # Hdwd_ht2
   plots_merged <- plots_merged %>% 
@@ -713,6 +791,19 @@ calc_hdwd_height <- function(plots_merged){
   
 }
 
+#' Determines the maximum tree height from hardwood and conifer measurements.
+#' Ensures cover percentages are scaled to 0-100 range
+#' 
+#' @param plots_merged Data frame containing tree height and cover fields
+#' 
+#' @return Data frame with treeHt field (maximum of conifer and hardwood heights)
+#' 
+#' @details
+#' \itemize{
+#'   \item Scales cover values: if <1, multiplies by 100 to convert from proportion
+#'   \item Takes maximum of Conif_ht22 and Hdwd_ht22
+#'   \item Handles case where both are NA (sets to NA instead of Inf)
+#' }
 # TODO: check with CDFW on this modification to cover
 assign_tree_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###
@@ -728,6 +819,22 @@ assign_tree_height <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Determines the two most dominant tree growth forms (conifer vs. hardwood)
+#' based on cover values
+#' 
+#' @param plots_merged Data frame containing tree cover and height fields
+#' 
+#' @return Data frame with growth form type and cover fields for primary and
+#' secondary growth forms
+#' 
+#' @details
+#' **Output Fields:**
+#' \itemize{
+#'   \item growthform1Type: "Conifer Tree" or "Hardwood Tree"
+#'   \item growthform2Type: The other type (or NA if only one present)
+#'   \item growthform1Cover: Height of dominant type
+#'   \item growthform2Cover: Height of secondary type
+#' }
 assign_growth_form <- function(plots_merged){
   
   plots_merged <- plots_merged %>%
@@ -814,6 +921,25 @@ assign_growth_form <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Queries VegBank API to check if any plot codes (SurveyIDs) already exist in
+#' the database
+#' 
+#' @param plots_merged Data frame containing SurveyID field
+#' @param vb_url Character string. Base URL for VegBank API (default:
+#' "https://api-dev.vegbank.org")
+#' @param renew_cache Logical. If TRUE, re-downloads data from API. If FALSE,
+#' uses cached data if available
+#' 
+#' @return None
+#' 
+#' @details
+#' **Adaptive Paging:**
+#' \itemize{
+#'   \item Starts with 5000 records per page
+#'   \item Reduces page size on errors (minimum 500)
+#'   \item Saves checkpoints every 10 pages
+#'   \item Deduplicates records across pages
+#' }
 check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
@@ -921,6 +1047,32 @@ check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank
   
 }
 
+#' Helper function to convert height ranges to numeric midpoint values, with
+#' special handling for less-than and greater-than values
+#' 
+#' @param x Character vector of height values
+#' @param less_rule How to handle less-than values
+#' @param greater_rule How to handle greater-than values
+#' @param treat_zero_as_na Logical. If TRUE, converts 0 values to NA
+#' 
+#' @return Numeric vector of converted height values
+#' 
+#' @details
+#' **Conversions:**
+#' \itemize{
+#'   \item Ranges: "5-10 m" → 7.5
+#'   \item Less-than: "<0.5 m" → 0.25 (if less_rule = "half")
+#'   \item Greater-than: ">50 m" → 50 (if greater_rule = "keep")
+#'   \item Fractions: "1/2" → 0.5
+#'   \item Plain numbers: "7.5" → 7.5
+#'   \item Missing values: "N/A", "Not recorded", "<Null>" → NA
+#' }
+#' **Preprocessing:**
+#' \itemize{
+#'   \item Normalizes whitespace and case
+#'   \item Converts dash types (em-dash → hyphen)
+#'   \item Removes units and text
+#' }
 # helper function for range to midpoint
 range_to_midpoint <- function(x,
                               less_rule = c("half", "keep", "na"),
@@ -987,6 +1139,15 @@ range_to_midpoint <- function(x,
   out
 }
 
+#' Converts categorical shrub height ranges to numeric midpoint values using the
+#' generic range_to_midpoint helper
+#' 
+#' @param plots_merged Data frame containing Shrub_ht2 field
+#' 
+#' @return Data frame with calculated Shrub_ht22 field
+#' 
+#' @details
+#' Uses range_to_midpoint with less_rule = "half" and greater_rule = "keep"
 # calculate shrub height
 calc_shrub_height <- function(plots_merged){
   
@@ -1007,6 +1168,16 @@ calc_shrub_height <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Converts categorical herbaceous vegetation height ranges to numeric midpoint
+#' values using the range_to_midpoint helper
+#' 
+#' @param plots_merged Data frame containing Herb_ht2 field
+#' 
+#' @return Data frame with calculated Herb_ht22 field
+#' 
+#' @details
+#' Uses range_to_midpoint with less_rule = "half" and greater_rule = "keep"
+#' 
 # calculate field height
 calc_herb_height <- function(plots_merged){
   
@@ -1028,6 +1199,19 @@ calc_herb_height <- function(plots_merged){
   return(plots_merged)
 }
 
+#' Ensures text fields do not exceed VegBank's maximum character limits
+#' 
+#' @param plots_merged Data frame containing text fields
+#' 
+#' @return Data frame with truncated fields
+#' 
+#' @details
+#' **Truncations:**
+#' \itemize{
+#'   \item SiteLocation: 200 characters
+#'   \item DomForm: 40 characters
+#' }
+#' 
 # truncate fields that are varchar(n)
 truncate_fields <- function(plots_merged){
   plots_merged <- plots_merged %>% 
@@ -1035,6 +1219,26 @@ truncate_fields <- function(plots_merged){
     mutate(DomForm = substr(SiteLocation, 1, 40))
 }
 
+#' Handles duplicate user_pl_code values by assigning unique suffixes when
+#' plot-level attributes differ
+#' 
+#' @param plots_LT Data frame containing plot loader data table
+#' 
+#' @return Data frame with deduplicated user_pl_code values
+#' 
+#' @details
+#' **Deduplication Logic:**
+#' \enumerate{
+#'   \item Identifies plots with duplicate user_pl_code
+#'   \item Checks if plot-level attributes (coordinates, elevation, shape, etc.) differ
+#'   \item Assigns suffixes (_1, _2, etc.) to plots with different attributes
+#'   \item Leaves truly identical duplicates as-is
+#' }
+#'
+#' **Plot-Level Fields Checked:**
+#' Coordinates, elevation, slope, aspect, area, shape, topographic position,
+#' and other spatial attributes. Differences in these fields indicate distinct
+#' plots that happen to share the same code.
 # handle duplicate plot data
 # TODO: redo this and 
 deduplicate_plot_data <- function(plots_LT){
@@ -1127,6 +1331,7 @@ deduplicate_plot_data <- function(plots_LT){
   
 }
 
+#' Main function that
 plots_loader <- function(in_dir, out_dir){
   
   # read in all the files and join to one table
