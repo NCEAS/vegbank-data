@@ -95,13 +95,6 @@ proj_codes <- projects %>%
   pull(user_pj_code)
 
 # Plots
-a1 <- filter_with_audit(
-  plots,
-  !is.na(latitude) & !is.na(longitude),
-  "plots: missing latitude and/or longitude"
-)
-plots_step1 <- a1$kept
-audit[["plots_missing_latlon"]] <- a1$dropped
 
 a2 <- filter_with_audit(
   plots_step1,
@@ -222,70 +215,65 @@ a12 <- filter_with_audit(
 tax_semi <- a12$kept
 audit[["taxon_missing_strataCover_link"]] <- a12$dropped
 
-summary_tbl <- tibble(
-  step = c(
-    "plots: missing lat/lon",
-    "plots: missing project link",
-    "disturbance: missing plot link",
-    "community: missing plot link",
-    "community: missing vb_cc_code",
-    "strataDefinitions: missing plot link",
-    "strataDefinitions: missing vb_sy_code",
-    "strataCover: missing plot link",
-    "strataCover: missing author_plant_name",
-    "strataCover: missing user_sr_code (no StrataMethodsLT)",
-    if (has_vb_ro) "taxon: missing vb_pc_code/vb_ro_code" else "taxon: missing vb_pc_code",
-    "taxon: missing strataCover link"
-  ),
-  dropped_rows = c(
-    nrow(a1$dropped),
-    nrow(a2$dropped),
-    nrow(a3$dropped),
-    nrow(a4$dropped),
-    nrow(a5$dropped),
-    nrow(a6$dropped),
-    nrow(a7$dropped),
-    nrow(a8$dropped),
-    nrow(a9$dropped),
-    nrow(a10$dropped),
-    nrow(a11$dropped),
-    nrow(a12$dropped)
-  )
+steps <- c(
+  if (nrow(a2$dropped) > 0) "plots: missing project link",
+  "disturbance: missing plot link",
+  "community: missing plot link",
+  "community: missing vb_cc_code",
+  "strataDefinitions: missing plot link",
+  "strataDefinitions: missing vb_sy_code",
+  "strataCover: missing plot link",
+  "strataCover: missing author_plant_name",
+  "strataCover: missing user_sr_code (no StrataMethodsLT)",
+  if (has_vb_ro) "taxon: missing vb_pc_code/vb_ro_code" else "taxon: missing vb_pc_code",
+  "taxon: missing strataCover link"
 )
+
+drops <- c(
+  if (nrow(a2$dropped) > 0) nrow(a2$dropped),
+  nrow(a3$dropped),
+  nrow(a4$dropped),
+  nrow(a5$dropped),
+  nrow(a6$dropped),
+  nrow(a7$dropped),
+  nrow(a8$dropped),
+  nrow(a9$dropped),
+  nrow(a10$dropped),
+  nrow(a11$dropped),
+  nrow(a12$dropped)
+)
+
+summary_tbl <- tibble(step = steps, dropped_rows = drops)
 ```
 
 ```{r}
 dt(summary_tbl, pageLength = 25)
 ```
 
-<!-- # plots lat/lon
-```{r}
-x <- audit[["plots_missing_latlon"]] %>%
-  select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "latitude", "longitude", "drop_reason"))) %>%
-  head(500)
-dt(x, pageLength = 25)
-```
--->
 # plots: project code not found in projectsLT
 
-**Unique unmatched project codes: CPVC, HETH**
 
 ```{r}
-x <- audit[["plots_missing_project_link"]] %>%
-  select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "drop_reason"))) %>%
-  rename(SurveyID = user_ob_code, StandID = user_pl_code, ProjectCode = user_pj_code) %>% 
-  head(500)
-dt(x, pageLength = 25)
+if (nrow(audit[["plots_missing_project_link"]]) == 0) {
+  cli::cli_alert_success("No plots dropped for missing project link.")
+} else {
+  x <- audit[["plots_missing_project_link"]] %>%
+    select(any_of(c("user_ob_code", "user_pl_code", "user_pj_code", "drop_reason"))) %>%
+    rename(SurveyID = user_ob_code, StandID = user_pl_code, ProjectCode = user_pj_code) %>%
+    head(500)
 
-x %>% 
-downloadthis::download_this(
-  path = "plots_missing_project_link.csv",
-  output_name = "plots_missing_project_link",
-  button_label = "Download",
-  button_type = "primary",
-  has_icon = TRUE,
-  icon = "fa fa-download"
-)
+  dt(x, pageLength = 25)
+
+  x %>%
+    downloadthis::download_this(
+      path = "plots_missing_project_link.csv",
+      output_name = "plots_missing_project_link",
+      button_label = "Download",
+      button_type = "primary",
+      has_icon = TRUE,
+      icon = "fa fa-download"
+    )
+}
 ```
 
 # disturbance dropped: not linked to existing plot obs
