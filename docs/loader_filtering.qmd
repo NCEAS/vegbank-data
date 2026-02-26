@@ -22,6 +22,15 @@ library(cli)
 library(glue)
 library(downloadthis)
 
+try(
+  assignInNamespace(
+    "add_html_caption",
+    function(x, caption = NULL, ...) x,
+    ns = "knitr"
+  ),
+  silent = TRUE
+)
+
 out_dir <- "../data/loader-tables"
 
 read_lt <- function(filename) {
@@ -97,7 +106,7 @@ proj_codes <- projects %>%
 # Plots
 
 a2 <- filter_with_audit(
-  plots_step1,
+  plots,
   user_pj_code %in% proj_codes,
   "plots: ProjectCode not found in projectLT"
 )
