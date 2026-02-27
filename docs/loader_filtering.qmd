@@ -1,35 +1,34 @@
 ---
 title: "Loader Table Filtering"
+execute:
+  echo: false
+  warning: false
+  message: false
 format:
   html:
     toc: true
     toc-depth: 3
     code-fold: true
-execute:
-  warning: false
-  message: false
+    code-tools: false
+    code-line-numbers: false
+    smart: false
 ---
 
 This document shows rows that had to be dropped prior to ingest, and the reason that they were removed.
 
 Below is a summary of all dropped rows:
 
-```{r, echo=FALSE}
+
+```{r}
+#| label: setup
+#| include: false
+
 library(tidyverse)
 library(readr)
 library(DT)
 library(cli)
 library(glue)
 library(downloadthis)
-
-try(
-  assignInNamespace(
-    "add_html_caption",
-    function(x, caption = NULL, ...) x,
-    ns = "knitr"
-  ),
-  silent = TRUE
-)
 
 out_dir <- "../data/loader-tables"
 
@@ -48,7 +47,7 @@ filter_with_audit <- function(df, condition, reason) {
 }
 
 dt <- function(x, pageLength = 25) {
-  datatable(
+  DT::datatable(
     x,
     rownames = FALSE,
     filter = "top",
@@ -256,7 +255,12 @@ summary_tbl <- tibble(step = steps, dropped_rows = drops)
 ```
 
 ```{r}
-dt(summary_tbl, pageLength = 25)
+DT::datatable(
+    summary_tbl,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 ```
 
 # plots: project code not found in projectsLT
@@ -271,7 +275,12 @@ if (nrow(audit[["plots_missing_project_link"]]) == 0) {
     rename(SurveyID = user_ob_code, StandID = user_pl_code, ProjectCode = user_pj_code) %>%
     head(500)
 
-  dt(x, pageLength = 25)
+  DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 
   x %>%
     downloadthis::download_this(
@@ -291,7 +300,12 @@ x <- audit[["disturbance_missing_plot_link"]] %>%
   select(any_of(c("user_ob_code", "type", "intensity", "drop_reason"))) %>%
   rename(SurveyID = user_ob_code) %>% 
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 
 x %>% 
 downloadthis::download_this(
@@ -309,7 +323,12 @@ x <- audit[["community_missing_plot_link"]] %>%
   select(any_of(c("user_ob_code", "drop_reason"))) %>%
   rename(SurveyID = user_ob_code) %>% 
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 
 x %>% 
 downloadthis::download_this(
@@ -321,9 +340,10 @@ downloadthis::download_this(
   icon = "fa fa-download")
 ```
 
-<!--
 # community: missing vb_cc_code
 ```{r}
+#| eval: false
+
 x <- audit[["community_missing_vb_cc_code"]] %>%
   select(any_of(c("user_ob_code", "vb_cc_code", "drop_reason"))) %>%
   head(500)
@@ -338,7 +358,6 @@ downloadthis::download_this(
   has_icon = TRUE,
   icon = "fa fa-download")
 ```
--->
 
 # strataCover (plants): not linked to a kept plot obs
 ```{r}
@@ -346,7 +365,12 @@ x <- audit[["strataCover_missing_plot_link"]] %>%
   select(any_of(c("user_ob_code", "author_plant_name", "drop_reason"))) %>%
   rename(SurveyID = user_ob_code) %>% 
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 
 x %>% 
 downloadthis::download_this(
@@ -363,7 +387,12 @@ downloadthis::download_this(
 x <- audit[["strataCover_missing_author_plant_name"]] %>%
   select(any_of(c("user_ob_code", "author_plant_name", "drop_reason"))) %>%
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 
 x %>% 
 downloadthis::download_this(
@@ -376,23 +405,29 @@ downloadthis::download_this(
 ```
 
 
-<!--
 # Taxon dropped: missing required VegBank codes
 ```{r}
+#| eval: false
+
 cols <- c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason")
 x <- audit[["taxon_missing_required_vb_codes"]] %>%
   select(any_of(cols)) %>%
   head(500)
 dt(x, pageLength = 25)
 ```
--->
+
 
 # taxon dropped: not linked to filtered strata cover
 ```{r}
 x <- audit[["taxon_missing_strataCover_link"]] %>%
   select(any_of(c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason"))) %>%
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 
 x %>% 
 downloadthis::download_this(
@@ -409,7 +444,12 @@ downloadthis::download_this(
 x <- audit[["strataDefinitions_missing_plot_link"]] %>%
   select(any_of(c("user_ob_code", "user_sr_code", "vb_sy_code", "drop_reason"))) %>%
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 ```
 
 # strata definitions dropped: missing vb_sy_code
@@ -417,6 +457,11 @@ dt(x, pageLength = 25)
 x <- audit[["strataDefinitions_missing_vb_sy_code"]] %>%
   select(any_of(c("user_ob_code", "user_sr_code", "vb_sy_code", "drop_reason"))) %>%
   head(500)
-dt(x, pageLength = 25)
+DT::datatable(
+    x,
+    rownames = FALSE,
+    filter = "top",
+    options = list(pageLength = 25, autoWidth = TRUE, scrollX = TRUE)
+  )
 ```
 
