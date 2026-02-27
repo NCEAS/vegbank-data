@@ -202,9 +202,19 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   # try to match most recent USDA codes, moving down through older lists if no matches are found
   
   pc_usda <- pc_all %>%
-    filter(grepl("USDA Plants", concept_rf_label))
+    filter(grepl("USDA", concept_rf_label))
   
-  pc_usda$concept_rf_label <- factor(pc_usda$concept_rf_label, levels = sort(unique(pc_usda$concept_rf_label)))
+  levs <- c("USDA Plants 1996",
+           "USDA Plants 2002",
+           "USDA PLANTS 2006",
+           "USDA Plants 2010",
+           "USDA Plants 2011",
+           "USDA Plants 2015",
+           "USDA Plants 2020",
+           "USDA PLANTS accepted current",
+           "USDA 2026")
+  
+  pc_usda$concept_rf_label <- factor(pc_usda$concept_rf_label, levels = levs)
   
   pc_lookup_no_repeats <- pc_usda %>% 
     group_by(plant_code) %>% 
