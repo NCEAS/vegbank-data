@@ -677,7 +677,6 @@ calc_tree_cover <- function(plots_merged){
 #' 
 #' @details
 #' Manually maps all observed conifer height categories to numeric values
-#' 
 calc_conif_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###_rat
   # Conif_ht2 and Hdwd_ht2 (RAPlots)
@@ -744,7 +743,6 @@ calc_conif_height <- function(plots_merged){
 #' 
 #' @details
 #' Manually maps all observed hardwood height categories to numeric values
-#' 
 calc_hdwd_height <- function(plots_merged){
   # Hdwd_ht2
   plots_merged <- plots_merged %>% 
@@ -1177,7 +1175,6 @@ calc_shrub_height <- function(plots_merged){
 #' 
 #' @details
 #' Uses range_to_midpoint with less_rule = "half" and greater_rule = "keep"
-#' 
 # calculate field height
 calc_herb_height <- function(plots_merged){
   
@@ -1211,7 +1208,6 @@ calc_herb_height <- function(plots_merged){
 #'   \item SiteLocation: 200 characters
 #'   \item DomForm: 40 characters
 #' }
-#' 
 # truncate fields that are varchar(n)
 truncate_fields <- function(plots_merged){
   plots_merged <- plots_merged %>% 
@@ -1331,7 +1327,18 @@ deduplicate_plot_data <- function(plots_LT){
   
 }
 
-#' Main function that
+#' Main function that orchestrates the plot data processing pipeline from raw
+#' CSV files to VegBank-compatible loader table
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None
+#' 
+#' @details
+#' This function executes a comprehensive data processing pipeline from data
+#' loading and merging, coordinate processing, plot characteristics,
+#' vegetation metrics, looking at data quality, and field mapping.
 plots_loader <- function(in_dir, out_dir){
   
   # read in all the files and join to one table
