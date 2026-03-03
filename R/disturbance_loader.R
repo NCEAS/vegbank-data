@@ -33,6 +33,10 @@ disturbance_loader <- function(in_dir, out_dir){
 
   
   impacts_lookup <- read_csv(file.path(in_dir, "lookup-tables/LImpacts.csv"), progress = FALSE, show_col_types = FALSE)
+  # additions to resolve missing lookup codes, per Rosie 2026-03-03
+  impacts_lookup_add <- tibble::tribble(~CodeImp, ~`Impact type`,
+                                        71, "Pollution",
+                                        34, "Feral pigs")
   
   # Intensity should be 1, 2, or 3
   # how will we handle values: 0, 10, 999, and 52?
