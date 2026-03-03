@@ -6,6 +6,17 @@ library(glue)
 
 # load in CDFW data -----------------------------------------------------------
 
+#' Reads and combines RAPlots.csv, RAClassification.csv, and RAProjects.csv
+#' files from VegBank
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' 
+#' @return Named list with three elements:
+#'   \describe{
+#'     \item{plots}{Combined RAPlots data}
+#'     \item{classification}{Combined RAClassification data}
+#'     \item{projects}{Combined RAProjects data (deduplicated by ProjectCode)}
+#'   }
 load_community_files <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
@@ -62,6 +73,20 @@ load_community_files <- function(in_dir) {
   return(out)
 }
 
+#' Maps project codes to standardized classification method flags (inspection,
+#' multivariate analysis, table analysis) and consolidates classification
+#' notes
+#' 
+#' @param projects Data frame containing project data with classification
+#'                 information
+#' @param in_dir Directory of VegBank data to read from
+#' 
+#' @return Data frame with one row per ProjectCode containing normalized
+#'         classification method flags and notes
+#'         
+#' @details
+#' Combines ClassificationDescription and ClassificationTool fields into a
+#' single class_notes field, removing empty entries and trailing punctuation
 normalize_projects_classification <- function(projects, in_dir) {
   
   method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260202.csv")) %>% 
@@ -101,7 +126,12 @@ normalize_projects_classification <- function(projects, in_dir) {
 }
 
 # plots (class_confidence)
-
+#' Standardizes confidence ratings from plots into three categories:
+#' High, Medium, Low. 
+#' 
+#' @param plots Data frame containing plot data with Confidence_ID field
+#' 
+#' @return Data frame with two columns: SurveyID and class_confidence
 normalize_class_confidence <- function(plots) {
   conf_raw <- plots$Confidence_ID %>%
     as.character() %>%
@@ -152,6 +182,33 @@ normalize_class_confidence <- function(plots) {
   return(plots_conf)
 }
 
+#' Queries the VegBank API to retrieve all community concept records with 
+#' caching and adaptive paging
+#' 
+#' @param vb_url Base URL for VegBank API
+#' @param renew_cache If TRUE, re-downloads from API. If FALSE, uses cached data
+#'                    if available
+#'                    
+#' @return Data frame containing all VegBank community concepts with standardized
+#'         column types
+#'         
+#' @details
+#' **Caching:**
+#' \itemize{
+#'   \item Cache location: `rappdirs::user_cache_dir("vegbank")/cc_all.csv`
+#'   \item Saves checkpoint every 10 pages in case of failure
+#'   \item Automatically resumes from cache if available
+#' }
+#' **Adaptive Paging:**
+#' \itemize{
+#'   \item Starts with 5000 records per page
+#'   \item Reduces to minimum 500 records on errors
+#'   \item Deduplicates records across pages using cc_code
+#'   \item Adds 0.05 second delay between requests
+#' }
+#' **Column Type Standardization:**
+#' Ensures consistent types across pages for fields like comm_description,
+#' status codes, parent codes, and dates
 get_vb_cc <- function(vb_url, renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
@@ -236,6 +293,18 @@ get_vb_cc <- function(vb_url, renew_cache = FALSE){
   return(cc_all)
 }
 
+#' Loads VegBank community concepts and California vegetation code crosswalk
+#' tables needed for matching CDFW classifications to VegBank
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' 
+#' @return Named list with two elements:
+#'  \describe{
+#'    \item{cacode_map}{Crosswalk mapping CaCodes to NVC codes}
+#'    \item{cc_lookup}{Lookup table mapping NVC codes to VegBank cc_codes}
+#'  }
+#'  
+#' @note This function downloads VegBank community concepts via API on first run
 load_reference_tables <- function(in_dir){
   # Community concepts from VegBank
   cc_all <- get_vb_cc("https://api-dev.vegbank.org", renew_cache = FALSE)
