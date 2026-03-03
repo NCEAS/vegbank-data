@@ -359,6 +359,26 @@ load_reference_tables <- function(in_dir){
   )
 }
 
+#' Matches CDFW CaCodes to VegBank community concept codes by getting CaCode, 
+#' NVC code, and then cc_code
+#' 
+#' @param classification Data frame containing classification data with CaCode
+#'                       field
+#' @param cacode_map Data frame mapping CaCodes to NVC codes
+#' @param cc_lookup Data frame mapping NVC codes to cc_code
+#' 
+#' @return Data frame with vb_cc_code field added
+#' 
+#' @details
+#' **Matching Process:**
+#' \enumerate{
+#'   \item Normalize CaCode (lowercase, trimmed)
+#'   \item Join to cacode_map to get NVC code
+#'   \item Join to cc_lookup to get VegBank cc_code
+#' }
+#' **Duplicate Handling:**
+#' When a CaCode maps to multiple NVC codes, only the first NVC code is used
+#' to prevent row duplication.
 assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
   
   cacode_map_1to1 <- cacode_map %>%
@@ -399,6 +419,18 @@ assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
   classification_norm
 }
 
+#' Combines classification records with confidence ratings and project
+#' classification methods, validating that no duplicate rows are created
+#' 
+#' @param classification_with_cc Data frame with classification data and cc_code
+#' @param plots_conf Data frame with SurveyID and class_confidence
+#' @param projects_proj Data frame with ProjectCode and classification methods
+#' 
+#' @return Combined data frame with all classification information
+#' 
+#' @details
+#' A left join is conducted with plots_conf by SurveyID. Then, another left join
+#' is conducted with projects_proj by ProjectCode
 join_classifications <- function(classification_with_cc, plots_conf, projects_proj){
   out <- classification_with_cc %>%
     left_join(plots_conf, by = "SurveyID") %>%
@@ -414,6 +446,18 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
   out
 }
 
+#' Main function that orchestrates the complete community classification
+#' processing pipeline from raw CSV files to VegBank-compatible loader tables
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes loader table communityClassificationsLT.csv to `out_dir`
+#' 
+#' @details
+#' This function executes a comprehensive classification processing pipeline
+#' from data loading, mapping project codes, confidence standardization,
+#' matches community concepts, data integration, and loader table generation.
 community_loader <- function(in_dir, out_dir){
   
   out <- load_community_files(in_dir)
