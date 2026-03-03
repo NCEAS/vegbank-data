@@ -264,13 +264,15 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   vb_strat <- vb_get_stratum_methods(limit = 5000)
   
   strata_cover_LT <- plants_join %>%
+    mutate(SurveyID = toupper(SurveyID)) %>% 
     select(
       user_to_code,
       user_ob_code = SurveyID,
       user_sr_code = strata_id,
       author_plant_name = species_norm,
       cover = Species_cover
-    )
+    ) %>% 
+    distinct()
   
   taxon_LT <- plants_join %>%
     mutate(

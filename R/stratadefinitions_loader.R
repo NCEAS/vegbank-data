@@ -170,11 +170,13 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   
   # required fields
   strata_def_LT <- plant_methods %>%
+    mutate(SurveyID = toupper(SurveyID)) %>% 
     select(
       user_ob_code = SurveyID,
       user_sr_code = strata_id,
       vb_sy_code = sy_code
-    )
+    ) %>% 
+    distinct()
   
   out_path_strata <- file.path(out_dir, "strataDefinitionsLT.csv")
 

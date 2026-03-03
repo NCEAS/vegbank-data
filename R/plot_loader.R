@@ -363,17 +363,10 @@ normalize_area_shape <- function(plots_merged){
   plots_merged$PlotArea[hec] <- gsub("Hectare|Hectares", "", plots_merged$PlotArea[hec])
   plots_merged$PlotArea[hec] <- as.character(as.numeric(plots_merged$PlotArea[hec]) * 10000)
   
-  # for now, turn the % and Entire Polygon  into NAs
-  # TODO: fix this after feedback from CDFW. keeping it out of the main mutate for now
+  # turn the % and Entire Polygon  into NAs per Rosie 206-03-03
   pct <- which(grepl("%|Entire Polygon|Other \\(please type in\\)", plots_merged$PlotArea, ignore.case = TRUE))
-  odd_values <- unique(grep("%|Entire Polygon|Other \\(please type in\\)", plots_merged$PlotArea, ignore.case = TRUE, value = TRUE))
-  
-  if (length(pct > 0)){
-    cli::cli_alert_warning("Some values in the PlotArea column were not able to be converted to numbers. Here is a sample of some of the {length(odd_values)} unique values:")
-    cli::cli_text("{odd_values}")
-  }
   plots_merged$PlotArea[pct] <- NA
-  # end TODO
+  plots_merged$PlotArea[pct] <- NA
   
   # -1 indicates plot has no boundaries (no area)
   plots_merged <- plots_merged %>%
@@ -404,18 +397,6 @@ normalize_area_shape <- function(plots_merged){
         TRUE                                  ~ NA_character_
       )
     )
-  
-  t <- which(!is.na(plots_merged$PlotShape) & plots_merged$PlotArea == -1)
-  
-  if (length(t > 0)){
-    cli::cli_alert_warning("Some rows have a PlotShape value, but no PlotArea. This affects rows with the following SurveyIds ({length(t)} rows): {plots_merged$SurveyID[t]}")
-  }
-  
-  t <- which(is.na(plots_merged$PlotShape) & plots_merged$PlotArea != -1)
-  
-  if (length(t > 0)){
-    cli::cli_alert_warning("Some rows have a PlotArea value, but no PlotShape This affects rows with the following SurveyIds ({length(t)} rows): {plots_merged$SurveyID[t]}")
-  }
   
   return(plots_merged)
 }
@@ -661,11 +642,9 @@ calc_tree_cover <- function(plots_merged){
     mutate(across(c(Hdwd_cover, Conif_cover, RegenTree_cover), ~ na_if(.x, 999))) %>% 
     mutate(
       treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover), na.rm = TRUE)
-    )
+    ) %>% 
+    mutate(treeCover = if_else(treeCover > 100, 100, treeCover)) # a few rows where tree cover exceeds 100, turn into 100 per Rosie 2026-03-03
   
-  if (max(plots_merged$treeCover, na.rm = T) > 100){
-    cli::cli_alert_warning("Some tree cover values ({length(which(plots_merged$treeCover > 100))} rows) are greater than 100. Check input data.")
-  }
   return(plots_merged)
 }
 
@@ -1368,6 +1347,7 @@ plots_loader <- function(in_dir, out_dir){
   
 
   plots_LT <- plots_merged %>%
+    mutate(SurveyID = toupper(SurveyID)) %>% 
     select(
       user_ob_code = SurveyID,
       user_pl_code = Stand_ID,
