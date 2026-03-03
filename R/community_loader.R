@@ -241,7 +241,15 @@ load_reference_tables <- function(in_dir){
   cc_all <- get_vb_cc("https://api-dev.vegbank.org", renew_cache = FALSE)
   
   cc_current <- cc_all %>%
-    filter(current_accepted == TRUE)
+    filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
+
+  cc_current$concept_rf_label <- factor(cc_current$concept_rf_label, levels = c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
+  
+  cc_current <- cc_current %>% 
+    group_by(comm_code) %>% 
+    slice_max(concept_rf_label) %>% 
+    filter(!is.na(comm_code)) %>% 
+    ungroup()
   
   # CA code map
   cacode_sheet_path <- file.path(in_dir, "lookup-tables/VegBank_CrosswalkHierarchyMCV.csv")
