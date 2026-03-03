@@ -12,9 +12,8 @@ library(stringr)
 #' @return None. Writes loader table soilLT.csv to `out_dir`
 #' 
 #' @details
-#' This function performs data loading, data cleaning, checks soil texture
-#' descriptions against the lookup table, 
-#' 
+#' This function performs data loading, data cleaning and checks soil texture
+#' descriptions against the lookup table.
 soil_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
