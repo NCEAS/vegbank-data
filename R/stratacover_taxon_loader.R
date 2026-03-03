@@ -5,7 +5,7 @@ library(httr)
 library(cli)
 library(glue)
 
-
+#' Reads files and loads prequisite loader tables
 load_stratacover_files <- function(in_dir, out_dir){
   # loading CA lookup table
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
