@@ -3,6 +3,18 @@ library(stringr)
 # load in CDFW data -------------------------------------------------------
 # RAPlots
 
+#' Extracts soil texture descriptions from RAPlots.csv files, validates values
+#' against a lookup table, and generates a soil loader table
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes loader table soilLT.csv to `out_dir`
+#' 
+#' @details
+#' This function performs data loading, data cleaning, checks soil texture
+#' descriptions against the lookup table, 
+#' 
 soil_loader <- function(in_dir, out_dir){
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
