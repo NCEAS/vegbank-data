@@ -63,11 +63,8 @@ party <- read_lt("partyLT.csv")
 contrib <- read_lt("contributorLT.csv")
 dist <- read_lt("disturbanceLT.csv")
 comm <- read_lt("communityClassificationsLT.csv")
-strat <- read_lt("strataCoverLT.csv") %>%
-  select(where(~ !all(is.na(.)))) %>%
-  mutate(user_tm_code = user_to_code)
-tax <- read_lt("taxonInterpretationsLT.csv") %>%
-  select(where(~ !all(is.na(.))))
+strat <- read_lt("strataCoverLT.csv") 
+tax <- read_lt("taxonInterpretationsLT.csv") 
 strat_defs <- read_lt("strataDefinitionsLT.csv")
 
 required_cols <- list(
@@ -76,7 +73,7 @@ required_cols <- list(
   dist     = c("user_ob_code"),
   comm     = c("user_ob_code", "vb_cc_code"),
   strat_defs = c("user_ob_code", "user_sr_code", "vb_sy_code"),
-  strat    = c("user_ob_code", "user_sr_code", "author_plant_name", "user_to_code"),
+  strat    = c("user_ob_code", "user_sr_code", "author_plant_name", "user_tm_code"),
   tax      = c("user_to_code", "vb_pc_code")
 )
 
@@ -96,9 +93,7 @@ if (nrow(missing_report) > 0) {
 ```{r}
 audit <- list()
 
-proj_codes <- projects %>%
-  distinct() %>%
-  pull(user_pj_code)
+proj_codes <- unique(projects$user_pj_code)
 
 # Plots
 
@@ -110,15 +105,13 @@ a2 <- filter_with_audit(
 plots_semi <- a2$kept
 audit[["plots_missing_project_link"]] <- a2$dropped
 
-plot_obs_codes <- plots_semi %>%
-  distinct() %>%
-  pull(user_ob_code)
+plot_obs_codes <- unique(plots_semi$user_ob_code)
 
 # Disturbance
 a3 <- filter_with_audit(
   dist,
   user_ob_code %in% plot_obs_codes,
-  "disturbance: SurveyID not found in filtered plotsLT"
+  "disturbance: disturbance SurveyID not found in filtered plotsLT"
 )
 dist_semi <- a3$kept
 audit[["disturbance_missing_plot_link"]] <- a3$dropped
@@ -134,7 +127,7 @@ audit[["community_missing_plot_link"]] <- a4$dropped
 
 a5 <- filter_with_audit(
   comm_step1,
-  !is.na(vb_cc_code) & vb_cc_code != "",
+  !is.na(vb_cc_code),
   "community: missing vb_cc_code (unmapped concept)"
 )
 comm_semi <- a5$kept %>% select(where(~ !all(is.na(.))))
@@ -150,14 +143,12 @@ audit[["strataDefinitions_missing_plot_link"]] <- a6$dropped
 
 a7 <- filter_with_audit( 
   strat_defs_step1, 
-  !is.na(vb_sy_code) & vb_sy_code != "", 
+  !is.na(vb_sy_code), 
   "strataDefinitions: missing vb_sy_code (no strata mapping)" ) 
 strat_defs_semi <- a7$kept 
 audit[["strataDefinitions_missing_vb_sy_code"]] <- a7$dropped 
 
 strata_sr_codes <- strat_defs_semi %>% 
-  transmute(user_sr_code = str_squish(as.character(user_sr_code))) %>%
-  filter(!is.na(user_sr_code), user_sr_code != "") %>% 
   distinct() %>% 
   pull(user_sr_code)
 
@@ -171,7 +162,7 @@ audit[["strataCover_missing_plot_link"]] <- a8$dropped
 
 a9 <- filter_with_audit(
   strat_step1,
-  !is.na(author_plant_name) & author_plant_name != "",
+  !is.na(author_plant_name),
   "strataCover: missing author_plant_name"
 )
 strat_step2 <- a9$kept
@@ -179,15 +170,13 @@ audit[["strataCover_missing_author_plant_name"]] <- a9$dropped
 
 a10 <- filter_with_audit(
   strat_step2,
-  !is.na(user_sr_code) & str_squish(as.character(user_sr_code)) != "",
+  !is.na(user_sr_code),
   "strataCover: missing user_sr_code (no StrataMethodsLT available to validate)"
 )
 strat_semi <- a10$kept
 audit[["strataCover_missing_user_sr_code"]] <- a10$dropped
 
 taxon_to_codes <- strat_semi %>%
-  transmute(user_to_code = str_squish(as.character(user_to_code))) %>%
-  filter(!is.na(user_to_code), user_to_code != "") %>%
   distinct() %>%
   pull(user_to_code)
 
@@ -197,13 +186,13 @@ has_vb_ro <- "vb_ro_code" %in% names(tax)
 if (has_vb_ro) {
   a11 <- filter_with_audit(
     tax,
-    !is.na(vb_pc_code) & vb_pc_code != "" & !is.na(vb_ro_code) & vb_ro_code != "",
+    !is.na(vb_pc_code) & !is.na(vb_ro_code),
     "taxon: missing vb_pc_code and/or vb_ro_code"
   )
 } else {
   a11 <- filter_with_audit(
     tax,
-    !is.na(vb_pc_code) & vb_pc_code != "",
+    !is.na(vb_pc_code),
     "taxon: missing vb_pc_code"
   )
 }
