@@ -74,10 +74,10 @@ normalize_comm_level <- function(mcv) {
   
   mcv <- mcv %>%
     mutate(
-      mvc_level_raw = as.character(MCVLevel) %>% str_squish() %>% str_to_lower(),
+      mcv_level_raw = as.character(MCVLevel) %>% str_squish() %>% str_to_lower(),
       comm_level = case_when(
-        str_detect(mvc_level_raw, "association") ~ "association",
-        str_detect(mvc_level_raw, "alliance") ~ "alliance",
+        str_detect(mcv_level_raw, "association") ~ "association",
+        str_detect(mcv_level_raw, "alliance") ~ "alliance",
         TRUE ~ NA_character_
       )
     )
@@ -88,7 +88,7 @@ normalize_comm_level <- function(mcv) {
     pull(MCVLevel)
   
   if (length(bad_levels) > 0) {
-    cli_alert_warning("Some MVC level values were not recognized (comm_level set to NA):")
+    cli_alert_warning("Some mcv level values were not recognized (comm_level set to NA):")
     cli_ul(bad_levels)
   }
   
@@ -129,15 +129,16 @@ build_community_concepts <- function(mcv) {
     mutate(
       user_cc_code        = CaCode,
       name                = name,     
-      user_rf_code        = "MVC 2019",
-      user_status_rf_code = "MVC 2019",
+      user_rf_code        = "MCV 2019",
+      user_status_rf_code = "MCV 2019",
       comm_concept_status = "accepted",
       user_parent_cc_code = NA_character_,
       comm_level          = comm_level,
       start_date          = as.Date("2019-01-01"),
       vb_status_py_code   = "py.512"
     ) %>%
-    distinct(user_cc_code, .keep_all = TRUE)
+    distinct(user_cc_code, .keep_all = TRUE) %>% 
+    select(user_cc_code, name, user_rf_code, user_status_rf_code, comm_concept_status, user_parent_cc_code, comm_level, start_date, vb_status_py_code)
   
   bad_codes <- which(is.na(community_concepts$user_cc_code) | community_concepts$user_cc_code == "")
   if (length(bad_codes) > 0) {
@@ -164,7 +165,8 @@ build_community_names <- function(comm_concepts) {
       name_status      = "Standard",
       usage_start      = as.Date("2019-01-01"),
       vb_usage_py_code = "py.512"
-    )
+    ) %>% 
+    select(user_cc_code, name_type, name, name_status, usage_start, vb_usage_py_code)
   
   # row 2: Code
   comm_names_code <- comm_concepts %>%
@@ -175,7 +177,8 @@ build_community_names <- function(comm_concepts) {
       name_status      = "Standard",
       usage_start      = as.Date("2019-01-01"),
       vb_usage_py_code = "py.512"
-    )
+    ) %>% 
+    select(user_cc_code, name_type, name, name_status, usage_start, vb_usage_py_code)
   
   comm_names <- bind_rows(comm_names_scientific, comm_names_code)
   
