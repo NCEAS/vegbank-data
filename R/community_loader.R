@@ -314,11 +314,27 @@ load_reference_tables <- function(in_dir){
 
   cc_current$concept_rf_label <- factor(cc_current$concept_rf_label, levels = c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
   
-  cc_current <- cc_current %>% 
+  nvc_lookup <- cc_current %>% 
     group_by(comm_code) %>% 
     slice_max(concept_rf_label) %>% 
     filter(!is.na(comm_code)) %>% 
-    ungroup()
+    ungroup() %>%
+    mutate(comm_code_norm = str_squish(str_to_lower(as.character(comm_code)))) %>%
+    filter(!is.na(comm_code_norm), comm_code_norm != "") %>%
+    distinct(comm_code_norm, .keep_all = TRUE) %>%
+    select(cc_code, comm_code_norm)
+  
+  mcv_lookup <- cc_all %>% 
+    filter(concept_rf_label %in% c("MCV 2019", "MCV2"))
+    
+  mcv_lookup$concept_rf_label <- factor(mcv_lookup$concept_rf_label, levels = c("MCV 2019", "MCV2"))
+  
+  mcv_lookup <- mcv_lookup %>% 
+    group_by(comm_code) %>% 
+    slice_max(concept_rf_label) %>% 
+    ungroup() %>%
+    select(cc_code, comm_code) %>% 
+    filter(!is.na(comm_code))
   
   # CA code map
   cacode_sheet_path <- file.path(in_dir, "lookup-tables/VegBank_CrosswalkHierarchyMCV.csv")
@@ -346,16 +362,10 @@ load_reference_tables <- function(in_dir){
     cli_text(paste0("- ", head(dup$CaCode_norm, 10)))
   }
   
-  # cc lookup table
-  cc_lookup <- cc_current %>%
-    mutate(comm_code_norm = str_squish(str_to_lower(as.character(comm_code)))) %>%
-    filter(!is.na(comm_code_norm), comm_code_norm != "") %>%
-    distinct(comm_code_norm, .keep_all = TRUE) %>%
-    select(cc_code, comm_code_norm)
-  
   list(
     cacode_map = cacode_map,
-    cc_lookup = cc_lookup
+    nvc_lookup = nvc_lookup,
+    mcv_lookup = mcv_lookup
   )
 }
 
@@ -365,7 +375,7 @@ load_reference_tables <- function(in_dir){
 #' @param classification Data frame containing classification data with CaCode
 #'                       field
 #' @param cacode_map Data frame mapping CaCodes to NVC codes
-#' @param cc_lookup Data frame mapping NVC codes to cc_code
+#' @param nvc_lookup Data frame mapping NVC codes to cc_code
 #' 
 #' @return Data frame with vb_cc_code field added
 #' 
@@ -379,7 +389,7 @@ load_reference_tables <- function(in_dir){
 #' **Duplicate Handling:**
 #' When a CaCode maps to multiple NVC codes, only the first NVC code is used
 #' to prevent row duplication.
-assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
+assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup){
   
   cacode_map_1to1 <- cacode_map %>%
     group_by(CaCode_norm) %>%
@@ -403,20 +413,30 @@ assign_vb_cc_code <- function(classification, cacode_map, cc_lookup){
   
   classification_norm <- classification %>%
     mutate(CaCode_norm = str_squish(str_to_lower(CaCode))) %>%
-    left_join(cacode_map_1to1 %>% select(CaCode_norm, NVC_norm), by = "CaCode_norm") %>%
-    mutate(comm_code_norm = NVC_norm) %>%
-    left_join(cc_lookup, by = "comm_code_norm") %>%
-    mutate(vb_cc_code = cc_code) #%>% 
-    #filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$"))
+    left_join(cacode_map_1to1 %>% select(CaCode_norm, NVC_norm), by = "CaCode_norm") 
+  # Try NVC first
+  classification_norm_nvc <- classification_norm %>% 
+    inner_join(nvc_lookup, by = c("NVC_norm" = "comm_code_norm"))
   
+  # MCV only for rows that didn't match NVC
+  classification_norm_mcv <- classification_norm %>% 
+    anti_join(classification_norm_nvc, by = names(classification_norm)) %>%  # exclude NVC matches
+    inner_join(mcv_lookup, by = c("CaCode" = "comm_code"))
+  
+  # Combine them (no duplicates now)
+  class_vbs <- bind_rows(classification_norm_nvc, classification_norm_mcv)
+  
+  class_final <- left_join(classification, class_vbs,
+                           by = join_by(SurveyID, Alliance, Association, CaCode, MCVAboveAlliance, ClassificationLevel, ClassificationMethod, ProjectCode, ReportAlliance, ReportAssociation, ReportOtherName, AnalysisID, RAClassificationID)) %>% 
+    rename(vb_cc_code = cc_code)
   
   # warn if lots of NAs
-  na_ct <- sum(is.na(classification_norm$vb_cc_code))
+  na_ct <- sum(is.na(class_final$vb_cc_code))
   if (na_ct > 0) {
-    cli_alert_warning("vb_cc_code is NA for {na_ct} rows (out of {nrow(classification_norm)}).")
+    cli_alert_warning("vb_cc_code is NA for {na_ct} rows (out of {nrow(class_final)}).")
   }
   
-  classification_norm
+  class_final
 }
 
 #' Combines classification records with confidence ratings and project
@@ -472,7 +492,8 @@ community_loader <- function(in_dir, out_dir){
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,
     cacode_map = refs$cacode_map,
-    cc_lookup = refs$cc_lookup
+    nvc_lookup = refs$nvc_lookup,
+    mcv_lookup = refs$mcv_lookup
   ) 
     # TODO: drop GXXX values in CaCode
     # TODO: drop NAs and n/a's in CaCode
