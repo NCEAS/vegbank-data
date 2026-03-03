@@ -428,13 +428,16 @@ assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup
   
   class_final <- left_join(classification, class_vbs,
                            by = join_by(SurveyID, Alliance, Association, CaCode, MCVAboveAlliance, ClassificationLevel, ClassificationMethod, ProjectCode, ReportAlliance, ReportAssociation, ReportOtherName, AnalysisID, RAClassificationID)) %>% 
-    rename(vb_cc_code = cc_code)
+    rename(vb_cc_code = cc_code) %>% 
+    filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$"))
   
   # warn if lots of NAs
   na_ct <- sum(is.na(class_final$vb_cc_code))
   if (na_ct > 0) {
     cli_alert_warning("vb_cc_code is NA for {na_ct} rows (out of {nrow(class_final)}).")
   }
+  
+  #t <- filter(class_final, is.na(vb_cc_code))
   
   class_final
 }
