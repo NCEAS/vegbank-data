@@ -97,8 +97,6 @@ if (nrow(missing_report) > 0) {
 audit <- list()
 
 proj_codes <- projects %>%
-  transmute(user_pj_code = str_squish(as.character(user_pj_code))) %>%
-  filter(!is.na(user_pj_code), user_pj_code != "") %>%
   distinct() %>%
   pull(user_pj_code)
 
@@ -113,8 +111,6 @@ plots_semi <- a2$kept
 audit[["plots_missing_project_link"]] <- a2$dropped
 
 plot_obs_codes <- plots_semi %>%
-  transmute(user_ob_code = str_squish(as.character(user_ob_code))) %>%
-  filter(!is.na(user_ob_code), user_ob_code != "") %>%
   distinct() %>%
   pull(user_ob_code)
 

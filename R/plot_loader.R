@@ -1347,6 +1347,7 @@ plots_loader <- function(in_dir, out_dir){
   
 
   plots_LT <- plots_merged %>%
+    mutate(SurveyID = toupper(SurveyID)) %>% 
     select(
       user_ob_code = SurveyID,
       user_pl_code = Stand_ID,

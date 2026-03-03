@@ -36,7 +36,9 @@ disturbance_loader <- function(in_dir, out_dir){
   # additions to resolve missing lookup codes, per Rosie 2026-03-03
   impacts_lookup_add <- tibble::tribble(~CodeImp, ~`Impact type`,
                                         71, "Pollution",
-                                        34, "Feral pigs")
+                                        39, "Feral pigs")
+  
+  impacts_lookup <- rbind(impacts_lookup, impacts_lookup_add)
   
   # Intensity should be 1, 2, or 3
   # how will we handle values: 0, 10, 999, and 52?
@@ -44,8 +46,7 @@ disturbance_loader <- function(in_dir, out_dir){
   
   if (any(!(intensity_vals %in% c(1, 2, 3)))){
     unk <- intensity_vals[!(intensity_vals %in% c(1, 2, 3))]
-    cli::cli_alert_warning("Unknown intensity values were found:")
-    cli::cli_ul(unk)
+    cli::cli_alert_warning("Unknown intensity values were found, ({unique(unk)}), converting to NA.")
   }
   
   
@@ -118,10 +119,12 @@ disturbance_loader <- function(in_dir, out_dir){
     mutate(Other = gsub("NA; ", "", Other))
   
   disturb_LT <- impacts_merged %>%
-    select(user_ob_code = SurveyID,
+    mutate(SurveyID = toupper(SurveyID)) %>% #TODO: confirm this is ok with Rosie
+    select(user_ob_code = SurveyID, 
            type = vegbank_disturbance,
            comment = Other,
            intensity = Intensity) %>% 
+    distinct() %>% 
     mutate(user_do_code = row_number())
   
   # save filled in loader table

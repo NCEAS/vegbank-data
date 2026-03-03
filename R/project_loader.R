@@ -33,8 +33,8 @@ project_loader <- function(in_dir, out_dir){
   # tidying CDFW data -----------------------------------------------------------
   
   ### Converting Start Date and End Time to just Dates ###
-  projects$ProjectStartDate <- as_date(mdy_hms(projects$ProjectStartDate))
-  projects$ProjectEndDate <- as_date(mdy_hms(projects$ProjectEndDate))
+  projects$ProjectStartDate <- as_date(mdy_hms(projects$ProjectStartDate, quiet = TRUE))
+  projects$ProjectEndDate <- as_date(mdy_hms(projects$ProjectEndDate, quiet = TRUE))
   
   # warn if dates are before 1900
   if (any(projects$ProjectStartDate < as.Date("1900-01-01"), na.rm = TRUE)) {
