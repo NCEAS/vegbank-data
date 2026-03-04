@@ -195,13 +195,21 @@ party_contributor_loader <- function(in_dir, out_dir){
       surname = LastName,
       organization_name = ContactOrg,
       email = ContactEmail
-    )
+    ) %>% 
+    rbind(data.frame(user_py_code = "cdfw_general",
+                             given_name = NA_character_,
+                             middle_name = NA_character_,
+                             surname = NA_character_,
+                             organization_name = "Vegcamp, California Department of Fish and Wildlife",
+                             email = "vegcamp@wildlife.ca.gov"))
   
   # then join back to projects to get contrib and roles?
   ctrib <- left_join(projects, people_j, by = join_by(FirstName, MiddleName, LastName, ContactEmail, ContactOrg)) %>% 
     select(ProjectCode, ar_code, py_code, user_py_code) %>% 
     mutate(contributor_type = "Project") %>% 
     mutate(user_cr_code = sprintf("ca_cr_%03d", seq_len(n())))
+  
+  pjs <- unique(projects$ProjectCode)
 
   contributor_LT <- ctrib %>%
     select(
@@ -211,7 +219,13 @@ party_contributor_loader <- function(in_dir, out_dir){
       vb_ar_code = ar_code,
       contributor_type,
       record_identifier = ProjectCode
-    )
+    ) %>% 
+    rbind(data.frame(user_cr_code = paste0("cdfw_general_", pjs),
+                     vb_py_code = rep(NA_character_, length(pjs)),
+                     user_py_code = rep("cdfw_general", length(pjs)),
+                     vb_ar_code = rep("ar.46", length(pjs)),
+                     contributor_type = rep("Project", length(pjs)),
+                     record_identifier = pjs))
   
   out_path_party <- file.path(out_dir, "partyLT.csv")
   out_path_contributor <- file.path(out_dir, 'contributorLT.csv')
