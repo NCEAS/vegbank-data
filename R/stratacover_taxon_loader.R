@@ -5,7 +5,18 @@ library(httr)
 library(cli)
 library(glue)
 
-#' Reads files and loads prequisite loader tables
+#' Reads files and loads prequisite loader tables for linking plant observations
+#' to people and projects
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return Named list with three elements:
+#'   \describe{
+#'     \item{plants}{Combined RAPlants data from all files}
+#'     \item{contrib}{Contributor data from contributorLT.csv}
+#'     \item{plots}{Plot data from plotsLT.csv}
+#'   }
 load_stratacover_files <- function(in_dir, out_dir){
   # loading CA lookup table
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
@@ -51,6 +62,32 @@ load_stratacover_files <- function(in_dir, out_dir){
   return(ret)
 }
 
+#' Assigns a person to each survey observation based on project contributors
+#' and role priority
+#' 
+#' @param plots Data frame with SurveyID and proj_code
+#' @param contrib Data frame with proj_code, user_py_code, and vb_ar_code
+#' 
+#' @return Data frame mapping each SurveyID to a person code (user_py_code) and
+#'         role code (vb_ar_code) representing the most qualified taxonomist
+#'
+#' @details
+#' **Role Priority Hierarchy:**
+#' Contributors are prioritized from most to least qualified for taxonomic
+#' identification (highest to lowest priority):
+#' \enumerate{
+#'   \item Taxonomist (ar.55)
+#'   \item Classifier (ar.34)
+#'   \item PI (ar.18)
+#'   \item Co-PI (ar.38)
+#'   \item Author (ar.16)
+#'   \item Publication author (ar.51)
+#'   \item Plot author (ar.36)
+#'   \item Research advisor (ar.53)
+#'   \item Data Manager (ar.19)
+#'   \item Plot contributor (ar.50)
+#'   \item ... (continues through 21 total roles)
+#' }
 create_person_lookup <- function(plots, contrib){
   # organized into most to least likely to be involved in classification
   #TODO: ask CDFW about this, backstop could also be to put an org or generic entry in if no relevant party is found
@@ -89,6 +126,14 @@ create_person_lookup <- function(plots, contrib){
   return(obs_proj_lookup)
 }
 
+#' Downloads and loads USDA PLANTS database for plant name validation
+#' 
+#' @return None
+#' 
+#' @details
+#' This function is a placeholder for future functionality to validate plant
+#' names against USDA PLANTS
+#' 
 load_usda_plants <- function(){
   # TODO: figure out if this is necessary
   csv_path <- file.path(in_dir, "lookup-tables/USDA_PLANTS.csv")
@@ -101,6 +146,14 @@ load_usda_plants <- function(){
   # end TODO
 }
 
+#' Queries the VegBank API to retrieve all plant concept records with caching
+#' and adaptive paging
+#' 
+#' @param base_url Base URL for VegBank API
+#' @param renew_cache If TRUE, redownloads the API. If FALSE, uses cached data
+#'                    if available
+#' 
+#' @return Data frame containing all VegBank plant concepts
 load_vb_pc <- function(base_url, renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
@@ -191,6 +244,24 @@ load_vb_pc <- function(base_url, renew_cache = FALSE){
   return(pc_all)
 }
 
+#' Main function that orchestrates plant species data processing from raw CSV
+#' files to two loader tables: strata cover and taxon interpretations
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes two CSV files (strataCoverLT.csv and
+#'         taxonInterpretationsLT.csv) to `out_dir`
+#'         
+#' @details
+#' This function executes a comprehensive plant data processing pipeline from
+#' reading and loading prerequisite loader tables, assigning persons to plants,
+#' matching plant concepts to VegBank pc_codes, prioritizing USDA PLANTS versions,
+#' normalizing plant names, creating unique stratum identifiers and validating
+#' data.
+#' 
+#' @note
+#' This function must run after party_contributor_loader.R and plots_loader.R
 stratacover_taxon_loader <- function(in_dir, out_dir){
 
   l <- load_stratacover_files(in_dir, out_dir)

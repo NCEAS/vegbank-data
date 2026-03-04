@@ -4,6 +4,20 @@ library(cli)
 library(glue)
 library(readr)
 
+#' Reads Manual of California Vegetation (MCV) 2019 alliance and association
+#' files and combines them into a single data set
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' 
+#' @return Data frame combining alliance and association data with unified
+#'         'name' column
+#'         
+#' @details
+#' **File Requirements:**
+#' \itemize{
+#'   \item MCV2019_Alliance.csv - Alliance-level vegetation classifications
+#'   \item MCV2019_Association.csv - Association-level vegetation classifications
+#' }
 load_community_def_files <- function(in_dir) {
   
   alliance_path    <- file.path(in_dir, "lookup-tables/MCV2019_Alliance.csv")
@@ -26,6 +40,17 @@ load_community_def_files <- function(in_dir) {
   return(mcv)
 }
 
+#' Extracts unique California vegetation codes (CaCodes) from
+#' RAClassification.csv files, filtering to properly formatted codes
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' 
+#' @return Character vector of unique, properly formatted CaCodes found in
+#'         classification data
+#'         
+#' @details
+#' **CaCode Format:**
+#' Only codes matching the pattern `##.###.##` are retained (e.g., "21.100.00").
 load_cdfw_cacodes <- function(in_dir) {
   
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
