@@ -166,6 +166,7 @@ a9 <- filter_with_audit(
   "strataCover: missing author_plant_name"
 )
 strat_step2 <- a9$kept
+
 audit[["strataCover_missing_author_plant_name"]] <- a9$dropped
 
 a10 <- filter_with_audit(
@@ -181,24 +182,24 @@ taxon_to_codes <- strat_semi %>%
   pull(user_to_code)
 
 # Taxon Interpretations
-has_vb_ro <- "vb_ro_code" %in% names(tax)
 
-if (has_vb_ro) {
-  a11 <- filter_with_audit(
-    tax,
-    !is.na(vb_pc_code) & !is.na(vb_ro_code),
-    "taxon: missing vb_pc_code and/or vb_ro_code"
-  )
-} else {
-  a11 <- filter_with_audit(
-    tax,
-    !is.na(vb_pc_code),
-    "taxon: missing vb_pc_code"
-  )
-}
-
+a11 <- filter_with_audit(
+  tax,
+  !is.na(vb_pc_code),
+  "taxon: missing vb_pc_code"
+)
+  
 tax_step1 <- a11$kept
-audit[["taxon_missing_required_vb_codes"]] <- a11$dropped
+audit[["taxon_missing_required_vb_pc_codes"]] <- a11$dropped
+
+a11_1 <- filter_with_audit(
+  tax,
+  !is.na(vb_ro_code),
+  "taxon: missing vb_ro_code"
+)
+  
+tax_step1_1 <- a11_1$kept
+audit[["taxon_missing_required_vb_pc_codes"]] <- a11_1$dropped
 
 a12 <- filter_with_audit(
   tax_step1,
@@ -218,7 +219,8 @@ steps <- c(
   "strataCover: missing plot link",
   "strataCover: missing author_plant_name",
   "strataCover: missing user_sr_code (no StrataMethodsLT)",
-  if (has_vb_ro) "taxon: missing vb_pc_code/vb_ro_code" else "taxon: missing vb_pc_code",
+  "taxon: missing vb_pc_code",
+  "taxon: vb_ro_code",
   "taxon: missing strataCover link"
 )
 
@@ -233,6 +235,7 @@ drops <- c(
   nrow(a9$dropped),
   nrow(a10$dropped),
   nrow(a11$dropped),
+  nrow(a11_1$dropped),
   nrow(a12$dropped)
 )
 
