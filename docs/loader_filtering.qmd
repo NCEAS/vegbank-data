@@ -397,7 +397,7 @@ downloadthis::download_this(
 ```{r}
 #| eval: false
 
-cols <- c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason")
+cols <- c("user_to_code", "vb_pc_code", "vb_ro_code", "drop_reason")
 x <- audit[["taxon_missing_required_vb_codes"]] %>%
   select(any_of(cols)) %>%
   head(500)
@@ -408,7 +408,7 @@ dt(x, pageLength = 25)
 # taxon dropped: not linked to filtered strata cover
 ```{r}
 x <- audit[["taxon_missing_strataCover_link"]] %>%
-  select(any_of(c("user_to_code", "vb_pc_code", if (has_vb_ro) "vb_ro_code", "drop_reason"))) %>%
+  select(any_of(c("user_to_code", "vb_pc_code", "vb_ro_code", "drop_reason"))) %>%
   head(500)
 DT::datatable(
     x,
