@@ -88,19 +88,6 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   plant_projs <- left_join(plants, proj_plots, by = "SurveyID")
   plant_projs <- clean_strata_names(plant_projs)
   
-  missing_proj <- proj_plots %>%
-    filter(is.na(`Type of protocols`) & is.na(StrataDescription) & is.na(StrataClassDescription)) %>% # basically “no projects match”
-    distinct(proj_code) %>%
-    pull(proj_code)
-  
-  if (length(missing_proj) > 0) {
-    cli_alert_warning(
-      "Some proj_code values from plotsLT.csv did not match RAProjects.csv ProjectCode ({length(missing_proj)} codes)."
-    )
-    cli_text("Sample missing proj_code values:")
-    cli_ul(head(missing_proj, 15))
-  }
-  
   base_url <- "https://api-dev.vegbank.org"
   vb_set_base_url(base_url)
   vb_strata <- vb_get_stratum_methods(with_nested = TRUE)
