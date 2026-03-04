@@ -298,6 +298,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   n0 <- nrow(plants)
   
   plants_join <- plants %>% 
+    mutate(SurveyID = toupper(SurveyID)) %>% 
     mutate(strata_id = paste(SurveyID, Stratum, sep = "_")) %>% 
     mutate(usda_norm = if_else(is.na(CurrPlantsSymbol), CodeSpecies, CurrPlantsSymbol)) %>% 
     left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code"))
@@ -324,12 +325,12 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   
   if (any(is.na(plants_join$pc_code))) {
     cli_alert_warning("{sum(is.na(plants_join$pc_code))} rows have NA `pc_code` (required for ingest).")
-    bad <- plants_join %>%
-      filter(is.na(pc_code), !is.na(usda_norm), str_squish(usda_norm) != "") %>%
+    no_pc <- plants_join %>%
+      filter(is.na(pc_code), !is.na(usda_norm)) %>%
       distinct(usda_norm) %>%
       pull(usda_norm)
     cli_text("Sample unmapped USDA codes:")
-    cli_ul(head(bad, 15))
+    cli_ul(head(no_pc, 15))
   }
   
   vb_strat <- vb_get_stratum_methods(limit = 5000)
