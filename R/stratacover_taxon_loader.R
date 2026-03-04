@@ -126,26 +126,6 @@ create_person_lookup <- function(plots, contrib){
   return(obs_proj_lookup)
 }
 
-#' Downloads and loads USDA PLANTS database for plant name validation
-#' 
-#' @return None
-#' 
-#' @details
-#' This function is a placeholder for future functionality to validate plant
-#' names against USDA PLANTS
-#' 
-load_usda_plants <- function(){
-  # TODO: figure out if this is necessary
-  csv_path <- file.path(in_dir, "lookup-tables/USDA_PLANTS.csv")
-  plants_lookup <- read_csv(csv_path, show_col_types = FALSE) # ignore parsing issue
-  if (!file.exists("data/plantlist.txt")){
-    url <- "https://plants.sc.egov.usda.gov/DocumentLibrary/Txt/plantlst.txt"
-    download.file(url, destfile = "data/plantlist.txt", mode = "wb")
-  }
-  plant_list <- read.delim("data/plantlist.txt", sep = ",", header = TRUE)
-  # end TODO
-}
-
 #' Queries the VegBank API to retrieve all plant concept records with caching
 #' and adaptive paging
 #' 
