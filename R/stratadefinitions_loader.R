@@ -66,8 +66,8 @@ clean_strata_names <- function(plant_projs){
                                         "SCRUZ", "shrubs", "shrub",
                                         "SLAV", "shrubs", "shrub",
                                         "SLAV", "shrutb", "shrub",
-                                        "SLAV", "shsrub", "shrub"
-                                        )
+                                        "SLAV", "shsrub", "shrub",
+                                        "SNI", "herb", "h")
   
   
   plant_projs_clean <- plant_projs %>% 
@@ -104,7 +104,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     slice(1) %>% 
     ungroup()
   
-  method_lookup <- read.csv(file.path(in_dir, "lookup-tables/CDFW-strata-method.csv")) %>% 
+  method_lookup <- read.csv(file.path(in_dir, "lookup-tables/CDFW-strata-method-20260304.csv")) %>% 
     select(proj_code, stratum_method_name) %>% 
     left_join(vb_strata, by = join_by(stratum_method_name)) %>% 
     select(proj_code, sm_code)
