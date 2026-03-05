@@ -74,7 +74,8 @@ clean_strata_names <- function(plant_projs){
     mutate(Stratum = tolower(Stratum)) %>% 
     left_join(method_corrections, by = join_by(Stratum, proj_code)) %>% 
     mutate(Stratum = if_else(!is.na(Stratum_norm), Stratum_norm, Stratum)) %>% 
-    select(-Stratum_norm)
+    select(-Stratum_norm) %>% 
+    filter(!is.na(Stratum))
   
   return(plant_projs_clean)
 }
