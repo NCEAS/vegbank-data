@@ -663,53 +663,25 @@ calc_conif_height <- function(plots_merged){
   # midpoint
   
   # Conif_ht2
-  plots_merged <- plots_merged %>% 
+  plots_merged <- plots_merged %>%
     mutate(
-      Conif_ht22 = case_when(
-        
-        # Midpoint Measurements
-        Conif_ht2 == "5-10 m" ~ 7.5,
-        Conif_ht2 == "0.5-1 m" ~ 0.75,
-        Conif_ht2 == "10-15 m" ~ 12.5,
-        Conif_ht2 == "2-5 m" ~ 3.5,
-        Conif_ht2 == "20-35m" ~ 27.5,
-        Conif_ht2 == "15-20 m" ~ 17.5,
-        Conif_ht2 == "35-50 m" ~ 42.5,
-        Conif_ht2 == "20-35 m" ~ 27.5,
-        Conif_ht2 == "5-10m" ~ 7.5,
-        Conif_ht2 == "10-15m" ~ 12.5,
-        Conif_ht2 == "15-20m" ~ 17.5,
-        Conif_ht2 == "35-50m" ~ 42.5,
-        Conif_ht2 == "2-5m" ~ 3.5,
-        Conif_ht2 == ".5-1m" ~ 0.75,
-        Conif_ht2 == "1-2 m" ~ 1.5,
-        Conif_ht2 == "1-2m" ~ 1.5,
-        
-        # Out of Range Measurements (Must Adjust! These are placeholders)
-        Conif_ht2 == "<0.5 m" ~ 0.25,
-        Conif_ht2 == "<.5m" ~ 0.25,
-        Conif_ht2 == ">50 m" ~ 55,
-        Conif_ht2 == ">50m" ~ 55,
-        
-        # Miscellaneous
-        Conif_ht2 == "0" ~ 0,
-        
-        # Missing Values
-        Conif_ht2 == "N/A" ~ NA,
-        Conif_ht2 == "Not recorded" ~ NA,
-        Conif_ht2 == "Not present" ~ NA,
-        Conif_ht2 == "<Null>" ~ NA,
-        
-        TRUE ~ NA_real_
+      Conif_ht22 = range_to_midpoint(
+        Conif_ht2,
+        less_rule = "half",      # "<0.5" -> 0.25
+        greater_rule = "keep"    # ">50" -> 50
       )
     )
   
-  # make sure all values are accounted for
-  na_new <- which(is.na(plots_merged$Conif_ht22) & !(plots_merged$Conif_ht2 %in% c("<Null>", "N/A", "Not recorded", "Not present", NA)))
+  x0 <- plots_merged$Conif_ht2 %>% as.character() %>% stringr::str_squish() %>% stringr::str_to_lower()
+  x0[x0 %in% c("", "<null>", "n/a", "not recorded", "not present", "na")] <- NA_character_
   
-  if (length(na_new) > 0){
-    cli::cli_alert_warning("Some Conif_ht2 values were not able to be converted to numeric ({length(na_new)} rows). Check input data.")
+  bad <- which(is.na(plots_merged$Conif_ht22) & !is.na(x0))
+  if (length(bad) > 0) {
+    cli::cli_alert_warning(
+      "Some Conif_ht2 values could not be converted ({length(bad)} rows): {paste(unique(plots_merged$Conif_ht2[bad]), collapse = ', ')}"
+    )
   }
+  
   return(plots_merged)
   
 }
@@ -724,48 +696,27 @@ calc_conif_height <- function(plots_merged){
 #' Manually maps all observed hardwood height categories to numeric values
 calc_hdwd_height <- function(plots_merged){
   # Hdwd_ht2
-  plots_merged <- plots_merged %>% 
+  plots_merged <- plots_merged %>%
     mutate(
-      Hdwd_ht22 = case_when(
-        
-        # Midpoint Measurements
-        Hdwd_ht2 == "2-5 m" ~ 3.5,
-        Hdwd_ht2 == "1-2 m" ~ 1.5,
-        Hdwd_ht2 == "1-2m" ~ 1.5,
-        Hdwd_ht2 == "0.5-1 m" ~ 0.75,
-        Hdwd_ht2 == ".5-1m" ~ 0.75,
-        Hdwd_ht2 == "15-20 m" ~ 17.5,
-        Hdwd_ht2 == "5-10m" ~ 7.5,
-        Hdwd_ht2 == "10-15m" ~ 12.5,
-        Hdwd_ht2 == "2-5m" ~ 3.5,
-        Hdwd_ht2 == "20-35m" ~ 27.5,
-        Hdwd_ht2 == "15-20m" ~ 17.5,
-        Hdwd_ht2 == "35-50m" ~ 42.5,
-        
-        # Out of Range Measurements (Must Adjust! These are placeholders)
-        Hdwd_ht2 == "<.5m" ~ 0.25,
-        
-        # Miscellaneous
-        Hdwd_ht2 == "0" ~ 0,
-        
-        # Missing Values
-        Hdwd_ht2 == "N/A" ~ NA,
-        Hdwd_ht2 == "Not recorded" ~ NA,
-        Hdwd_ht2 == "Not present" ~ NA,
-        Hdwd_ht2 == "<Null>" ~ NA,
-        
-        TRUE ~ NA_real_
+      Hdwd_ht22 = range_to_midpoint(
+        Hdwd_ht2,
+        less_rule = "half",      # "<0.5" -> 0.25
+        greater_rule = "keep"    # ">50" -> 50 (if it appears)
       )
     )
   
-  # make sure all values are accounted for
-  na_new <- which(is.na(plots_merged$Hdwd_ht22) & !(plots_merged$Hdwd_ht2 %in% c("<Null>", "N/A", "Not recorded", "Not present", NA)))
+  # Warn on any non-missing values that failed conversion
+  x0 <- plots_merged$Hdwd_ht2 %>% as.character() %>% stringr::str_squish() %>% stringr::str_to_lower()
+  x0[x0 %in% c("", "<null>", "n/a", "not recorded", "not present", "na")] <- NA_character_
   
-  if (length(na_new) > 0){
-    cli::cli_alert_warning("Some Hdwd_ht2 values were not able to be converted to numeric ({length(na_new)} rows). Check input data.")
+  bad <- which(is.na(plots_merged$Hdwd_ht22) & !is.na(x0))
+  if (length(bad) > 0) {
+    cli::cli_alert_warning(
+      "Some Hdwd_ht2 values could not be converted ({length(bad)} rows): {paste(unique(plots_merged$Hdwd_ht2[bad]), collapse = ', ')}"
+    )
   }
-  return(plots_merged)
   
+  return(plots_merged)
 }
 
 #' Determines the maximum tree height from hardwood and conifer measurements.
