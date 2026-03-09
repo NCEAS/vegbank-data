@@ -377,7 +377,7 @@ normalize_area_shape <- function(plots_merged){
            area_from_radius = if_else(!is.na(ViewRadius) & is.na(PlotArea_num), pi * (as.numeric(ViewRadius)^2), NA_real_),
            area_from_dims   = if_else(!is.na(SurveyLength) & !is.na(SurveyWidth),
                                       SurveyLength * SurveyWidth, NA_real_),
-           PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, -1)
+           PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, NA)
     )
   
   # filling in the columns that are missing or incorrect in the PlotShape column
