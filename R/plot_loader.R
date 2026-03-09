@@ -1315,6 +1315,7 @@ plots_loader <- function(in_dir, out_dir){
       author_n = UTMN_final,
       author_zone = UTM_zone,
       author_datum,
+      state_province = stateProvince,
       azimuth = W_Axis_Bearing,
       shape = PlotShape,
       area = PlotArea,
