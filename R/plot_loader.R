@@ -1307,7 +1307,7 @@ plots_loader <- function(in_dir, out_dir){
     select(
       user_ob_code = SurveyID,
       user_pl_code = Stand_ID,
-      author_ob_code = SurveyID,
+      author_obs_code = SurveyID,
       author_plot_code = Stand_ID,
       latitude = real_latitude,
       longitude = real_longitude,
