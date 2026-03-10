@@ -1,24 +1,87 @@
+library(dplyr)
+library(readr)
+library(pointblank)
+library(cli)
+library(stringr)
+
+fail_if_invalid <- function(agent, label) {
+  
+  agent <- interrogate(agent)
+  
+  if (!all_passed(agent)) {
+    cli::cli_abort(c(
+      "Validation failed for {.val {label}}.",
+      "x" = "One or more validation checks did not pass."
+    ))
+  }
+  
+  invisible(agent)
+}
+
 validate_and_write <- function(out_dir = "data/loader-tables/"){
-  plots <- read.csv(file.path(out_dir, "plotsLT.csv"))
-  projects <- read.csv(file.path(out_dir, "projectLT.csv"))
-  party <- read.csv(file.path(out_dir, "partyLT.csv"))
-  contrib <- read.csv(file.path(out_dir, "contributorLT.csv"))
-  dist <- read.csv(file.path(out_dir, "disturbanceLT.csv"))
-  comm <- read.csv(file.path(out_dir, "communityClassificationsLT.csv"))
-  strat <- read.csv(file.path(out_dir, "strataCoverLT.csv")) %>%
+  
+  plots <- read_csv(file.path(out_dir, "plotsLT.csv"), show_col_types = FALSE)
+  projects <- read_csv(file.path(out_dir, "projectLT.csv"), show_col_types = FALSE)
+  party <- read_csv(file.path(out_dir, "partyLT.csv"), show_col_types = FALSE)
+  contrib <- read_csv(file.path(out_dir, "contributorLT.csv"), show_col_types = FALSE)
+  dist <- read_csv(file.path(out_dir, "disturbanceLT.csv"), show_col_types = FALSE)
+  comm <- read_csv(file.path(out_dir, "communityClassificationsLT.csv"), show_col_types = FALSE)
+  
+  strat <- read_csv(file.path(out_dir, "strataCoverLT.csv"), show_col_types = FALSE) %>%
     select(where(~ !all(is.na(.)))) %>%
     mutate(user_tm_code = user_to_code)
-  tax <- read.csv(file.path(out_dir, "taxonInterpretationsLT.csv")) %>%
-    select(where(~ !all(is.na(.))))
-  strat_defs <- read.csv(file.path(out_dir, "strataDefinitionsLT.csv"))
   
+  tax <- read_csv(file.path(out_dir, "taxonInterpretationsLT.csv"), show_col_types = FALSE) %>%
+    select(where(~ !all(is.na(.))))
+  
+  strat_defs <- read_csv(file.path(out_dir, "strataDefinitionsLT.csv"), show_col_types = FALSE)
+  
+  # plots -> projects
+  
+  fail_if_invalid(
+    create_agent(plots) |>
+      col_vals_not_null(vars(user_pj_code, user_ob_code)) |>
+      col_vals_in_set(
+        vars(user_pj_code),
+        set = projects$user_pj_code
+      ),
+    "plotsLT vs projectLT"
+  )
   
   proj_code <- unique(projects$user_pj_code)
   plots_semi <- plots %>% filter(user_pj_code %in% proj_code) # all plots need project code, check with CDFW
+  
+  # disturbance -> plots
+  
   plot_obs_code <- unique(plots_semi$user_ob_code)
+  
+  fail_if_invalid(
+    create_agent(dist) |>
+      col_vals_not_null(vars(user_ob_code)) |>
+      col_vals_in_set(
+        vars(user_ob_code),
+        set = plot_obs_code
+      ),
+    "disturbanceLT vs plotsLT"
+  )
+  
   dist_semi <- dist %>% filter(user_ob_code %in% plot_obs_code) # all dist need obs code, check with CDFW
-  comm_semi <- comm %>% filter(user_ob_code %in% plot_obs_code) %>% 
-    filter(!is.na(vb_cc_code)) %>% 
+  
+  # community -> plots
+  
+  fail_if_invalid(
+    create_agent(comm) |>
+      col_vals_not_null(vars(user_ob_code, vb_cc_code)) |>
+      col_vals_in_set(
+        vars(user_ob_code),
+        set = plot_obs_code
+      ),
+    "communityClassificationsLT vs plotsLT"
+  )
+  
+  comm_semi <- comm %>%
+    filter(user_ob_code %in% plot_obs_code) %>%
+    filter(!is.na(vb_cc_code)) %>%
     select(where(~!all(is.na(.))))
   
 
