@@ -1024,6 +1024,9 @@ range_to_midpoint <- function(x,
   # handle .5 (convert to 0.5)
   x0 <- str_replace_all(x0, "^.5-1", "0.5-1")
   
+  valid_pattern <- "^[^a-z]"
+  is_valid <- is.na(x0) | str_detect(x0, valid_pattern)
+  
   # remove units/spaces/words
   x_clean <- str_replace_all(x0, "[^0-9.<>-]+", "")
   
@@ -1063,6 +1066,8 @@ range_to_midpoint <- function(x,
   }
   
   if (treat_zero_as_na) out[out == 0] <- NA_real_
+  
+  out[!is_valid] <- NA_real_
   
   out
 }
@@ -1275,7 +1280,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- load_plot_files(in_dir)
   plots_merged <- normalize_elevation(plots_merged)
   plots_merged <- normalize_coordinates(plots_merged)
-  #plots_merged <- assign_state_county(plots_merged)
+  plots_merged <- assign_state_county(plots_merged)
   plots_merged <- normalize_area_shape(plots_merged)
   plots_merged <- normalize_slope_aspect(plots_merged)
   plots_merged <- normalize_methods(plots_merged)
@@ -1359,6 +1364,7 @@ plots_loader <- function(in_dir, out_dir){
   cli::cli_ul(out_path)
   
   write_csv(plots_LT, out_path)
+
 }
 
 
