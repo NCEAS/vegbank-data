@@ -4,7 +4,24 @@ library(purrr)
 library(cli)
 library(glue)
 
-
+#' Reads RAPlants.csv and RAProjects.csv files. Loads prerequisite plotsLT.csv
+#' loader table needed for linking strata to observations
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return Named list with three elements:
+#'   \describe{
+#'     \item{plants}{Combined RAPlants data with strata_id field}
+#'     \item{projects}{Combined RAProjects data (deduplicated, subset of fields)}
+#'     \item{plots}{Plot data from plotsLT.csv (SurveyID and project code only)}
+#'   }
+#'   
+#' @details
+#' Creates unique stratum identifiers by concatenating SurveyID and Stratum.
+#' For duplicate project codes, retains only the record with the longest
+#' ProjectDescription and selects relevant strata-related fields.
+#' Also, this function relies on plot_loader.R being ran first.
 load_stratadef_files <- function(in_dir, out_dir){
   # loading CA lookup table
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
@@ -55,6 +72,13 @@ load_stratadef_files <- function(in_dir, out_dir){
   return(ret)
 }
 
+#' Applies project-specific corrections to stratum names to ensure they match
+#' VegBank stratum type naming conventions
+#' 
+#' @param plant_projs Data frame containing plant data joined with project codes
+#'                    and stratum names
+#'                    
+#' @return Data frame with corrected stratum and NA strata removed
 # clean up some strata names by project based on feedback from CDFW
 # this ensures strata with a vegbank strata method get the stratum 
 # names correctly assigned to a vb code
@@ -80,6 +104,20 @@ clean_strata_names <- function(plant_projs){
   return(plant_projs_clean)
 }
 
+#' Main function that orchestrates strata definition processing from raw CSV
+#' files to VegBank-compatible loader table, mapping CDFW stratum names to 
+#' VegBank stratum type codes
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes strataDefinitionsLT.csv to `out_dir`.
+#' 
+#' @details
+#' This function executes a strata definition processing pipeline from loading
+#' the data, integrating the data, normalizing stratum names, downloading
+#' VegBank stratum methods, mapping project to stratum method, matching
+#' stratum to stratum type, and validating the data.
 stratadefinitions_loader <- function(in_dir, out_dir){
   out <- load_stratadef_files(in_dir, out_dir)
   list2env(out, envir = environment())
