@@ -90,6 +90,12 @@ load_cdfw_cacodes <- function(in_dir) {
   return(cacodes)
 }
 
+#' Standardizes MCVLevel field values to VegBank-compatible community levels
+#' (alliance, association)
+#' 
+#' @param mcv Data frame containing MCV data with MCVLevel field
+#' 
+#' @return Data frame with added comm_level field containing standardized values
 # comm_level
 normalize_comm_level <- function(mcv) {
   
@@ -127,6 +133,18 @@ normalize_comm_level <- function(mcv) {
   return(mcv)
 }
 
+#' Reduces MCV reference data to only vegetation types (CaCode) that actually
+#' appear in CDFW classification data
+#' 
+#' @param mcv Data frame containing complete MCV reference data
+#' @param cacodes_in_data CaCodes from RAClassifications.csv
+#' 
+#' @return Filtered data frame containing only MCV rows with CaCodes present in
+#'         classification data
+#' 
+#' @details
+#' Prevents creation of community concept records for vegetation types not
+#' observed in the CDFW data set, reducing unnecessary database entries
 filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
   
   before_n <- nrow(mcv)
@@ -148,6 +166,26 @@ filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
   return(mcv_f)
 }
 
+#' Constructs the CommunityConcepts loader table from MCV data with standardized
+#' VegBank fields and metadata
+#' 
+#' @param mcv Data frame containing MCV data with CaCode, name, and comm_level
+#' 
+#' @return Data frame with CommunityConcepts loader table structure
+#' 
+#' @details
+#' **Output Fields:**
+#' \describe{
+#'   \item{user_cc_code}{CaCode - unique community concept identifier}
+#'   \item{name}{Scientific name (alliance or association name)}
+#'   \item{user_rf_code}{"MCV 2019" for all rows}
+#'   \item{user_status_rf_code}{"MCV 2019" for all rows}
+#'   \item{comm_concept_status}{"accepted" for all rows}
+#'   \item{user_parent_cc_code}{NA (no hierarchy in this dataset)}
+#'   \item{comm_level}{"alliance" or "association"}
+#'   \item{start_date}{2019-01-01 for all rows}
+#'   \item{vb_status_py_code}{"py.512" for all rows}
+#' }
 build_community_concepts <- function(mcv) {
   
   community_concepts <- mcv %>%
@@ -173,6 +211,45 @@ build_community_concepts <- function(mcv) {
   return(community_concepts)
 }
 
+#' Creates the CommunityNames loader table with two records per community
+#' concept: one scientific name and one code-based name
+#' 
+#' @param comm_concepts Data frame containing CommunityConcepts with
+#'                      user_cc_code and name fields
+#'                      
+#' @return Data frame with CommunityNames loader table structure containing
+#'         exactly 2 rows per community concept
+#'         
+#' @details
+#' **Dual Naming Structure:**
+#' Each community concept receives two name records:
+#'
+#' *Row 1 - Scientific Name:*
+#' \describe{
+#'   \item{user_cc_code}{CaCode}
+#'   \item{name_type}{"Scientific"}
+#'   \item{name}{Alliance or association scientific name}
+#'   \item{name_status}{"Standard"}
+#'   \item{usage_start}{2019-01-01}
+#'   \item{vb_usage_py_code}{"py.512"}
+#' }
+#'
+#' *Row 2 - Code Name:*
+#' \describe{
+#'   \item{user_cc_code}{CaCode}
+#'   \item{name_type}{"Code"}
+#'   \item{name}{CaCode itself (e.g., "21.100.00")}
+#'   \item{name_status}{"Standard"}
+#'   \item{usage_start}{2019-01-01}
+#'   \item{vb_usage_py_code}{"py.512"}
+#' }
+#'
+#' **Example:**
+#' For CaCode "21.100.00" with name "Abronia latifolia – Ambrosia chamissonis":
+#' \itemize{
+#'   \item Row 1: name_type="Scientific", name="Abronia latifolia – Ambrosia chamissonis"
+#'   \item Row 2: name_type="Code", name="21.100.00"
+#' }
 build_community_names <- function(comm_concepts) {
   
   required_cols <- c("user_cc_code", "name")
@@ -231,6 +308,21 @@ build_community_names <- function(comm_concepts) {
   return(comm_names)
 }
 
+#' Main function that creates VegBank community concept and community name
+#' loader tables from Manual of California Vegetation (MCV) 2019 reference
+#' data, filtered to vegetation types present in CDFW classification data
+#' 
+#' @param in_dir Path to the input directory containing RAClassifications.csv
+#'               files and MCV2019_Alliance.csv and MCV2019_Association.csv
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes communityConceptsLT.csv and communityNamesLT.csv
+#' 
+#' @details
+#' This function executes a community definition processing pipeline where it
+#' first loads CDFW classification data, loads MCV reference data, normalizes
+#' community levels, filters to observed vegetation types, builds community
+#' concepts, and builds community names.
 community_definitions_loader <- function(in_dir, out_dir){
   cacodes <- load_cdfw_cacodes(in_dir)
   
