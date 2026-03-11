@@ -1,0 +1,20 @@
+---
+title: "Loader Table Workflow"
+format:
+  html:
+    output-dir: ./docs
+    toc: true
+    number-sections: true
+    css: style.css
+---
+
+
+## New Community Concepts
+
+These need to be generated and uploaded before  `loader_workflow.qmd`.
+
+```{r}
+#| classes: styled-output
+community_definitions_loader(in_dir, out_dir)
+```
+

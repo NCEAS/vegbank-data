@@ -23,7 +23,7 @@ library(downloadthis)
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "../R"
 r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
-  grep("altplots", ., invert = TRUE, value = TRUE)
+  grep("altplots|validate", ., invert = TRUE, value = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
@@ -608,11 +608,4 @@ Three loader tables are generated:
 2.  **Strata Definitions Data** (`strataDefinitionsLT.csv`) links to the survey observation and stratum definition.
 3.  **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
 
-## New Community Concepts
 
-Documentation will be written...
-
-```{r}
-#| classes: styled-output
-community_definitions_loader(in_dir, out_dir)
-```
