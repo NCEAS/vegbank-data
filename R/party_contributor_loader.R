@@ -181,7 +181,8 @@ party_contributor_loader <- function(in_dir, out_dir){
   people_j <- people %>% 
     left_join(veg_subset, by = "full_name") %>% 
     select(-full_name) %>% 
-    mutate(user_py_code = sprintf("ca_pt_%03d", seq_len(n())))
+    mutate(user_py_code = sprintf("ca_pt_%03d", seq_len(n()))) %>% 
+    mutate(user_py_code = if_else(!is.na(py_code), NA, user_py_code))
   
   if (nrow(people_j) > nrow(people)){
     warning("Joining vegbank party identifiers resulted in duplicated rows. This could indicate an issue with the vegbank party codes, the input data, or both.")
