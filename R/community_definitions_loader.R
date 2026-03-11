@@ -77,7 +77,7 @@ load_cdfw_cacodes <- function(in_dir) {
   }
   
   cacodes <- classification %>%
-    transmute(CaCode = str_squish(as.character(CaCode))) %>%
+    mutate(CaCode = str_squish(as.character(CaCode))) %>%
     filter(!is.na(CaCode), CaCode != "") %>%
     filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$")) %>% 
     distinct() %>%
