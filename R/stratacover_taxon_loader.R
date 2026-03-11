@@ -290,9 +290,12 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   n1 <- nrow(plants_join)
   plants_join <- plants_join %>%
     left_join(people, by = join_by(SurveyID)) %>% 
-    mutate(user_to_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
+    mutate(user_tm_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
     mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName)) %>% 
-    mutate(user_ti_code = as.character(1:nrow(plants)))
+    mutate(user_ti_code = as.character(1:nrow(plants))) %>% 
+    group_by(SurveyID, species_norm) %>% 
+    mutate(user_to_code = paste0(SurveyID, "_", cur_group_id())) %>% 
+    ungroup()
 
   
   if (nrow(plants_join) != n1) {
@@ -316,8 +319,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   vb_strat <- vb_get_stratum_methods(limit = 5000)
   
   strata_cover_LT <- plants_join %>%
-    mutate(SurveyID = toupper(SurveyID),
-           user_tm_code = user_to_code) %>% 
+    mutate(SurveyID = toupper(SurveyID)) %>% 
     select(
       user_tm_code,
       user_to_code,
