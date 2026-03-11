@@ -53,30 +53,24 @@ load_community_def_files <- function(in_dir) {
 #' Only codes matching the pattern `##.###.##` are retained (e.g., "21.100.00").
 load_cdfw_cacodes <- function(in_dir) {
   
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
+  out <- load_community_files(in_dir)
+  list2env(out, envir = environment())
   
-  classification_files <- dir(sub_folders, full.names = TRUE) %>%
-    grep(pattern = "RAClassification.csv", value = TRUE)
+  refs <- load_reference_tables(in_dir)
   
-  if (length(classification_files) == 0) {
-    cli_abort("No RAClassification.csv files found under {in_dir}.")
-  }
-  
-  class_df_list <- lapply(
-    classification_files,
-    read_csv,
-    progress = FALSE,
-    show_col_types = FALSE,
-    guess_max = 20000
-  )
-  classification <- bind_rows(class_df_list)
+  classification_with_cc <- assign_vb_cc_code(
+    classification = classification,
+    cacode_map = refs$cacode_map,
+    nvc_lookup = refs$nvc_lookup,
+    mcv_lookup = refs$mcv_lookup
+  ) 
   
   if (!("CaCode" %in% names(classification))) {
     cli_abort("Expected column `CaCode` not found in RAClassification.csv data.")
   }
   
-  cacodes <- classification %>%
+  cacodes <- classification_with_cc %>%
+    filter(is.na(vb_cc_code)) %>% 
     mutate(CaCode = str_squish(as.character(CaCode))) %>%
     filter(!is.na(CaCode), CaCode != "") %>%
     filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$")) %>% 
