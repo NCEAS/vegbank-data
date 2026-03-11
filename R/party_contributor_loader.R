@@ -189,6 +189,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   
   party_LT <- people_j %>%
     select(
+      py_code,
       user_py_code,
       given_name = FirstName,
       middle_name = MiddleName,
@@ -196,14 +197,15 @@ party_contributor_loader <- function(in_dir, out_dir){
       organization_name = ContactOrg,
       email = ContactEmail
     ) %>% 
-    rbind(data.frame(user_py_code = "cdfw_general",
-                             given_name = NA_character_,
-                             middle_name = NA_character_,
-                             surname = NA_character_,
-                             organization_name = "Vegcamp, California Department of Fish and Wildlife",
-                             email = "vegcamp@wildlife.ca.gov"))
+    rbind(data.frame(py_code = NA_character_,
+                     user_py_code = "cdfw_general",
+                     given_name = NA_character_,
+                     middle_name = NA_character_,
+                     surname = NA_character_,
+                     organization_name = "Vegcamp, California Department of Fish and Wildlife",
+                     email = "vegcamp@wildlife.ca.gov"))
   
-  # then join back to projects to get contrib and roles?
+  
   ctrib <- left_join(projects, people_j, by = join_by(FirstName, MiddleName, LastName, ContactEmail, ContactOrg)) %>% 
     select(ProjectCode, ar_code, py_code, user_py_code) %>% 
     mutate(contributor_type = "Project") %>% 
@@ -226,6 +228,11 @@ party_contributor_loader <- function(in_dir, out_dir){
                      vb_ar_code = rep("ar.46", length(pjs)),
                      contributor_type = rep("Project", length(pjs)),
                      record_identifier = pjs))
+  
+  # don't include parties that are already in VB
+  party_LT <- party_LT %>% 
+    filter(is.na(py_code)) %>% 
+    select(-py_code)
   
   out_path_party <- file.path(out_dir, "partyLT.csv")
   out_path_contributor <- file.path(out_dir, 'contributorLT.csv')
