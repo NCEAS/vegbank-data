@@ -121,7 +121,7 @@ create_person_lookup <- function(plots, contrib){
   obs_proj_lookup <- full_join(plots, contrib, relationship = "many-to-many", by = "proj_code") %>% 
     group_by(SurveyID) %>%
     slice_min(vb_ar_code, n = 1, with_ties = FALSE) %>% 
-    select(SurveyID, user_py_code, vb_ar_code)
+    select(SurveyID, user_py_code, vb_py_code, vb_ar_code)
   
   return(obs_proj_lookup)
 }
@@ -289,7 +289,8 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
   
   n1 <- nrow(plants_join)
   plants_join <- plants_join %>%
-    left_join(people, by = join_by(SurveyID)) %>% 
+    left_join(people, by = join_by(SurveyID)) %>%
+    mutate(user_py_code = if_else(!is.na(vb_py_code), NA, user_py_code)) %>% 
     mutate(user_tm_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
     mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName)) %>% 
     mutate(user_ti_code = as.character(1:nrow(plants))) %>% 
@@ -338,6 +339,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
     select(
       user_to_code,
       user_py_code,
+      vb_py_code,
       user_ti_code,
       vb_pc_code = pc_code,
       vb_ro_code = vb_ar_code,
