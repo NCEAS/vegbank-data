@@ -185,7 +185,6 @@ normalize_class_confidence <- function(plots) {
 #' Queries the VegBank API to retrieve all community concept records with 
 #' caching and adaptive paging
 #' 
-#' @param vb_url Base URL for VegBank API
 #' @param renew_cache If TRUE, re-downloads from API. If FALSE, uses cached data
 #'                    if available
 #'                    
@@ -209,7 +208,7 @@ normalize_class_confidence <- function(plots) {
 #' **Column Type Standardization:**
 #' Ensures consistent types across pages for fields like comm_description,
 #' status codes, parent codes, and dates
-get_vb_cc <- function(vb_url, renew_cache = FALSE){
+get_vb_cc <- function(renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
   cache_file <- file.path(cache_dir, "cc_all.csv")
@@ -219,7 +218,6 @@ get_vb_cc <- function(vb_url, renew_cache = FALSE){
   obj <- if (file.exists(cache_file) & !renew_cache) {
     cc_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   } else {
-    vb_set_base_url(vb_url) # "https://api-dev.vegbank.org"
     cli::cli_alert_info("Downloading vb community concept data.")
   
    page_init  <- 5000   # starting page size (can shrink if error)
@@ -297,6 +295,7 @@ get_vb_cc <- function(vb_url, renew_cache = FALSE){
 #' tables needed for matching CDFW classifications to VegBank
 #' 
 #' @param in_dir Directory of VegBank data to read from
+#' @param renew_cache If TRUE, refreshes cached VegBank API reference data
 #' 
 #' @return Named list with two elements:
 #'  \describe{
@@ -305,9 +304,9 @@ get_vb_cc <- function(vb_url, renew_cache = FALSE){
 #'  }
 #'  
 #' @note This function downloads VegBank community concepts via API on first run
-load_reference_tables <- function(in_dir){
+load_reference_tables <- function(in_dir, renew_cache = FALSE){
   # Community concepts from VegBank
-  cc_all <- get_vb_cc("https://api-dev.vegbank.org", renew_cache = FALSE)
+  cc_all <- get_vb_cc(renew_cache = renew_cache)
   
   cc_current <- cc_all %>%
     filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
@@ -474,6 +473,7 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
 #' 
 #' @param in_dir Directory of VegBank data to read from
 #' @param out_dir Directory of data to write to
+#' @param renew_cache If TRUE, refreshes cached VegBank API reference data
 #' 
 #' @return None. Writes loader table communityClassificationsLT.csv to `out_dir`
 #' 
@@ -481,7 +481,7 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
 #' This function executes a comprehensive classification processing pipeline
 #' from data loading, mapping project codes, confidence standardization,
 #' matches community concepts, data integration, and loader table generation.
-community_loader <- function(in_dir, out_dir){
+community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   
   out <- load_community_files(in_dir)
   
@@ -490,7 +490,7 @@ community_loader <- function(in_dir, out_dir){
   projects_proj <- normalize_projects_classification(projects, in_dir)
   plots_conf <- normalize_class_confidence(plots)
   
-  refs <- load_reference_tables(in_dir)
+  refs <- load_reference_tables(in_dir, renew_cache = renew_cache)
   
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,

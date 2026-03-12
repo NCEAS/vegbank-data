@@ -853,8 +853,6 @@ assign_growth_form <- function(plots_merged){
 #' the database
 #' 
 #' @param plots_merged Data frame containing SurveyID field
-#' @param vb_url Character string. Base URL for VegBank API (default:
-#' "https://api-dev.vegbank.org")
 #' @param renew_cache Logical. If TRUE, re-downloads data from API. If FALSE,
 #' uses cached data if available
 #' 
@@ -868,7 +866,7 @@ assign_growth_form <- function(plots_merged){
 #'   \item Saves checkpoints every 10 pages
 #'   \item Deduplicates records across pages
 #' }
-check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE){
+check_existing_plots <- function(plots_merged, renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
   cache_file <- file.path(cache_dir, "plots_all.csv")
@@ -881,7 +879,6 @@ check_existing_plots <- function(plots_merged, vb_url = "https://api-dev.vegbank
     cli::cli_alert_info("Downloading vb plots data.")
     ### user_pl_code (PlotObservations) ###
     # For now, there is no matches so user_pl_code will remain empty
-    vb_set_base_url(vb_url)
     
     # Adaptive, resumable pager for VegBank plot observations
     
@@ -1267,6 +1264,7 @@ deduplicate_plot_data <- function(plots_LT){
 #' 
 #' @param in_dir Directory of VegBank data to read from
 #' @param out_dir Directory of data to write to
+#' @param renew_cache Logical. If TRUE, refreshes cached VegBank API data
 #' 
 #' @return None
 #' 
@@ -1274,7 +1272,7 @@ deduplicate_plot_data <- function(plots_LT){
 #' This function executes a comprehensive data processing pipeline from data
 #' loading and merging, coordinate processing, plot characteristics,
 #' vegetation metrics, looking at data quality, and field mapping.
-plots_loader <- function(in_dir, out_dir){
+plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   
   # read in all the files and join to one table
   plots_merged <- load_plot_files(in_dir)
@@ -1295,7 +1293,7 @@ plots_loader <- function(in_dir, out_dir){
   plots_merged <- calc_herb_height(plots_merged)
   plots_merged <- truncate_fields(plots_merged)
   # check for missing projects
-  check_existing_plots(plots_merged, vb_url = "https://api-dev.vegbank.org", renew_cache = FALSE)
+  check_existing_plots(plots_merged, renew_cache = renew_cache)
   
   # Time should be removed
   plots_merged <- plots_merged %>% 

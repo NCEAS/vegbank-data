@@ -129,12 +129,11 @@ create_person_lookup <- function(plots, contrib){
 #' Queries the VegBank API to retrieve all plant concept records with caching
 #' and adaptive paging
 #' 
-#' @param base_url Base URL for VegBank API
 #' @param renew_cache If TRUE, redownloads the API. If FALSE, uses cached data
 #'                    if available
 #' 
 #' @return Data frame containing all VegBank plant concepts
-load_vb_pc <- function(base_url, renew_cache = FALSE){
+load_vb_pc <- function(renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
   cache_file <- file.path(cache_dir, "plant_concept_all.csv")
@@ -142,8 +141,6 @@ load_vb_pc <- function(base_url, renew_cache = FALSE){
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
   
   if (!file.exists(cache_file) | renew_cache) {
-
-    vb_set_base_url(base_url)   
     
     page_init <- 5000 # shrink this if there is an error
     page_min <- 500 # don't go smaller than this
@@ -229,6 +226,7 @@ load_vb_pc <- function(base_url, renew_cache = FALSE){
 #' 
 #' @param in_dir Directory of VegBank data to read from
 #' @param out_dir Directory of data to write to
+#' @param renew_cache Logical. If TRUE, refreshes cached VegBank API data
 #' 
 #' @return None. Writes two CSV files (strataCoverLT.csv and
 #'         taxonInterpretationsLT.csv) to `out_dir`
@@ -242,13 +240,13 @@ load_vb_pc <- function(base_url, renew_cache = FALSE){
 #' 
 #' @note
 #' This function must run after party_contributor_loader.R and plots_loader.R
-stratacover_taxon_loader <- function(in_dir, out_dir){
+stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
 
   l <- load_stratacover_files(in_dir, out_dir)
   list2env(l, envir = environment())
   people <- create_person_lookup(plots, contrib)
   
-  pc_all <- load_vb_pc("https://api-dev.vegbank.org", FALSE)
+  pc_all <- load_vb_pc(renew_cache = renew_cache)
 
   # try to match most recent USDA codes, moving down through older lists if no matches are found
   
