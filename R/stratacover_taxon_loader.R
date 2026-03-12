@@ -263,7 +263,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir){
            "USDA Plants 2015",
            "USDA Plants 2020",
            "USDA PLANTS accepted current",
-           "USDA 2026")
+           "USDA Plants 2026")
   
   pc_usda$concept_rf_label <- factor(pc_usda$concept_rf_label, levels = levs)
   
