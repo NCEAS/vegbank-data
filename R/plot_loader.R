@@ -1144,7 +1144,7 @@ calc_herb_height <- function(plots_merged){
 truncate_fields <- function(plots_merged){
   plots_merged <- plots_merged %>% 
     mutate(SiteLocation = substr(SiteLocation, 1, 200)) %>% 
-    mutate(DomForm = substr(SiteLocation, 1, 40))
+    mutate(DomForm = substr(DomForm, 1, 40))
 }
 
 #' Handles duplicate user_pl_code values by assigning unique suffixes when
