@@ -374,10 +374,9 @@ normalize_area_shape <- function(plots_merged){
            dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
            SurveyLength = suppressWarnings(as.numeric(map_chr(dims, 1, .default = NA))),
            SurveyWidth  = suppressWarnings(as.numeric(map_chr(dims, 2, .default = NA))),
-           area_from_radius = if_else(!is.na(ViewRadius) & is.na(PlotArea_num), pi * (as.numeric(ViewRadius)^2), NA_real_),
            area_from_dims   = if_else(!is.na(SurveyLength) & !is.na(SurveyWidth),
                                       SurveyLength * SurveyWidth, NA_real_),
-           PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, NA)
+           PlotArea = coalesce(PlotArea_num, area_from_dims, NA)
     )
   
   # filling in the columns that are missing or incorrect in the PlotShape column
@@ -390,13 +389,15 @@ normalize_area_shape <- function(plots_merged){
       
       PlotShape = case_when(
         !is.na(PlotShape)                     ~ PlotShape,
-        !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
         .is_square                            ~ "square",
         !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
           SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
         TRUE                                  ~ NA_character_
       )
-    )
+    ) %>% 
+    # Rapid assessments are dimensionless, and the radius (which is a minimum) is provided only to assist with mapping. Remove plot shape where survey_type = Rapid Assessment, and do not calculate an area based on RARadius.
+    mutate(PlotShape = if_else(tolower(Survey_Type) == "rapid assessment", NA, PlotShape)) %>% 
+    mutate(PlotArea = if_else(tolower(Survey_Type) == "rapid assessment", NA, PlotArea))
   
   return(plots_merged)
 }
