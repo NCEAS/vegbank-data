@@ -1148,6 +1148,22 @@ truncate_fields <- function(plots_merged){
     mutate(DomForm = substr(DomForm, 1, 40))
 }
 
+#' Extract location description from multiple columns
+#'
+#' @param plots_merged A data frame containing plot data with columns
+#'   Site_history, SiteLocation, and AdditionalNotes
+#'
+#' @return A data frame with an additional author_location column containing
+#'   the first non-NA value from Site_history, SiteLocation, or AdditionalNotes
+#'   (in that priority order). Invalid SiteLocation values are set to NA.
+#'
+extract_location_description <- function(plots_merged){
+  plots_merged <- plots_merged %>% 
+      mutate(SiteLocation = if_else(SiteLocation == "; UTM2 to UTM", NA, SiteLocation)) %>% 
+      mutate(author_location = coalesce(Site_history, SiteLocation, AdditionalNotes))
+    
+}
+
 #' Handles duplicate user_pl_code values by assigning unique suffixes when
 #' plot-level attributes differ
 #' 
@@ -1293,6 +1309,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
   plots_merged <- truncate_fields(plots_merged)
+  plots_merged <- extract_location_description(plots_merged)
   # check for missing projects
   check_existing_plots(plots_merged, renew_cache = renew_cache)
   
@@ -1312,7 +1329,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       longitude = real_longitude,
       real_longitude,
       real_latitude,
-      author_location = SiteLocation,
+      author_location,
       location_accuracy = ErrorMeasurement,
       confidentiality_status = ConfidentialityStatus,
       author_e = UTME_final,
