@@ -1029,6 +1029,25 @@ calc_herb_height <- function(plots_merged){
   return(plots_merged)
 }
 
+
+
+#' Extract location description from multiple columns
+#'
+#' @param plots_merged A data frame containing plot data with columns
+#'   Site_history, SiteLocation, and AdditionalNotes
+#'
+#' @return A data frame with an additional author_location column containing
+#'   the first non-NA value from Site_history, SiteLocation, or AdditionalNotes
+#'   (in that priority order). Invalid SiteLocation values are set to NA.
+#'
+extract_location_description <- function(plots_merged){
+  plots_merged <- plots_merged %>% 
+      mutate(SiteLocation = if_else(SiteLocation == "; UTM2 to UTM", NA, SiteLocation)) %>% 
+      mutate(author_location = Location_name) %>% 
+      mutate(location_narrative = coalesce(Site_history, SiteLocation, AdditionalNotes))
+  
+}
+
 #' Ensures text fields do not exceed VegBank's maximum character limits
 #' 
 #' @param plots_merged Data frame containing text fields
@@ -1048,22 +1067,6 @@ truncate_fields <- function(plots_merged){
     mutate(DomForm = substr(DomForm, 1, 40))
 }
 
-#' Extract location description from multiple columns
-#'
-#' @param plots_merged A data frame containing plot data with columns
-#'   Site_history, SiteLocation, and AdditionalNotes
-#'
-#' @return A data frame with an additional author_location column containing
-#'   the first non-NA value from Site_history, SiteLocation, or AdditionalNotes
-#'   (in that priority order). Invalid SiteLocation values are set to NA.
-#'
-extract_location_description <- function(plots_merged){
-  plots_merged <- plots_merged %>% 
-      mutate(SiteLocation = if_else(SiteLocation == "; UTM2 to UTM", NA, SiteLocation)) %>% 
-      mutate(author_location = Location_name) %>% 
-      mutate(location_narrative = coalesce(Site_history, SiteLocation, AdditionalNotes))
-  
-}
 
 #' Handles duplicate user_pl_code values by assigning unique suffixes when
 #' plot-level attributes differ
