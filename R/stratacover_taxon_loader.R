@@ -278,7 +278,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plants_join <- plants %>% 
     mutate(SurveyID = toupper(SurveyID)) %>% 
     mutate(strata_id = paste(SurveyID, Stratum, sep = "_")) %>% 
-    mutate(usda_norm = if_else(is.na(CurrPlantsSymbol), CodeSpecies, CurrPlantsSymbol)) %>% 
+    mutate(usda_norm = if_else(is.na(CodeSpecies), CurrPlantsSymbol, CodeSpecies)) %>% 
     left_join(pc_lookup_no_repeats, by = c("usda_norm" = "plant_code"))
   
   if (nrow(plants_join) != n0) {
@@ -290,7 +290,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
     left_join(people, by = join_by(SurveyID)) %>%
     mutate(user_py_code = if_else(!is.na(vb_py_code), NA, user_py_code)) %>% 
     mutate(user_tm_code = paste0("CDFW_plant_", 1:nrow(plants))) %>% 
-    mutate(species_norm = if_else(is.na(SpeciesName), Species_name, SpeciesName)) %>% 
+    mutate(species_norm = if_else(is.na(Species_name), SpeciesName, Species_name)) %>% 
     mutate(user_ti_code = as.character(1:nrow(plants))) %>% 
     group_by(SurveyID, species_norm) %>% 
     mutate(user_to_code = paste0(SurveyID, "_", cur_group_id())) %>% 
