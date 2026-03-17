@@ -749,108 +749,6 @@ assign_tree_height <- function(plots_merged){
   return(plots_merged)
 }
 
-#' Determines the two most dominant tree growth forms (conifer vs. hardwood)
-#' based on cover values
-#' 
-#' @param plots_merged Data frame containing tree cover and height fields
-#' 
-#' @return Data frame with growth form type and cover fields for primary and
-#' secondary growth forms
-#' 
-#' @details
-#' **Output Fields:**
-#' \itemize{
-#'   \item growthform1Type: "Conifer Tree" or "Hardwood Tree"
-#'   \item growthform2Type: The other type (or NA if only one present)
-#'   \item growthform1Cover: Height of dominant type
-#'   \item growthform2Cover: Height of secondary type
-#' }
-assign_growth_form <- function(plots_merged){
-  
-  plots_merged <- plots_merged %>%
-    mutate(
-      conif_ht_mid = case_when(
-        Conif_ht2 == "5-10 m"  ~ 7.5,
-        Conif_ht2 == "0.5-1 m" ~ 0.75,
-        Conif_ht2 == "10-15 m" ~ 12.5,
-        Conif_ht2 == "2-5 m"   ~ 3.5,
-        Conif_ht2 %in% c("20-35m","20-35 m") ~ 27.5,
-        Conif_ht2 %in% c("15-20 m","15-20m") ~ 17.5,
-        Conif_ht2 %in% c("35-50 m","35-50m") ~ 42.5,
-        Conif_ht2 %in% c("5-10m")            ~ 7.5,
-        Conif_ht2 %in% c("10-15m")           ~ 12.5,
-        Conif_ht2 %in% c("2-5m")             ~ 3.5,
-        Conif_ht2 %in% c(".5-1m")            ~ 0.75,
-        Conif_ht2 == "1-2 m"                 ~ 1.5,
-        Conif_ht2 == "<0.5 m"                ~ 0.25,
-        Conif_ht2 %in% c(">50 m",">50m")     ~ 55,
-        Conif_ht2 == "0"                     ~ 0,
-        Conif_ht2 %in% c("N/A","Not recorded","Not present") ~ NA_real_,
-        TRUE ~ NA_real_
-      ),
-      hdwd_ht_mid = case_when(
-        Hdwd_ht2 %in% c("2-5 m","2-5m")   ~ 3.5,
-        Hdwd_ht2 == "1-2 m"               ~ 1.5,
-        Hdwd_ht2 == "0.5-1 m"             ~ 0.75,
-        Hdwd_ht2 %in% c("15-20 m","15-20m") ~ 17.5,
-        Hdwd_ht2 %in% c("5-10m")          ~ 7.5,
-        Hdwd_ht2 %in% c("10-15m")         ~ 12.5,
-        Hdwd_ht2 %in% c("20-35m")         ~ 27.5,
-        Hdwd_ht2 %in% c("35-50m")         ~ 42.5,
-        Hdwd_ht2 == "<.5m"                ~ 0.25,
-        Hdwd_ht2 == "0"                   ~ 0,
-        Hdwd_ht2 %in% c("N/A","Not recorded","Not present") ~ NA_real_,
-        TRUE ~ NA_real_
-      )
-    )
-  
-  plots_merged <- plots_merged %>%
-    mutate(
-      # which growthform is most common
-      gf1_is_conif = case_when(
-        is.na(Conif_cover) & is.na(Hdwd_cover) ~ NA,
-        !is.na(Conif_cover) &  is.na(Hdwd_cover) ~ TRUE,
-        is.na(Conif_cover)  & !is.na(Hdwd_cover) ~ FALSE,
-        Conif_cover > Hdwd_cover ~ TRUE,
-        Hdwd_cover  > Conif_cover ~ FALSE,
-        Conif_cover == Hdwd_cover ~ TRUE,   # tie default -> Conifer first
-        TRUE ~ NA
-      ),
-      
-      growthform1Type  = case_when(
-        is.na(gf1_is_conif) ~ NA_character_,
-        gf1_is_conif        ~ "Conifer Tree",
-        !gf1_is_conif       ~ "Hardwood Tree"
-      ),
-      growthform2Type  = case_when(
-        is.na(gf1_is_conif) ~ NA_character_,
-        !is.na(Conif_cover) & is.na(Hdwd_cover) ~ NA_character_,
-        is.na(Conif_cover) & !is.na(Hdwd_cover) ~ NA_character_,
-        # if tied, no clear second (can change this)
-        !is.na(Conif_cover) & !is.na(Hdwd_cover) & Conif_cover == Hdwd_cover ~ NA_character_,
-        gf1_is_conif  ~ "Hardwood Tree",
-        TRUE          ~ "Conifer Tree"
-      ),
-      
-      growthform1Cover = case_when(
-        is.na(gf1_is_conif) ~ NA_real_,
-        gf1_is_conif        ~ conif_ht_mid,
-        TRUE                ~ hdwd_ht_mid
-      ),
-      growthform2Cover = case_when(
-        is.na(gf1_is_conif) ~ NA_real_,
-        !is.na(Conif_cover) & is.na(Hdwd_cover) ~ NA_real_,
-        is.na(Conif_cover) & !is.na(Hdwd_cover) ~ NA_real_,
-        !is.na(Conif_cover) & !is.na(Hdwd_cover) & Conif_cover == Hdwd_cover ~ NA_real_,
-        gf1_is_conif  ~ hdwd_ht_mid,
-        TRUE          ~ conif_ht_mid
-      )
-    ) %>%
-    select(-gf1_is_conif)
-  
-  return(plots_merged)
-}
-
 #' Queries VegBank API to check if any plot codes (SurveyIDs) already exist in
 #' the database
 #' 
@@ -1306,7 +1204,6 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- calc_conif_height(plots_merged)
   plots_merged <- calc_hdwd_height(plots_merged)
   plots_merged <- assign_tree_height(plots_merged)
-  plots_merged <- assign_growth_form(plots_merged)
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
   plots_merged <- truncate_fields(plots_merged)
@@ -1365,10 +1262,6 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       field_cover = Herb_cover,
       nonvascular_cover = NonVasc_Veg_cover,
       dominant_stratum = DomForm,
-      growthform_1_cover = growthform1Cover,
-      growthform_2_cover = growthform2Cover,
-      growthform_1_type = growthform1Type,
-      growthform_2_type = growthform2Type,
       total_cover = Veg_cover,
       percent_bedrock = Bedrock,
       percent_rock_gravel = percentRockGravel
