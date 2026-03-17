@@ -737,7 +737,6 @@ assign_tree_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###
   # can take max of hardwood and conifer
   plots_merged <- plots_merged %>%
-    mutate(across(contains("_cover"), ~ if_else(.x < 1, .x * 100, .x))) %>%
     mutate(
       treeHt = pmax(Conif_ht22, Hdwd_ht22, na.rm = TRUE),
       # case for both values being NA
