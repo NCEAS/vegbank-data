@@ -184,6 +184,7 @@ normalize_coordinates <- function(plots_merged){
   # May delete this, if unnecessary
   # Also, what is the correct format? "NAD83"?
   plots_merged <- plots_merged %>% 
+    mutate(UTM_zone = if_else(SurveyID == "CVRP0093 ", 10, UTM_zone)) %>% # fix this one plot
     mutate(
       author_datum = case_when(
         GPS_datum %in% c("Nad83", "NAD 83", "NAD83", "nad83") ~ "NAD83",
@@ -206,7 +207,7 @@ normalize_coordinates <- function(plots_merged){
         is.na(author_datum) & UTM_zone == 11 ~ 26911,
         TRUE ~ NA_real_
       )
-    ) 
+    )
   
   # use UTME_final and UTMN_final in RAPlots.csv
   # Convert UTM to lat long
