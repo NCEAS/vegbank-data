@@ -621,7 +621,9 @@ calc_percent_rock <- function(plots_merged){
     mutate(across(c(Boulders, Stones, Cobbles, Gravels), ~ na_if(.x, 999))) %>% 
     mutate(
       percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels), na.rm = TRUE)
-    )
+    ) %>% 
+    # if survey is accuracy assessment make rock gravel NA per CDFW review
+    mutate(percentRockGravel = if_else(tolower(Survey_Type) == "accuracy assessment", NA, percentRockGravel))
   
   if (max(plots_merged$percentRockGravel, na.rm = T) > 100){
     cli::cli_alert_warning("Some percent rock gravel values are greater than 100. Check input data.")
@@ -639,7 +641,7 @@ calc_tree_cover <- function(plots_merged){
   # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
   # Need to combine 3 columns into one
   plots_merged <- plots_merged %>% 
-    mutate(across(c(Hdwd_cover, Conif_cover, RegenTree_cover), ~ na_if(.x, 999))) %>% 
+    mutate(across(ends_with("_cover"), ~ na_if(.x, 999))) %>% 
     mutate(
       treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover), na.rm = TRUE)
     ) %>% 
