@@ -1062,7 +1062,7 @@ extract_location_description <- function(plots_merged){
       mutate(SiteLocation = if_else(SiteLocation == "; UTM2 to UTM", NA, SiteLocation)) %>% 
       mutate(author_location = Location_name) %>% 
       mutate(location_narrative = coalesce(Site_history, SiteLocation, AdditionalNotes))
-    
+  
 }
 
 #' Handles duplicate user_pl_code values by assigning unique suffixes when
