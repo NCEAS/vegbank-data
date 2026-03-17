@@ -178,7 +178,7 @@ filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
 #'   \item{user_parent_cc_code}{NA (no hierarchy in this dataset)}
 #'   \item{comm_level}{"alliance" or "association"}
 #'   \item{start_date}{2019-01-01 for all rows}
-#'   \item{vb_status_py_code}{"py.512" for all rows}
+#'   \item{user_status_py_code}{"CDFW CNPS" for all rows}
 #' }
 build_community_concepts <- function(mcv) {
   
@@ -192,10 +192,10 @@ build_community_concepts <- function(mcv) {
       user_parent_cc_code = NA_character_,
       comm_level          = comm_level,
       start_date          = as.Date("2019-01-01"),
-      vb_status_py_code   = "py.199162"
+      user_status_py_code   = "CDFW CNPS"
     ) %>%
     distinct(user_cc_code, .keep_all = TRUE) %>% 
-    select(user_cc_code, name, user_rf_code, user_status_rf_code, comm_concept_status, user_parent_cc_code, comm_level, start_date, vb_status_py_code)
+    select(user_cc_code, name, user_rf_code, user_status_rf_code, comm_concept_status, user_parent_cc_code, comm_level, start_date, user_status_py_code)
   
   bad_codes <- which(is.na(community_concepts$user_cc_code) | community_concepts$user_cc_code == "")
   if (length(bad_codes) > 0) {
@@ -260,9 +260,9 @@ build_community_names <- function(comm_concepts) {
       name             = name,
       name_status      = "Standard",
       usage_start      = as.Date("2019-01-01"),
-      vb_usage_py_code = "py.199162"
+      user_usage_py_code = "CDFW CNPS"
     ) %>% 
-    select(user_cc_code, name_type, name, name_status, usage_start, vb_usage_py_code)
+    select(user_cc_code, name_type, name, name_status, usage_start, user_usage_py_code)
   
   # row 2: Code
   comm_names_code <- comm_concepts %>%
@@ -272,9 +272,9 @@ build_community_names <- function(comm_concepts) {
       name             = user_cc_code,
       name_status      = "Standard",
       usage_start      = as.Date("2019-01-01"),
-      vb_usage_py_code = "py.199162"
+      user_usage_py_code = "CDFW CNPS"
     ) %>% 
-    select(user_cc_code, name_type, name, name_status, usage_start, vb_usage_py_code)
+    select(user_cc_code, name_type, name, name_status, usage_start, user_usage_py_code)
   
   comm_names <- bind_rows(comm_names_scientific, comm_names_code)
   
@@ -322,7 +322,7 @@ community_definitions_loader <- function(in_dir, out_dir){
   
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
-  mcv <- filter_mcv_to_classification(mcv, cacodes)
+  #mcv <- filter_mcv_to_classification(mcv, cacodes)
 
   comm_concepts <- build_community_concepts(mcv)
   comm_names <- build_community_names(comm_concepts)
