@@ -1063,7 +1063,7 @@ extract_location_description <- function(plots_merged){
 # truncate fields that are varchar(n)
 truncate_fields <- function(plots_merged){
   plots_merged <- plots_merged %>% 
-    mutate(SiteLocation = substr(SiteLocation, 1, 200)) %>% 
+    mutate(location_narrative = substr(location_narrative, 1, 200)) %>% 
     mutate(DomForm = substr(DomForm, 1, 40))
 }
 
