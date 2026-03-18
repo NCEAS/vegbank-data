@@ -69,9 +69,7 @@ load_plot_files <- function(in_dir) {
     grep(pattern = 'AltStrata.csv', value = TRUE)
   classification_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'RAClassification.csv', value = TRUE)
-  project_files <- dir(sub_folders, full.names = TRUE) %>% 
-    grep(pattern = 'RAProjects.csv', value = TRUE)
-  
+
   
   plots_df_list <- lapply(plot_files, 
                           read_csv,

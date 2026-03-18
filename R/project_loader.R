@@ -22,13 +22,10 @@ project_loader <- function(in_dir, out_dir){
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
   
-  # read in RAProjects
-  project_files <- dir(sub_folders, full.names = TRUE) %>% 
-    grep(pattern = "RAProjects.csv", value = TRUE)
-  
-  projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  
-  projects <- do.call(bind_rows, projects_df_list)
+  # read in projects file
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+                       progress = FALSE,
+                       show_col_types = FALSE)
   
   # tidying CDFW data -----------------------------------------------------------
   
