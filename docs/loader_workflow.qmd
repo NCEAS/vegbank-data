@@ -35,7 +35,7 @@ invisible(lapply(r_scripts_source, source))
 ```{r}
 in_dir <- '/var/data/curation/vegbank/'
 out_dir <- '../data/loader-tables'
-if (!exists(out_dir)){
+if (!dir.exists(out_dir)){
   dir.create(out_dir)
 }
 ```
@@ -95,14 +95,9 @@ roles <- tribble(
   "ar.56",  "Data aggregator"
 )
 
-role_lookup_path <- file.path(in_dir, "lookup-tables", "cdfw-roles-2026-02-02.csv")
+role_lookup_path <- file.path(in_dir, "lookup-tables", "cdfw-roles-2026-03-18.csv")
 
-role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE) %>%
-  rename(ContactRole = found, role_name = allowed) %>%
-  mutate(
-    ContactRole = str_to_lower(str_squish(ContactRole)),
-    role_name   = str_squish(role_name)
-  )
+role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE)
 
 role_map_final <- role_lookup %>%
   left_join(roles, by = "role_name") %>%
