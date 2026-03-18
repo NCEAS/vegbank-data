@@ -28,7 +28,7 @@ library(vegbankr)
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "../R"
 r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
-  grep("altplots|validate", ., invert = TRUE, value = TRUE)
+  grep("validate", ., invert = TRUE, value = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
@@ -437,7 +437,7 @@ Community classification data is extracted from `RAClassifications.csv` files, a
 Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260303.csv")) %>% 
+method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
   rename(vegbank_method = technique)
 
 DT::datatable(method_lookup,

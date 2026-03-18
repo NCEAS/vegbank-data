@@ -27,9 +27,6 @@ load_community_files <- function(in_dir) {
   classification_files <- dir(sub_folders, full.names = TRUE) %>%
     grep(pattern = "RAClassification.csv", value = TRUE)
   
-  project_files <- dir(sub_folders, full.names = TRUE) %>%
-    grep(pattern = "RAProjects.csv", value = TRUE)
-  
   # read + combine
   plots_df_list <- lapply(
     plot_files,
@@ -51,20 +48,10 @@ load_community_files <- function(in_dir) {
   )
   classification <- do.call(bind_rows, classification_df_list)
   
-  project_df_list <- lapply(
-    project_files,
-    read_csv,
-    progress = FALSE,
-    show_col_types = FALSE
-  )
-  projects <- do.call(bind_rows, project_df_list) %>%
-    group_by(ProjectCode) %>% 
-    arrange(desc(nchar(ProjectDescription))) %>% 
-    slice(1)
-  
-  plots <- plots
-  classification <- classification
-  projects <- projects
+  # read in projects file
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+                       progress = FALSE,
+                       show_col_types = FALSE)
   
   out <- list("plots" = plots, "classification" = classification, "projects" = projects)
   
@@ -87,7 +74,7 @@ load_community_files <- function(in_dir) {
 #' single class_notes field, removing empty entries and trailing punctuation
 normalize_projects_classification <- function(projects, in_dir) {
   
-  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260303.csv")) %>% 
+  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
     select(-ClassificationDescription, -ClassificationTool)
   
   projects_proj <- projects %>% 
@@ -111,13 +98,13 @@ normalize_projects_classification <- function(projects, in_dir) {
     filter(is.na(inspection) | is.na(table_analysis) | is.na(multivariate_analysis)) %>% 
     filter(!is.na(class_notes)) %>% 
     filter(!grepl("was not performed|Not formally classified", class_notes)) %>% 
-    distinct(class_notes) %>%
-    pull(class_notes)
+    distinct(ProjectCode) %>%
+    pull(ProjectCode)
   
   if (length(unmatched) > 0) {
-    cli_alert_warning("Some Project ClassificationDescription/ClassificationTool values did not match patterns ({length(unmatched)} unique).")
-    cli_text("Sample (up to 3):")
-    cli_text(paste0("- ", str_trunc(head(unmatched, 3), 120)))
+    cli_alert_warning("Some Projects did not contain classification methods in the lookup table: ({length(unmatched)} unique).")
+    cli_text("Sample (up to 10):")
+    cli_text(paste0(head(unmatched, 10), collapse = ", "))
   }
   
   return(projects_proj)
