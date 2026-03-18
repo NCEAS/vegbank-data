@@ -13,11 +13,15 @@ format:
 This quarto document describes processing and quality assurance steps used to convert CDFW data into the format needed for ingest into vegbank. Each loader table has a function in the family `[table]_loader` which is run on input data and generates output files at the desired location. Messages from the loader functions indicate potential issues with input datasets.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-library(dplyr)
+library(tidyverse)
 library(stringr)
-library(readr)
+library(cli)
 library(DT)
 library(downloadthis)
+library(vctrs)
+library(sf)
+library(tigris)
+library(rnaturalearth)
 library(vegbankr)
 ```
 

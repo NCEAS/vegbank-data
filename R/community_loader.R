@@ -1,8 +1,6 @@
 library(tidyverse)
 library(stringr)
-library(googlesheets4)
 library(cli)
-library(glue)
 
 # load in CDFW data -----------------------------------------------------------
 
