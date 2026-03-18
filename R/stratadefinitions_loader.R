@@ -127,8 +127,6 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   plant_projs <- left_join(plants, proj_plots, by = "SurveyID")
   plant_projs <- clean_strata_names(plant_projs)
   
-  base_url <- "https://api-dev.vegbank.org"
-  vb_set_base_url(base_url)
   vb_strata <- vb_get_stratum_methods(with_nested = TRUE)
   
   vb_strata <- vb_strata %>% 

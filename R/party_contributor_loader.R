@@ -153,7 +153,6 @@ party_contributor_loader <- function(in_dir, out_dir){
     )
   
   # get existing vb parties by name
-  suppressMessages(vegbankr::vb_set_base_url("https://api-dev.vegbank.org"))
   party_vegbank <- as.data.frame(vegbankr::vb_get_parties(limit = 5000))
   
   vegbank_names <- party_vegbank %>%
