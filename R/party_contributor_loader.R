@@ -1,7 +1,6 @@
 library(tidyverse)
 library(stringr)
 library(vctrs)
-library(glue)
 
 #' Extract party and contributor information from RAProjects files
 #' and writes to a vegbank loader table.

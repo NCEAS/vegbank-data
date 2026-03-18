@@ -1,9 +1,6 @@
 library(tidyverse)
 library(vegbankr)
-library(remotes)
-library(httr)
 library(cli)
-library(glue)
 
 #' Reads files and loads prequisite loader tables for linking plant observations
 #' to people and projects

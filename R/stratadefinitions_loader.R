@@ -2,7 +2,6 @@ library(tidyverse)
 library(vegbankr)
 library(purrr)
 library(cli)
-library(glue)
 
 #' Reads RAPlants.csv and RAProjects.csv files. Loads prerequisite plotsLT.csv
 #' loader table needed for linking strata to observations

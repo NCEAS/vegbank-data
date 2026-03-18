@@ -1,7 +1,6 @@
 library(tidyverse)
 library(stringr)
 library(cli)
-library(glue)
 library(readr)
 
 #' Reads Manual of California Vegetation (MCV) 2019 alliance and association
