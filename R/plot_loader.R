@@ -1265,7 +1265,8 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       dominant_stratum = DomForm,
       total_cover = Veg_cover,
       percent_bedrock = Bedrock,
-      percent_rock_gravel = percentRockGravel
+      percent_rock_gravel = percentRockGravel,
+      rock_type = Substrate
     )
   
   plots_LT <- deduplicate_plot_data(plots_LT)
