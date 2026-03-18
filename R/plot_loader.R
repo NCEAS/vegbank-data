@@ -1158,6 +1158,7 @@ deduplicate_plot_data <- function(plots_LT){
       author_zone,
       author_datum,
       author_location,
+      location_narrative,
       azimuth,
       shape,
       area,
@@ -1211,8 +1212,8 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- assign_tree_height(plots_merged)
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
-  plots_merged <- truncate_fields(plots_merged)
   plots_merged <- extract_location_description(plots_merged)
+  plots_merged <- truncate_fields(plots_merged)
   # check for missing projects
   check_existing_plots(plots_merged, renew_cache = renew_cache)
   
@@ -1233,6 +1234,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       real_longitude,
       real_latitude,
       author_location,
+      location_narrative,
       location_accuracy = ErrorMeasurement,
       confidentiality_status = ConfidentialityStatus,
       author_e = UTME_final,
