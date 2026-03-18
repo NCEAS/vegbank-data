@@ -634,6 +634,18 @@ calc_percent_rock <- function(plots_merged){
   
 }
 
+#' Converts basal percent cover to basal area in square meters per hectare
+#' 
+#' @param plots_merged Data frame containing basal stem cover field
+#' 
+#' @return Data frame with calculated basal area field
+calc_basal_area <- function(plots_merged){
+  plots_merged <- plots_merged %>% 
+    mutate(basalArea = (BasalStem / 100) * 10000)
+  
+  return(plots_merged)
+}
+
 #' Sums hardwood, conifer, and regenerating tree cover into a single percentage
 #' 
 #' @param plots_merged Data frame containing tree cover fields
@@ -1206,6 +1218,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- normalize_methods(plots_merged)
   plots_merged <- normalize_topo_position(plots_merged)
   plots_merged <- calc_percent_rock(plots_merged)
+  plots_merged <- calc_basal_area(plots_merged)
   plots_merged <- calc_tree_cover(plots_merged)
   plots_merged <- calc_conif_height(plots_merged)
   plots_merged <- calc_hdwd_height(plots_merged)
@@ -1256,7 +1269,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       obs_start_date = SurveyDate,
       method_narrative = methodNarrative,
       successional_status = Trend,
-      basal_area = BasalStem,
+      basal_area = basalArea,
       hydrologic_regime = Upl_Wet_text,
       percent_litter = Litter,
       percent_bare_soil = Bare_fines,
