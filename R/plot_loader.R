@@ -1261,7 +1261,6 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       slope_aspect = Aspect_actual,
       slope_gradient = slope,
       topo_position,
-      landscape_narrative = Site_history,
       rock_type = Substrate,
       user_pj_code = ProjectCode,
       obs_start_date = SurveyDate,
