@@ -58,12 +58,12 @@ load_community_def_files <- function(in_dir) {
 #' @details
 #' **CaCode Format:**
 #' Only codes matching the pattern `##.###.##` are retained (e.g., "21.100.00").
-load_cdfw_cacodes <- function(in_dir) {
+load_cdfw_cacodes <- function(in_dir, renew_cache) {
   
   out <- load_community_files(in_dir)
   list2env(out, envir = environment())
   
-  refs <- load_reference_tables(in_dir)
+  refs <- load_reference_tables(in_dir, renew_cache)
   
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,
@@ -325,8 +325,8 @@ build_community_names <- function(comm_concepts) {
 #' first loads CDFW classification data, loads MCV reference data, normalizes
 #' community levels, filters to observed vegetation types, builds community
 #' concepts, and builds community names.
-community_definitions_loader <- function(in_dir, out_dir){
-  cacodes <- load_cdfw_cacodes(in_dir)
+community_definitions_loader <- function(in_dir, out_dir, renew_cache = FALSE){
+  cacodes <- load_cdfw_cacodes(in_dir, renew_cache)
   
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
