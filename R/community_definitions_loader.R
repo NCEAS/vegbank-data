@@ -194,8 +194,8 @@ build_community_concepts <- function(mcv) {
     mutate(
       user_cc_code        = CaCode,
       name                = name,     
-      user_rf_code        = "MCV 2019",
-      user_status_rf_code = "MCV 2019",
+      user_rf_code        = "MCV - CDFW CNPS",
+      user_status_rf_code = "MCV - CDFW CNPS",
       comm_concept_status = "accepted",
       user_parent_cc_code = NA_character_,
       comm_level          = comm_level,
