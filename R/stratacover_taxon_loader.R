@@ -243,7 +243,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   list2env(l, envir = environment())
   people <- create_person_lookup(plots, contrib)
   
-  pc_all <- load_vb_pc(renew_cache = renew_cache)
+  pc_all <- suppressMessages(load_vb_pc(renew_cache = renew_cache))
 
   # try to match most recent USDA codes, moving down through older lists if no matches are found
   

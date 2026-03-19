@@ -291,7 +291,7 @@ get_vb_cc <- function(renew_cache = FALSE){
 #' @note This function downloads VegBank community concepts via API on first run
 load_reference_tables <- function(in_dir, renew_cache = FALSE){
   # Community concepts from VegBank
-  cc_all <- get_vb_cc(renew_cache = renew_cache)
+  cc_all <- suppressMessages(get_vb_cc(renew_cache = renew_cache))
   
   cc_current <- cc_all %>%
     filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
