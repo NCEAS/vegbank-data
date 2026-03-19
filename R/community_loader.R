@@ -84,7 +84,7 @@ normalize_projects_classification <- function(projects, in_dir) {
            table_analysis = if_else(grepl("tableAnalysis", technique), TRUE, FALSE)) %>% 
     mutate(across(c(inspection, multivariate_analysis, table_analysis), ~ if_else(is.na(technique), NA, .))) %>% 
     mutate(across(c(ClassificationDescription, ClassificationTool), ~ if_else(is.na(.x), "", .x))) %>% 
-    mutate(class_notes = paste("Project: ", ProjectCode, " classification notes - ", ClassificationDescription, ClassificationTool, sep = ", ")) %>% 
+    mutate(class_notes = paste("Project: ", ProjectCode, " . Classification notes: ", ClassificationDescription, ClassificationTool, sep = " ")) %>% 
     mutate(class_notes = if_else(class_notes == ", ", NA, class_notes)) %>% 
     mutate(class_notes = gsub("^(,\\s*)|(,\\s*)$", "", class_notes)) %>% 
     group_by(ProjectCode) %>% 
