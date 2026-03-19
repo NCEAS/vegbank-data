@@ -337,7 +337,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       vb_py_code,
       user_ti_code,
       vb_pc_code = pc_code,
-      vb_ro_code = vb_ar_code,
+      vb_ar_code,
       original_interpretation,
       current_interpretation
     )
