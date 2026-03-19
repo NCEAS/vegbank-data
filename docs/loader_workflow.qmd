@@ -42,6 +42,7 @@ if (!dir.exists(out_dir)){
 
 ```{r}
 vb_set_base_url("https://api-dev.vegbank.org")
+renew_cache <- TRUE
 ```
 
 ## Projects
@@ -207,7 +208,7 @@ downloadthis::download_this(
 
 ```{r}
 #| classes: styled-output
-plots_loader(in_dir, out_dir)
+plots_loader(in_dir, out_dir, renew_cache)
 ```
 
 ### Data Sources and Initial Merging
@@ -420,7 +421,7 @@ downloadthis::download_this(
 
 ```{r}
 #| classes: styled-output
-community_loader(in_dir, out_dir)
+community_loader(in_dir, out_dir, renew_cache)
 ```
 
 ### Data Sources and Merging
@@ -509,7 +510,7 @@ downloadthis::download_this(
 
 ```{r}
 #| classes: styled-output
-stratacover_taxon_loader(in_dir, out_dir)
+stratacover_taxon_loader(in_dir, out_dir, renew_cache)
 ```
 
 ```{r}
