@@ -309,9 +309,9 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
     select(cc_code, comm_code_norm)
   
   mcv_lookup <- cc_all %>% 
-    filter(concept_rf_label %in% c("MCV 2019", "MCV2"))
+    filter(concept_rf_label %in% c("MCV - CDFW CNPS", "MCV2"))
     
-  mcv_lookup$concept_rf_label <- factor(mcv_lookup$concept_rf_label, levels = c("MCV 2019", "MCV2"))
+  mcv_lookup$concept_rf_label <- factor(mcv_lookup$concept_rf_label, levels = c("MCV - CDFW CNPS", "MCV2"))
   
   mcv_lookup <- mcv_lookup %>% 
     group_by(comm_code) %>% 
