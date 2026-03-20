@@ -1,0 +1,62 @@
+library(tidyverse)
+library(stringr)
+# load in CDFW data -------------------------------------------------------
+# RAPlots
+
+#' Extracts soil texture descriptions from RAPlots.csv files, validates values
+#' against a lookup table, and generates a soil loader table
+#' 
+#' @param in_dir Directory of VegBank data to read from
+#' @param out_dir Directory of data to write to
+#' 
+#' @return None. Writes loader table soilLT.csv to `out_dir`
+#' 
+#' @details
+#' This function performs data loading, data cleaning and checks soil texture
+#' descriptions against the lookup table.
+soil_loader <- function(in_dir, out_dir){
+  
+  plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
+    grep(pattern = "RAPlots.csv", value = TRUE)
+  
+  cli::cli_alert_info(paste("Processing", length(plot_files), "soil tables from:"))
+  cli::cli_ul(plot_files)
+  
+  plot_df_list <- lapply(plot_files, function(file) {
+    df <- read_csv(file, progress = FALSE, show_col_types = FALSE)
+    # column typing
+    if ("DesertRip" %in% names(df)) {
+      df$DesertRip <- as.character(df$DesertRip)
+    }
+    if ("PlotOther4" %in% names(df)) {
+      df$PlotOther4 <- as.character(df$PlotOther4)
+    }
+    return(df)
+  })
+  
+  plots <- do.call(bind_rows, plot_df_list)
+  
+  
+  # clean up strings
+  plots_clean <- plots %>% 
+    select(SurveyID, Soil_text) %>% 
+    mutate(Soil_text = gsub("\\s+", " ", Soil_text)) %>%  # replace multi-spaces with just one space
+    mutate(Soil_text = case_when(
+      Soil_text == "Not Recorded" ~ NA,
+      Soil_text == "<Null>" ~ NA
+    )) # replace null looking values with actual NAs
+  
+  soil_LT <- plots %>% 
+    select(user_ob_code = SurveyID,
+           description = Soil_text) %>% 
+    mutate(soil_horizon = "A") %>% 
+    drop_na()
+  
+  # save filled in loader table
+  out_path <- file.path(out_dir, "soilLT.csv")
+  cli::cli_alert_success("Writing output file to:")
+  cli::cli_ul(out_path)
+  
+  write_csv(soil_LT, out_path)
+  
+}

@@ -42,7 +42,7 @@ if (!dir.exists(out_dir)){
 
 ```{r}
 vb_set_base_url("https://api-dev.vegbank.org")
-renew_cache <- TRUE
+renew_cache <- FALSE
 ```
 
 ## Projects
@@ -609,4 +609,9 @@ Three loader tables are generated:
 2.  **Strata Definitions Data** (`strataDefinitionsLT.csv`) links to the survey observation and stratum definition.
 3.  **Taxon Interpretations** (`taxonInterpretationsLT.csv`) links author-recorded plant names to standardized VegBank plant concept codes, includes attribution to the person who made the identification, and marks both `original_interpretation` and `current_interpretation` as TRUE since these represent the initial taxonomic determinations.
 
+### Soils
+
+```{r}
+soil_loader(in_dir, out_dir)
+```
 
