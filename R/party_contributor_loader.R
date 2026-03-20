@@ -29,7 +29,7 @@ party_contributor_loader <- function(in_dir, out_dir){
                        progress = FALSE,
                        show_col_types = FALSE)
   
-
+  
   
   # Changing to RAProjects to long format to have one row per contact
   # Remove unnecessary variables (can add back later if needed)
@@ -69,7 +69,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # If no middle name, it is set to NA
   
   projects <- projects_long %>%
-    extract(
+    tidyr::extract(
       ContactName,
       into  = c("FirstName", "MiddleName", "LastName"),
       regex = "^\\s*([^\\s]+)\\s+(?:([^\\s]+)\\s+)?(.+?)\\s*$",
@@ -110,7 +110,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # Map DataContactRole values to ar.* codes
   # Done manually for each value
   role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles-2026-03-18.csv"))
-
+  
   projects <- projects %>%
     mutate(ContactRole = tolower(trimws(ContactRole))) %>% 
     left_join(role_lookup, by = "ContactRole") %>% 
@@ -162,7 +162,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # Check if the person matches from party_LT to party_vegbank
   # If there is a match between people names from party_LT and party_vegbank,
   # then save py_code as vb_py_code. Otherwise, leave it as NA
-
+  
   # df2 subset of distinct vegbank parties (vegbank party)
   veg_subset <- vegbank_names %>% 
     select(full_name, py_code) %>% 
@@ -204,7 +204,7 @@ party_contributor_loader <- function(in_dir, out_dir){
     mutate(user_cr_code = sprintf("ca_cr_%03d", seq_len(n())))
   
   pjs <- unique(projects$ProjectCode)
-
+  
   contributor_LT <- ctrib %>%
     select(
       user_cr_code,
