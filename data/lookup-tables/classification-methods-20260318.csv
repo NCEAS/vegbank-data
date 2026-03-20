@@ -1,0 +1,117 @@
+ProjectCode,ClassificationDescription,ClassificationTool,technique
+ALCC,Classified new and legacy surveys within the two counties as well as those that were in adjacent counties within the same ecoregion subsections.  Surveys that were classified but not included in the vegetation descriptions are given the classification code ALCCadj,"PC-Ord, cluster analysis for RA/Releves, AAs were keyed","multiVariateAnalysis, inspection"
+ALCC-GR,Classified new and legacy surveys within the two counties as well as those that were in adjacent counties within the same ecoregion subsections.  Surveys that were classified but not included in the vegetation descriptions are given the classification code ALCCadj,NA,multiVariateAnalysis
+ALSC,"The PC-ORD software suite of classification and ordination tools was used to generate multivariate analyses such as Cluster Analysis and Indicator Species Analysis (McCune and Mefford 1997). These analyses were employed to order vegetation surveys into groups related by their species composition and
+abundance, so that a formalized classification of community types would be created.",PC-ORD,multiVariateAnalysis
+ANZA,"COMPCLUS was used to see the similarity of plots using a predetermined number of seed plots.  TWINSPAN was run multiple times for the final classification.  One where species values were all relativized, another where species were set to presence/absence, reduced to just a few cover classes, also tried removing and including rare species. The final was based on the following settings 12 divisions, pseudo-species cut values set to match cover class intervals in the field forms, and no weighting on any class.",COMPCLUS to a small degree and TWINSPAN  was more heavily relied upon,multiVariateAnalysis
+AWSF,NA,NA,NA
+CAMO-VegMap,NA,NA,NA
+CANO,NA,NA,NA
+CARR,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+CAVA,surveys were keyed using the Carrizo classificatrion and the MCV to support mapping,NA,inspection
+CCBLM,"a hierarchical agglomerative Cluster Analysis technique was employed with Sorenson distance and flexible beta linkage method at -0.25 (McCune and Grace 2002).  The cluster analysis technique was based on abundance (cover) values converted to seven different classes using the following modified Braun-Blanquet (1932/1951) cover categories: 1=<1%, 2=1-5%, 3=>5-15%, 4=>15-25%, 5=>25-50%, 6=>50-75%, 7=>75%.",PC-ORD cluster analysis,multiVariateAnalysis
+CDLO,The final analysis used the Sorensen distance and flexible beta linkage method at -0.25 (McCune and Grace 2002).  This cluster analysis technique was based on abundance (cover) values converted to seven different classes using the following modified Braun-Blanquet (1932) cover categories,PC-ORD,multiVariateAnalysis
+CEQA_BRVC,NA,NA,NA
+CEQA_SWNC,NA,NA,NA
+CEQA_WRFB,NA,NA,NA
+CHOC,"Surveys were keyed using classifications from the Desert Renewable Energy Conservation Plan vegetation, the vegetation classification for the Northern and Eastern Colorado Desert, the Mojave Networt (NPS), and reports for the Coachella Valley Conservation Commission done by UC Riverside, in as much was possible.",NA,inspection
+COYO,"A hierarchical agglomerative Cluster Analysis was employed (McCune and Grace 2002) with Sorenson distance and flexible beta linkage method at -0.25. After the Cluster Analysis runs, Indicator Species Analysis (ISA) was employed to objectively decide what group level to cut the dendrogram and explicitly interpret the groups. Further, ISA was used to designate species that indicate the different groups. TWINSPAN using Euclidean distance measure (McCune and Mefford 1997) was also employed, and this was highly congruent with the other combination, where there were disparities, there was a review of species composition to resolve.",PC-ORD,multiVariateAnalysis
+CPVC,"The plots were keyed using a combination of the key from the Vegetation Classification Manual for Western San Diego (Sproul et al, 2011) and the Manual of California Vegetation Online.",NA,inspection
+CVPA,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+CVPAA,These data will be compiled with other Ciervo-Panoche south surveys and co-analyzed.,2022,inspection
+CVRP,NA,NA,NA
+CZPOF,NA,NA,NA
+CZPOFL,NA,NA,NA
+DEDW,NA,NA,NA
+DEVA-DelFavero,NA,NA,NA
+DEVA-Slaton,NA,NA,NA
+DEVA-Springs,NA,NA,NA
+DFGRF,NA,NA,NA
+EBRP-GR,NA,NA,NA
+EDGW,NA,NA,NA
+ELDO,NA,NA,NA
+FISH,See http://nrm.dfg.ca.gov/FileHandler.ashx?DocumentID=76530 These data were analyzed together using multivariate cluster analysis. The cluster analysis was based on abundance (cover) values converted to seven different classes using modified Braun-Blanquette (1932) cover categories. It the employed the Sorensen distance measure and flexible beta linkage method at -0.25 (McCune and Grace 2002).,PC-ORD version 5 software,multiVariateAnalysis
+FNWS,Used the key from the Vegetation of Western San Diego to key each plot to the association level.,NA,inspection
+GRASS,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+GV,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+HETH,NA,NA,NA
+HUBB,NA,PCOrd and R,multiVariateAnalysis
+ISLES,NA,NA,NA
+ISMT,NA,NA,NA
+JAWB,NA,NA,NA
+JAWB-Recon,NA,NA,NA
+JOMU,A formal site-specific classification using ordination was not performed and the plant communities are not fully described.,NA,NA
+JOTR-2012,NA,NA,NA
+KNOX,"These data were analyzed using multivariate cluster analysis, performed by PC-ORD version 6 software. The cluster analysis was based on abundance (cover values) converted to seven different classes using the following modified Braun-Blanquette (1932) cover categories: 1 = <1%, 2 = 1-5%, 3 =>5-15%, 4 = >15-25%, 5 = >25-50%, 6 = >50-75%, 7 = >75%. For the analysis, VegCAMP used the Sorensen distance measure and flexible beta linkage method at -0.25 (McCune and Grace 2002). Floristic data collected in 103 reconnaissance samples were used to refine and validate the final classification for the map",PC-ORD,multiVariateAnalysis
+LLNL,Classified with Alameda - Contra Costa project,NA,inspection
+LOMA,NA,NA,NA
+MARIN,"The cluster analysis used the Sorensen Distance Measure and Flexible Beta Linkage method at -0.25 (McCune and Grace 2002). Using this method of agglomerative clustering, surveys were grouped together based on similarities in species composition and abundance (McCune and Mefford 1997). The initial cluster analysis was performed to partition the dataset into manageable subsets. Outlier and cluster analyses were conducted on each subset and indicator species analysis (ISA) was used to select cluster group levels for classification analysis.",PC-ORD and R stats,multiVariateAnalysis
+MCVS,NA,NA,NA
+MDEI_Central,A combination of TWINSPAN and Cluster Analysis using Ward's scaling method and Euclidean distance was used. Differences between the two sets of groupings were reviewed for species composition.,PC-ORD,multiVariateAnalysis
+MOLA,NA,NA,NA
+NatComRev2015,NA,NA,NA
+OAKG,NA,NA,NA
+OC,"Process included generation of ""pseudo=species"", filtering out non-natives in native dominated stands, dividing data into Tree Shrub Herb subsets, and normalizing using ArcSine.  Used agglomerative hierarchical cluster analysis using Bray-Curtis distance",PC-ORD,multiVariateAnalysis
+OWVA,"The key developed for the Desert Renewable Energy Conservation Program was used to key these surveys.That key combined concepts from the Central Mojave classification, Joshua Tree National Park, Anza Borrego State Park, and was adpated based on recon, aa, and rapid assessment as the project exanded into new areas.",NA,inspection
+OWVAadj,"The key developed for the Desert Renewable Energy Conservation Program was used to key these surveys.That key combined concepts from the Central Mojave classification, Joshua Tree National Park, Anza Borrego State Park, and was adpated based on recon, aa, and rapid assessment as the project exanded into new areas.",NA,inspection
+OWVA-Recon,"The key developed for the Desert Renewable Energy Conservation Program was used to key these surveys.That key combined concepts from the Central Mojave classification, Joshua Tree National Park, Anza Borrego State Park, and was adpated based on recon, aa, and rapid assessment as the project exanded into new areas.",NA,inspection
+PEOR,NA,NA,NA
+PIME,Surveys were keyed using a key developed for the Slinkard and Little Antelope Wildlife Areas which is combination of the classification for the Modoc ecoregion (Boul et al 2021) and the Manual of California Vegetation Online.,keyed,inspection
+PINN,"A number of exploratory multivariate analyses were perfomed with the objectives of summarizing the compositional and structural characteristics ofthe plant communities and assessing possible spatial patterns related to environmental gradients. Then a set of 3 nested Indicator Species Analyses were performed, each time re-evaluating blocks of surveys that didn't have significant species indicators from the previous analysis.",PC-ORD,multiVariateAnalysis
+PORE,TWINSPAN and Cluster Analysis,PC-ORD,multiVariateAnalysis
+PSMA,"Species cover data was analyzed using Cluster Analysis with a hierarchical agglomerative technique usingSorenson distance and flexible beta group linkage method at -0.25n PC-ORD 5.05 (McCune and Mefford 2006). Then Indicator Species Analysis was employed to determine the level at which to cut off groupings and determine which species were characteristic indicators.",PC-ORD,multiVariateAnalysis
+PTAR,A key was developed using the Manual of California Vegetation Online.,NA,NA
+PVPLC,"Data was run through a cluster analysis using species abundance (cover) converted to seven classes, to identify patterns and groups in the data. The data also were compared to existing classifications in southern California Vegetation resources were assessed through field surveys, resulting in the classification analysis of 26 vegetation alliances, 38 vegetation associations or semi-natural stands",PC-ORD,multiVariateAnalysis
+PWPOF,NA,NA,NA
+PYGM,"The 117 Rapid Assessment samples including 97 species had indicator species and cluster analysis run on them. For the cluster analysis, cover values for species were translate to Braun-Blanquet cover categories. For the analysis, we used the Sorensen distance measure and flexible beta linkage method at -0.25 (McCune and Grace 2002).",PC-ORD,multiVariateAnalysis
+QHQ,NA,NA,NA
+RNCM,Data for this project is a compilation of existing data not classified by other projects. NVCS names have been given by keying the vegetation using the most appropriate existing vegetation keys.,NA,inspection
+SBVWCD,"A preliminary assignment was made in the field during plot data collection using published MCV membership rules. Based on preliminary field assignments, a regional dataset containing approximately 220 additional relevant plots from formally classified relevé and Rapid Assessment surveys was compiled from the VEGCAMP database. Species composition and cover data for each SBVWCD plot was evaluated by comparison to species composition and cover values of all regional plots. Keys from relevant regional reports were also reviewed for plot assignment. Following this detailed comparison, an alliance and association was assigned to each in accordance with published and/or CDFW-vetted membership criteria.",keyed,inspection
+SCLAR,Classification done in other projects,NA,NA
+SCLR,NA,NA,NA
+SCR,Stands were keyed based on information in the Manual of California Vegetation and other Southern California projects,keyed,inspection
+SCRUZ,See description under the SCSC project,NA,inspection
+SCRUZL,NA,NA,NA
+SCSC,"CNPS analyzed the species cover data using PC-Ord and R software (McCune and Mefford 2006, R Core Team 2013). The cluster analysis used the Sørensen Distance Measure and Flexible Beta Linkage method at -0.25 (McCune and Grace 2002). Using this method of agglomerative clustering, surveys were grouped together based on similarities in species composition and abundance (McCune and Mefford 1997). CNPS conducted an initial cluster analysis including all surveys in the available dataset. The initial cluster analysis was performed to partition the dataset
+into manageable subsets. Indicator species analysis (ISA) was used to select cluster group levels for classification analysis. ISA produced indicator values for each species across different cluster group levels (ranging from 2 to 50), testing for statistical significance using a quantitative/binary response with 4999 randomizations (Dufrêne and Legendre 1997). The cluster group levels that had relatively high numbers of significant indicators and relatively low overall mean pvalues were chosen for the final evaluation of the community classification (McCune and Grace 2002).","PC Ord, R Stats",multiVariateAnalysis
+SDG,NA,NA,NA
+SDRP,"Classification analyses were performed using agglomerative Cluster Analysis and TWINSPAN in a complementary approach to objectively classify the samples and to create order out of complex vegetation patterns in the data.  The main groups were defined by similarities in species composition and abundance.  Through this process, a classification of the different natural communities or vegetation types can be scientifically made, based mainly on floristic and secondarily on environmental factors.  When different analyses show similar results, they substantiate each other, providing a consistent, strong analysis (Gauch 1982, Parker 1991).",PC-ORD,multiVariateAnalysis
+SEKI,NA,NA,NA
+SFVW,"Classification analyses were performed using agglomerative Cluster Analysis and TWINSPAN in a complementary approach to objectively classify the samples and to create order out of complex vegetation patterns in the data.  The main groups were defined by similarities in species composition and abundance.  Through this process, a classification of the different natural communities or vegetation types can be scientifically made, based mainly on floristic and secondarily on environmental factors.  When different analyses show similar results, they substantiate each other, providing a consistent, strong analysis (Gauch 1982, Parker 1991).",PC-ORD,multiVariateAnalysis
+SJV,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+SLAV,Surveys were keyed using a key developed using a combination of the classification for the Modoc ecoregion (Boul et al 2021) and the Manual of California Vegetation Online.,NA,inspection
+SMAT,Cluster analysis using the sorensen distance measure and flexible beta linkage method was employed and combined with Indicator Species Analysis and outlier analyses. See https://nrm.dfg.ca.gov/FileHandler.ashx?DocumentID=212666,PC-ORD and R,multiVariateAnalysis
+SNC-LARMB,NA,keyed,NA
+SNC-MidPen,NA,keyed,NA
+SNC-Review,"Using membership rules developed for the Manual of California Online and the keys of various regional classification projects, submitted surveys are keyed to the alliance and/or association of best fit.",keyed,inspection
+SNFN,"Overall analyses occurred twice, once in 2006 to create a preliminary classification using project-collected data from the first year of surveying, the second with project and compiled data from the region. Rapid assessments and releves were analyzed separately using cluster analysis with a hierarchical agglomerative technique was employed using Sorenson distance and flexible beta linkage method , and the results examined for outliers, which were removed.  Then surveys from higher level clusters were analyzed separately and indicator species analysis was performed to examine congruence and assist with relating to the existing Manual of California Vegetation classification.",PC-ORD,multiVariateAnalysis
+SNI,"Surveys were assigned vegetation names using conventions used the floristic units of ""associations,"" as defined by the NVCS, International Vegetation Classification system (HRWG 2012),  and existing rules from A Manual of California Vegetation (Sawyer et al. 2009), or the Vegetation Classification Manual for Western San Diego County (Sproul et al. 2011) as appropriate.",keyed,inspection
+SOMOadj,NA,NA,NA
+SONO,"See: Classification of the Vegetation Alliances and Associations of Sonoma County, California, Volume 1 of 2 - Introduction, Methods, and Results (http://nrm.dfg.ca.gov/FileHandler.ashx?DocumentID=115807)",PC-ORD 6.08,multiVariateAnalysis
+SONOadj,"See: Classification of the Vegetation Alliances and Associations of Sonoma County, California, Volume 1 of 2 - Introduction, Methods, and Results (http://nrm.dfg.ca.gov/FileHandler.ashx?DocumentID=115807)",PC-ORD 6.08,multiVariateAnalysis
+SPCC,Initially San Mateo draft vegetation classification key was used. Final classification was  based on data collected by GIC and Santa Clara/Cruz sampling efforts as well as previously classified regional data.,keyed,inspection
+SSJD,Cluster analysis using the Sorensen distance and flexible beta linkage was used.  Then indicator species analysis (ISA) was performed to reduce the cluster analysis diagram and interpret the clusters to exisiting vegetation types where possible. Species significance was tested using a Monte Carlo technique.  ISA was repeated for the 5 main groups identified in the cluster analysis dendogram.,PC-ORD,multiVariateAnalysis
+SSNF,Cluster analysis using the Sorensen distance and flexible beta linkage was done in PC-ORD.  Then indicator species analysis (ISA) was performed using R (vegan package) to reduce the cluster analysis diagram and interpret the clusters to exisiting vegetation types where possible. Species significance was tested using a Monte Carlo technique.,PC-ORD and R,multiVariateAnalysis
+SVRA,surveys were keyed using membership rules from the Manual of California Vegetation Online and using regional keys where the areas fell (for example using the Great Valley classification for Prairie City SVRA).,keyed,inspection
+TEHA,multivariate cluster analysis using based on species cover values converted to modified Braun-Blanquet classes.,PC-ORD,multiVariateAnalysis
+VegBank,"A few plots were reclassified after datasheet QC, species not previously listed in database were added, or because of new types available since the original classification",review only,NA
+WBP,NA,NA,NA
+WLKR,"Not formally classified, surveys were classified based on membership rules from the Manual of California Vegetation database",keyed,inspection
+WRIV,"a first-order cluster analysis was used to partition the dataset into more manageable subsets. The subsets were then reanalyzed using Cluster Analysis. This process is known as progressive fragmentation. After the Cluster Analysis runs, Indicator Species Analysis (ISA) was employed",PC-ORD,multiVariateAnalysis
+WSD,"These data were analyzed using a number of statistical methods, chiefly an agglomerative hierarchical cluster analysis. The results of these analyses defined the number of distinct vegetation types sampled, and when compared to existing datasets maintained by VegCAMP, allowed the assignment of each stand to a known alliance and association from the MCV.In cases where no known vegetation types agreed with the current analyses, new alliances and associations are defined.",NA,multiVariateAnalysis
+YOSE,NA,NA,NA
+DOLO,Cluster analysis with Sorenson distance measure and flexible beta linkage.  ISA was used to determine the number of groups.,PC-ORD,multiVariateAnalysis
+DRECP,"Vegetation was mapped using keys developed for the Central Mojave classification, Joshua Tree National Park, Anza Borrego State Park, and was adpated based on recon, aa, and rapid assessment as the project exanded into new areas.",NA,inspection
+EBAY,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+EBRP,NA,NA,NA
+MOJA-Evens,NA,NA,NA
+MOJA-McAuliffe,NA,NA,NA
+MOJA-NRCS,NA,NA,NA
+MOJA-VegMap,NA,NA,NA
+MOJD,NA,NA,NA
+MOJDchap,NA,NA,NA
+MOJN,"We employed cluster analysis with a hierarchical agglomerative technique, typically using Sorenson distance and flexible beta group linkage method at-0.25 in PC-ORD (McCune and Mefford 2006). We displayed the cluster analysis groupings in dendrogram outputs, in which we interpreted dendrograms at 2 to 30 or more cluster group levels. After generating the cluster analysis groups, wealso employed Indicator Species Analysis (ISA) to objectively decide at what number ofgroups cut levels to explicitly interpret the cluster dendrograms",PC-ORD,multiVariateAnalysis
+SACT,"Cluster Analysis, Indicator Species Analysis",PC-ORD,multiVariateAnalysis
+SAMO,"Using programs such as TWINSPAN (Hill 1979), cluster analysis, and ordination (McCune and Mefford 1997), groups are defined by similarities in species composition and abundance. Since plant community datasets are inherently complex and more than one environmental axisdetermines the heterogeneity in plant patterns, a hierarchical agglomerative cluster analysis technique was employed with Sorenson distance and flexible beta linkage method at -0.25 (McCune and Grace 2002). The cluster analysis
+technique was based on abundance (cover) values converted to seven different classes using the following modified Braun-Blanquet (1932/1951) cover categories: 1 = < 1%, 2 = 1–5%, 3 = > 5–15%, 4 = > 15–25%, 5 = > 25–50%, 6 = > 50–75%, 7 = > 75%. The majority of the species values fell within the first four cover classes.","PC-ORD (McCune and Mefford, 1997)",multiVariateAnalysis
+SASU,A combination of hierarchical cluster analysis and species indicator analysis was used,PC-ORD,multiVariateAnalysis
