@@ -96,7 +96,7 @@ roles <- tribble(
   "ar.56",  "Data aggregator"
 )
 
-role_lookup_path <- file.path(in_dir, "lookup-tables", "cdfw-roles-2026-03-18.csv")
+role_lookup_path <- '../data/lookup-tables/cdfw-roles-2026-03-18.csv'
 
 role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE)
 
@@ -429,7 +429,7 @@ Community classification data is extracted from `RAClassifications.csv` files, a
 Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
+method_lookup <- read_csv('../data/lookup-tables/classification-methods-20260318.csv') %>% 
   rename(vegbank_method = technique)
 
 DT::datatable(method_lookup,
@@ -571,7 +571,7 @@ Each plant observation is assigned a unique stratum identifier by concatenating 
 Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following lookup table is applied to determine which of the available vegbank methods best fits the project.
 
 ```{r}
-method_lookup <- read.csv(file.path(in_dir, "lookup-tables/CDFW-strata-method.csv")) %>% 
+method_lookup <- read_csv('../data/lookup-tables/CDFW-strata-method-20260304.csv') %>% 
   select(proj_code, stratum_method_name, Notes)
 
 datatable(
