@@ -1,8 +1,8 @@
 library(tidyverse)
 library(stringr)
 library(cli)
-library(glue)
 library(readr)
+library(lubridate)
 
 #' Reads Manual of California Vegetation (MCV) 2019 alliance and association
 #' files and combines them into a single data set
@@ -20,8 +20,8 @@ library(readr)
 #' }
 load_community_def_files <- function(in_dir) {
   
-  alliance_path    <- file.path(in_dir, "lookup-tables/MCV2019_Alliance.csv")
-  association_path <- file.path(in_dir, "lookup-tables/MCV2019_Association.csv")
+  alliance_path    <- file.path(in_dir, "lookup-tables/MCV-alliance.csv")
+  association_path <- file.path(in_dir, "lookup-tables/MCV-association.csv")
   
   if (!file.exists(alliance_path)) {
     cli_abort("Missing file: {alliance_path}")
@@ -30,12 +30,19 @@ load_community_def_files <- function(in_dir) {
     cli_abort("Missing file: {association_path}")
   }
   
-  alliance <- read_csv(alliance_path, show_col_types = FALSE, progress = FALSE)
-  association <- read_csv(association_path, show_col_types = FALSE, progress = FALSE)
+  alliance <- read_csv(alliance_path, show_col_types = FALSE, progress = FALSE) %>% 
+    mutate(DateAdded = mdy(DateAdded))
+  association <- read_csv(association_path, show_col_types = FALSE, progress = FALSE) %>% 
+    mutate(DateAddedToMCV = dmy(DateAddedToMCV))
   
   mcv <- bind_rows(alliance, association) %>%
-    mutate(name = coalesce(Alliance, Association)) %>%
-    select(-Alliance, -Association)
+    mutate(CaCode = coalesce(AllianceCaCode, AssociationCaCode)) %>%
+    mutate(date = coalesce(DateAdded, DateAddedToMCV)) %>% 
+    select(CaCode,
+           name = ScientificName,
+           MCVLevel = ClassifLevel,
+           date) %>% 
+    filter(!is.na(CaCode))
   
   return(mcv)
 }
@@ -51,12 +58,12 @@ load_community_def_files <- function(in_dir) {
 #' @details
 #' **CaCode Format:**
 #' Only codes matching the pattern `##.###.##` are retained (e.g., "21.100.00").
-load_cdfw_cacodes <- function(in_dir) {
+load_cdfw_cacodes <- function(in_dir, renew_cache) {
   
   out <- load_community_files(in_dir)
   list2env(out, envir = environment())
   
-  refs <- load_reference_tables(in_dir)
+  refs <- load_reference_tables(in_dir, renew_cache)
   
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,
@@ -147,7 +154,8 @@ filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
   
   mcv_f <- mcv %>%
     mutate(CaCode = str_squish(as.character(CaCode))) %>%
-    filter(CaCode %in% cacodes_in_data)
+    filter(CaCode %in% cacodes_in_data) %>% 
+    mutate(date = coalesce(date, as.Date("2019-01-01")))
   
   after_n <- nrow(mcv_f)
   
@@ -177,8 +185,8 @@ filter_mcv_to_classification <- function(mcv, cacodes_in_data) {
 #'   \item{comm_concept_status}{"accepted" for all rows}
 #'   \item{user_parent_cc_code}{NA (no hierarchy in this dataset)}
 #'   \item{comm_level}{"alliance" or "association"}
-#'   \item{start_date}{2019-01-01 for all rows}
-#'   \item{vb_status_py_code}{"py.512" for all rows}
+#'   \item{start_date}{date record was added to the MCV}
+#'   \item{user_status_py_code}{"CDFW CNPS" for all rows}
 #' }
 build_community_concepts <- function(mcv) {
   
@@ -186,16 +194,16 @@ build_community_concepts <- function(mcv) {
     mutate(
       user_cc_code        = CaCode,
       name                = name,     
-      user_rf_code        = "MCV 2019",
-      user_status_rf_code = "MCV 2019",
+      user_rf_code        = "MCV - CDFW CNPS",
+      user_status_rf_code = "MCV - CDFW CNPS",
       comm_concept_status = "accepted",
       user_parent_cc_code = NA_character_,
       comm_level          = comm_level,
-      start_date          = as.Date("2019-01-01"),
-      vb_status_py_code   = "py.199162"
+      start_date          = date,
+      user_status_py_code   = "CDFW CNPS"
     ) %>%
     distinct(user_cc_code, .keep_all = TRUE) %>% 
-    select(user_cc_code, name, user_rf_code, user_status_rf_code, comm_concept_status, user_parent_cc_code, comm_level, start_date, vb_status_py_code)
+    select(user_cc_code, name, user_rf_code, user_status_rf_code, comm_concept_status, user_parent_cc_code, comm_level, start_date, user_status_py_code)
   
   bad_codes <- which(is.na(community_concepts$user_cc_code) | community_concepts$user_cc_code == "")
   if (length(bad_codes) > 0) {
@@ -224,7 +232,7 @@ build_community_concepts <- function(mcv) {
 #'   \item{name_type}{"Scientific"}
 #'   \item{name}{Alliance or association scientific name}
 #'   \item{name_status}{"Standard"}
-#'   \item{usage_start}{2019-01-01}
+#'   \item{usage_start}{date}
 #'   \item{vb_usage_py_code}{"py.512"}
 #' }
 #'
@@ -234,7 +242,7 @@ build_community_concepts <- function(mcv) {
 #'   \item{name_type}{"Code"}
 #'   \item{name}{CaCode itself (e.g., "21.100.00")}
 #'   \item{name_status}{"Standard"}
-#'   \item{usage_start}{2019-01-01}
+#'   \item{usage_start}{date}
 #'   \item{vb_usage_py_code}{"py.512"}
 #' }
 #'
@@ -259,10 +267,10 @@ build_community_names <- function(comm_concepts) {
       name_type        = "Scientific",
       name             = name,
       name_status      = "Standard",
-      usage_start      = as.Date("2019-01-01"),
-      vb_usage_py_code = "py.199162"
+      usage_start      = start_date,
+      user_usage_py_code = "CDFW CNPS"
     ) %>% 
-    select(user_cc_code, name_type, name, name_status, usage_start, vb_usage_py_code)
+    select(user_cc_code, name_type, name, name_status, usage_start, user_usage_py_code)
   
   # row 2: Code
   comm_names_code <- comm_concepts %>%
@@ -271,10 +279,10 @@ build_community_names <- function(comm_concepts) {
       name_type        = "Code",
       name             = user_cc_code,
       name_status      = "Standard",
-      usage_start      = as.Date("2019-01-01"),
-      vb_usage_py_code = "py.199162"
+      usage_start      = start_date,
+      user_usage_py_code = "CDFW CNPS"
     ) %>% 
-    select(user_cc_code, name_type, name, name_status, usage_start, vb_usage_py_code)
+    select(user_cc_code, name_type, name, name_status, usage_start, user_usage_py_code)
   
   comm_names <- bind_rows(comm_names_scientific, comm_names_code)
   
@@ -317,8 +325,8 @@ build_community_names <- function(comm_concepts) {
 #' first loads CDFW classification data, loads MCV reference data, normalizes
 #' community levels, filters to observed vegetation types, builds community
 #' concepts, and builds community names.
-community_definitions_loader <- function(in_dir, out_dir){
-  cacodes <- load_cdfw_cacodes(in_dir)
+community_definitions_loader <- function(in_dir, out_dir, renew_cache = FALSE){
+  cacodes <- load_cdfw_cacodes(in_dir, renew_cache)
   
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)

@@ -19,16 +19,21 @@ library(downloadthis)
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "../R"
 r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
-  grep("altplots|validate", ., invert = TRUE, value = TRUE)
+  grep("validate", ., invert = TRUE, value = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
 ```{r}
 in_dir <- '/var/data/curation/vegbank/'
 out_dir <- '../data/loader-tables'
-if (!exists(out_dir)){
+if (!dir.exists(out_dir)){
   dir.create(out_dir)
 }
+```
+
+```{r}
+vb_set_base_url("https://api-dev.vegbank.org")
+renew_cache <- TRUE
 ```
 
 
@@ -38,6 +43,6 @@ These need to be generated and uploaded before  `loader_workflow.qmd`.
 
 ```{r}
 #| classes: styled-output
-community_definitions_loader(in_dir, out_dir)
+community_definitions_loader(in_dir, out_dir, renew_cache)
 ```
 

@@ -2,7 +2,6 @@ library(tidyverse)
 library(vegbankr)
 library(purrr)
 library(cli)
-library(glue)
 
 #' Reads RAPlants.csv and RAProjects.csv files. Loads prerequisite plotsLT.csv
 #' loader table needed for linking strata to observations
@@ -46,16 +45,11 @@ load_stratadef_files <- function(in_dir, out_dir){
     cli_abort("RAPlants.csv files were found but produced 0 rows after reading.")
   }
   
-  # read in RAProjects
-  project_files <- dir(sub_folders, full.names = TRUE) %>% 
-    grep(pattern = "RAProjects.csv", value = TRUE)
-  
-  projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  projects <- do.call(bind_rows, projects_df_list) %>% 
-    group_by(ProjectCode) %>% 
-    arrange(desc(nchar(ProjectDescription))) %>% 
-    select(ProjectCode, `Type of protocols`, StrataDescription, StrataClassDescription) %>% 
-    slice(1)
+  # read in projects file
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+                       progress = FALSE,
+                       show_col_types = FALSE) %>% 
+    select(ProjectCode, `Type of protocols`, StrataDescription, StrataClassDescription)
   
   
   
@@ -127,8 +121,6 @@ stratadefinitions_loader <- function(in_dir, out_dir){
   plant_projs <- left_join(plants, proj_plots, by = "SurveyID")
   plant_projs <- clean_strata_names(plant_projs)
   
-  base_url <- "https://api-dev.vegbank.org"
-  vb_set_base_url(base_url)
   vb_strata <- vb_get_stratum_methods(with_nested = TRUE)
   
   vb_strata <- vb_strata %>% 

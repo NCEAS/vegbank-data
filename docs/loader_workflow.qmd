@@ -13,26 +13,36 @@ format:
 This quarto document describes processing and quality assurance steps used to convert CDFW data into the format needed for ingest into vegbank. Each loader table has a function in the family `[table]_loader` which is run on input data and generates output files at the desired location. Messages from the loader functions indicate potential issues with input datasets.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-library(dplyr)
+library(tidyverse)
 library(stringr)
-library(readr)
+library(cli)
 library(DT)
 library(downloadthis)
+library(vctrs)
+library(sf)
+library(tigris)
+library(rnaturalearth)
+library(vegbankr)
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 file_path <- "../R"
 r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, pattern = "\\.[Rr]$") %>% 
-  grep("altplots|validate", ., invert = TRUE, value = TRUE)
+  grep("validate", ., invert = TRUE, value = TRUE)
 invisible(lapply(r_scripts_source, source))
 ```
 
 ```{r}
 in_dir <- '/var/data/curation/vegbank/'
 out_dir <- '../data/loader-tables'
-if (!exists(out_dir)){
+if (!dir.exists(out_dir)){
   dir.create(out_dir)
 }
+```
+
+```{r}
+vb_set_base_url("https://api-dev.vegbank.org")
+renew_cache <- TRUE
 ```
 
 ## Projects
@@ -86,14 +96,9 @@ roles <- tribble(
   "ar.56",  "Data aggregator"
 )
 
-role_lookup_path <- file.path(in_dir, "lookup-tables", "cdfw-roles-2026-02-02.csv")
+role_lookup_path <- file.path(in_dir, "lookup-tables", "cdfw-roles-2026-03-18.csv")
 
-role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE) %>%
-  rename(ContactRole = found, role_name = allowed) %>%
-  mutate(
-    ContactRole = str_to_lower(str_squish(ContactRole)),
-    role_name   = str_squish(role_name)
-  )
+role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE)
 
 role_map_final <- role_lookup %>%
   left_join(roles, by = "role_name") %>%
@@ -203,7 +208,7 @@ downloadthis::download_this(
 
 ```{r}
 #| classes: styled-output
-plots_loader(in_dir, out_dir)
+plots_loader(in_dir, out_dir, renew_cache)
 ```
 
 ### Data Sources and Initial Merging
@@ -416,7 +421,7 @@ downloadthis::download_this(
 
 ```{r}
 #| classes: styled-output
-community_loader(in_dir, out_dir)
+community_loader(in_dir, out_dir, renew_cache)
 ```
 
 ### Data Sources and Merging
@@ -428,7 +433,7 @@ Community classification data is extracted from `RAClassifications.csv` files, a
 Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260303.csv")) %>% 
+method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
   rename(vegbank_method = technique)
 
 DT::datatable(method_lookup,
@@ -505,7 +510,7 @@ downloadthis::download_this(
 
 ```{r}
 #| classes: styled-output
-stratacover_taxon_loader(in_dir, out_dir)
+stratacover_taxon_loader(in_dir, out_dir, renew_cache)
 ```
 
 ```{r}

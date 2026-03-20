@@ -69,9 +69,7 @@ load_plot_files <- function(in_dir) {
     grep(pattern = 'AltStrata.csv', value = TRUE)
   classification_files <- dir(sub_folders, full.names = TRUE) %>% 
     grep(pattern = 'RAClassification.csv', value = TRUE)
-  project_files <- dir(sub_folders, full.names = TRUE) %>% 
-    grep(pattern = 'RAProjects.csv', value = TRUE)
-  
+
   
   plots_df_list <- lapply(plot_files, 
                           read_csv,
@@ -184,6 +182,7 @@ normalize_coordinates <- function(plots_merged){
   # May delete this, if unnecessary
   # Also, what is the correct format? "NAD83"?
   plots_merged <- plots_merged %>% 
+    mutate(UTM_zone = if_else(SurveyID == "CVRP0093", 10, UTM_zone)) %>% # fix this one plot
     mutate(
       author_datum = case_when(
         GPS_datum %in% c("Nad83", "NAD 83", "NAD83", "nad83") ~ "NAD83",
@@ -206,7 +205,7 @@ normalize_coordinates <- function(plots_merged){
         is.na(author_datum) & UTM_zone == 11 ~ 26911,
         TRUE ~ NA_real_
       )
-    ) 
+    )
   
   # use UTME_final and UTMN_final in RAPlots.csv
   # Convert UTM to lat long
@@ -374,10 +373,9 @@ normalize_area_shape <- function(plots_merged){
            dims = str_extract_all(as.character(SurveyDimensions), "\\d+(?:\\.\\d+)?"),
            SurveyLength = suppressWarnings(as.numeric(map_chr(dims, 1, .default = NA))),
            SurveyWidth  = suppressWarnings(as.numeric(map_chr(dims, 2, .default = NA))),
-           area_from_radius = if_else(!is.na(ViewRadius) & is.na(PlotArea_num), pi * (as.numeric(ViewRadius)^2), NA_real_),
            area_from_dims   = if_else(!is.na(SurveyLength) & !is.na(SurveyWidth),
                                       SurveyLength * SurveyWidth, NA_real_),
-           PlotArea = coalesce(PlotArea_num, area_from_radius, area_from_dims, NA)
+           PlotArea = coalesce(PlotArea_num, area_from_dims, NA)
     )
   
   # filling in the columns that are missing or incorrect in the PlotShape column
@@ -390,13 +388,15 @@ normalize_area_shape <- function(plots_merged){
       
       PlotShape = case_when(
         !is.na(PlotShape)                     ~ PlotShape,
-        !is.na(ViewRadius) & ViewRadius > 0   ~ "circle",
         .is_square                            ~ "square",
         !.is_square & !is.na(SurveyLength) & !is.na(SurveyWidth) &
           SurveyLength > 0 & SurveyWidth > 0  ~ "rectangle",
         TRUE                                  ~ NA_character_
       )
-    )
+    ) %>% 
+    # Rapid assessments are dimensionless, and the radius (which is a minimum) is provided only to assist with mapping. Remove plot shape where survey_type = Rapid Assessment, and do not calculate an area based on RARadius.
+    mutate(PlotShape = if_else(tolower(Survey_Type) == "rapid assessment", NA, PlotShape)) %>% 
+    mutate(PlotArea = if_else(tolower(Survey_Type) == "rapid assessment", NA, PlotArea))
   
   return(plots_merged)
 }
@@ -621,7 +621,9 @@ calc_percent_rock <- function(plots_merged){
     mutate(across(c(Boulders, Stones, Cobbles, Gravels), ~ na_if(.x, 999))) %>% 
     mutate(
       percentRockGravel = rowSums(cbind(Boulders, Stones, Cobbles, Gravels), na.rm = TRUE)
-    )
+    ) %>% 
+    # if survey is accuracy assessment make rock gravel NA per CDFW review
+    mutate(percentRockGravel = if_else(tolower(Survey_Type) == "accuracy assessment", NA, percentRockGravel))
   
   if (max(plots_merged$percentRockGravel, na.rm = T) > 100){
     cli::cli_alert_warning("Some percent rock gravel values are greater than 100. Check input data.")
@@ -639,7 +641,7 @@ calc_tree_cover <- function(plots_merged){
   # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
   # Need to combine 3 columns into one
   plots_merged <- plots_merged %>% 
-    mutate(across(c(Hdwd_cover, Conif_cover, RegenTree_cover), ~ na_if(.x, 999))) %>% 
+    mutate(across(ends_with("_cover"), ~ na_if(.x, 999))) %>% 
     mutate(
       treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover), na.rm = TRUE)
     ) %>% 
@@ -737,114 +739,11 @@ assign_tree_height <- function(plots_merged){
   ### treeHt (PlotObservations) ###
   # can take max of hardwood and conifer
   plots_merged <- plots_merged %>%
-    mutate(across(contains("_cover"), ~ if_else(.x < 1, .x * 100, .x))) %>%
     mutate(
       treeHt = pmax(Conif_ht22, Hdwd_ht22, na.rm = TRUE),
       # case for both values being NA
       treeHt = if_else(is.infinite(treeHt), NA_real_, treeHt)
     )
-  
-  return(plots_merged)
-}
-
-#' Determines the two most dominant tree growth forms (conifer vs. hardwood)
-#' based on cover values
-#' 
-#' @param plots_merged Data frame containing tree cover and height fields
-#' 
-#' @return Data frame with growth form type and cover fields for primary and
-#' secondary growth forms
-#' 
-#' @details
-#' **Output Fields:**
-#' \itemize{
-#'   \item growthform1Type: "Conifer Tree" or "Hardwood Tree"
-#'   \item growthform2Type: The other type (or NA if only one present)
-#'   \item growthform1Cover: Height of dominant type
-#'   \item growthform2Cover: Height of secondary type
-#' }
-assign_growth_form <- function(plots_merged){
-  
-  plots_merged <- plots_merged %>%
-    mutate(
-      conif_ht_mid = case_when(
-        Conif_ht2 == "5-10 m"  ~ 7.5,
-        Conif_ht2 == "0.5-1 m" ~ 0.75,
-        Conif_ht2 == "10-15 m" ~ 12.5,
-        Conif_ht2 == "2-5 m"   ~ 3.5,
-        Conif_ht2 %in% c("20-35m","20-35 m") ~ 27.5,
-        Conif_ht2 %in% c("15-20 m","15-20m") ~ 17.5,
-        Conif_ht2 %in% c("35-50 m","35-50m") ~ 42.5,
-        Conif_ht2 %in% c("5-10m")            ~ 7.5,
-        Conif_ht2 %in% c("10-15m")           ~ 12.5,
-        Conif_ht2 %in% c("2-5m")             ~ 3.5,
-        Conif_ht2 %in% c(".5-1m")            ~ 0.75,
-        Conif_ht2 == "1-2 m"                 ~ 1.5,
-        Conif_ht2 == "<0.5 m"                ~ 0.25,
-        Conif_ht2 %in% c(">50 m",">50m")     ~ 55,
-        Conif_ht2 == "0"                     ~ 0,
-        Conif_ht2 %in% c("N/A","Not recorded","Not present") ~ NA_real_,
-        TRUE ~ NA_real_
-      ),
-      hdwd_ht_mid = case_when(
-        Hdwd_ht2 %in% c("2-5 m","2-5m")   ~ 3.5,
-        Hdwd_ht2 == "1-2 m"               ~ 1.5,
-        Hdwd_ht2 == "0.5-1 m"             ~ 0.75,
-        Hdwd_ht2 %in% c("15-20 m","15-20m") ~ 17.5,
-        Hdwd_ht2 %in% c("5-10m")          ~ 7.5,
-        Hdwd_ht2 %in% c("10-15m")         ~ 12.5,
-        Hdwd_ht2 %in% c("20-35m")         ~ 27.5,
-        Hdwd_ht2 %in% c("35-50m")         ~ 42.5,
-        Hdwd_ht2 == "<.5m"                ~ 0.25,
-        Hdwd_ht2 == "0"                   ~ 0,
-        Hdwd_ht2 %in% c("N/A","Not recorded","Not present") ~ NA_real_,
-        TRUE ~ NA_real_
-      )
-    )
-  
-  plots_merged <- plots_merged %>%
-    mutate(
-      # which growthform is most common
-      gf1_is_conif = case_when(
-        is.na(Conif_cover) & is.na(Hdwd_cover) ~ NA,
-        !is.na(Conif_cover) &  is.na(Hdwd_cover) ~ TRUE,
-        is.na(Conif_cover)  & !is.na(Hdwd_cover) ~ FALSE,
-        Conif_cover > Hdwd_cover ~ TRUE,
-        Hdwd_cover  > Conif_cover ~ FALSE,
-        Conif_cover == Hdwd_cover ~ TRUE,   # tie default -> Conifer first
-        TRUE ~ NA
-      ),
-      
-      growthform1Type  = case_when(
-        is.na(gf1_is_conif) ~ NA_character_,
-        gf1_is_conif        ~ "Conifer Tree",
-        !gf1_is_conif       ~ "Hardwood Tree"
-      ),
-      growthform2Type  = case_when(
-        is.na(gf1_is_conif) ~ NA_character_,
-        !is.na(Conif_cover) & is.na(Hdwd_cover) ~ NA_character_,
-        is.na(Conif_cover) & !is.na(Hdwd_cover) ~ NA_character_,
-        # if tied, no clear second (can change this)
-        !is.na(Conif_cover) & !is.na(Hdwd_cover) & Conif_cover == Hdwd_cover ~ NA_character_,
-        gf1_is_conif  ~ "Hardwood Tree",
-        TRUE          ~ "Conifer Tree"
-      ),
-      
-      growthform1Cover = case_when(
-        is.na(gf1_is_conif) ~ NA_real_,
-        gf1_is_conif        ~ conif_ht_mid,
-        TRUE                ~ hdwd_ht_mid
-      ),
-      growthform2Cover = case_when(
-        is.na(gf1_is_conif) ~ NA_real_,
-        !is.na(Conif_cover) & is.na(Hdwd_cover) ~ NA_real_,
-        is.na(Conif_cover) & !is.na(Hdwd_cover) ~ NA_real_,
-        !is.na(Conif_cover) & !is.na(Hdwd_cover) & Conif_cover == Hdwd_cover ~ NA_real_,
-        gf1_is_conif  ~ hdwd_ht_mid,
-        TRUE          ~ conif_ht_mid
-      )
-    ) %>%
-    select(-gf1_is_conif)
   
   return(plots_merged)
 }
@@ -1128,6 +1027,25 @@ calc_herb_height <- function(plots_merged){
   return(plots_merged)
 }
 
+
+
+#' Extract location description from multiple columns
+#'
+#' @param plots_merged A data frame containing plot data with columns
+#'   Site_history, SiteLocation, and AdditionalNotes
+#'
+#' @return A data frame with an additional author_location column containing
+#'   the first non-NA value from Site_history, SiteLocation, or AdditionalNotes
+#'   (in that priority order). Invalid SiteLocation values are set to NA.
+#'
+extract_location_description <- function(plots_merged){
+  plots_merged <- plots_merged %>% 
+      mutate(SiteLocation = if_else(SiteLocation == "; UTM2 to UTM", NA, SiteLocation)) %>% 
+      mutate(author_location = Location_name) %>% 
+      mutate(location_narrative = coalesce(Site_history, SiteLocation, AdditionalNotes))
+  
+}
+
 #' Ensures text fields do not exceed VegBank's maximum character limits
 #' 
 #' @param plots_merged Data frame containing text fields
@@ -1143,9 +1061,10 @@ calc_herb_height <- function(plots_merged){
 # truncate fields that are varchar(n)
 truncate_fields <- function(plots_merged){
   plots_merged <- plots_merged %>% 
-    mutate(SiteLocation = substr(SiteLocation, 1, 200)) %>% 
-    mutate(DomForm = substr(SiteLocation, 1, 40))
+    mutate(location_narrative = substr(location_narrative, 1, 200)) %>% 
+    mutate(DomForm = substr(DomForm, 1, 40))
 }
+
 
 #' Handles duplicate user_pl_code values by assigning unique suffixes when
 #' plot-level attributes differ
@@ -1237,6 +1156,7 @@ deduplicate_plot_data <- function(plots_LT){
       author_zone,
       author_datum,
       author_location,
+      location_narrative,
       azimuth,
       shape,
       area,
@@ -1288,9 +1208,9 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- calc_conif_height(plots_merged)
   plots_merged <- calc_hdwd_height(plots_merged)
   plots_merged <- assign_tree_height(plots_merged)
-  plots_merged <- assign_growth_form(plots_merged)
   plots_merged <- calc_shrub_height(plots_merged)
   plots_merged <- calc_herb_height(plots_merged)
+  plots_merged <- extract_location_description(plots_merged)
   plots_merged <- truncate_fields(plots_merged)
   # check for missing projects
   check_existing_plots(plots_merged, renew_cache = renew_cache)
@@ -1311,7 +1231,8 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       longitude = real_longitude,
       real_longitude,
       real_latitude,
-      author_location = SiteLocation,
+      author_location,
+      location_narrative,
       location_accuracy = ErrorMeasurement,
       confidentiality_status = ConfidentialityStatus,
       author_e = UTME_final,
@@ -1327,13 +1248,11 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       slope_aspect = Aspect_actual,
       slope_gradient = slope,
       topo_position,
-      landscape_narrative = Site_history,
       rock_type = Substrate,
       user_pj_code = ProjectCode,
       obs_start_date = SurveyDate,
       method_narrative = methodNarrative,
       successional_status = Trend,
-      basal_area = BasalStem,
       hydrologic_regime = Upl_Wet_text,
       percent_litter = Litter,
       percent_bare_soil = Bare_fines,
@@ -1346,13 +1265,10 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       field_cover = Herb_cover,
       nonvascular_cover = NonVasc_Veg_cover,
       dominant_stratum = DomForm,
-      growthform_1_cover = growthform1Cover,
-      growthform_2_cover = growthform2Cover,
-      growthform_1_type = growthform1Type,
-      growthform_2_type = growthform2Type,
       total_cover = Veg_cover,
       percent_bedrock = Bedrock,
-      percent_rock_gravel = percentRockGravel
+      percent_rock_gravel = percentRockGravel,
+      rock_type = Substrate
     )
   
   plots_LT <- deduplicate_plot_data(plots_LT)

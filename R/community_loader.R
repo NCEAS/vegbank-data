@@ -1,8 +1,6 @@
 library(tidyverse)
 library(stringr)
-library(googlesheets4)
 library(cli)
-library(glue)
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -29,9 +27,6 @@ load_community_files <- function(in_dir) {
   classification_files <- dir(sub_folders, full.names = TRUE) %>%
     grep(pattern = "RAClassification.csv", value = TRUE)
   
-  project_files <- dir(sub_folders, full.names = TRUE) %>%
-    grep(pattern = "RAProjects.csv", value = TRUE)
-  
   # read + combine
   plots_df_list <- lapply(
     plot_files,
@@ -53,20 +48,10 @@ load_community_files <- function(in_dir) {
   )
   classification <- do.call(bind_rows, classification_df_list)
   
-  project_df_list <- lapply(
-    project_files,
-    read_csv,
-    progress = FALSE,
-    show_col_types = FALSE
-  )
-  projects <- do.call(bind_rows, project_df_list) %>%
-    group_by(ProjectCode) %>% 
-    arrange(desc(nchar(ProjectDescription))) %>% 
-    slice(1)
-  
-  plots <- plots
-  classification <- classification
-  projects <- projects
+  # read in projects file
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+                       progress = FALSE,
+                       show_col_types = FALSE)
   
   out <- list("plots" = plots, "classification" = classification, "projects" = projects)
   
@@ -89,7 +74,7 @@ load_community_files <- function(in_dir) {
 #' single class_notes field, removing empty entries and trailing punctuation
 normalize_projects_classification <- function(projects, in_dir) {
   
-  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260303.csv")) %>% 
+  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
     select(-ClassificationDescription, -ClassificationTool)
   
   projects_proj <- projects %>% 
@@ -99,7 +84,7 @@ normalize_projects_classification <- function(projects, in_dir) {
            table_analysis = if_else(grepl("tableAnalysis", technique), TRUE, FALSE)) %>% 
     mutate(across(c(inspection, multivariate_analysis, table_analysis), ~ if_else(is.na(technique), NA, .))) %>% 
     mutate(across(c(ClassificationDescription, ClassificationTool), ~ if_else(is.na(.x), "", .x))) %>% 
-    mutate(class_notes = paste(ClassificationDescription, ClassificationTool, sep = ", ")) %>% 
+    mutate(class_notes = paste("Project: ", ProjectCode, " . Classification notes: ", ClassificationDescription, ClassificationTool, sep = " ")) %>% 
     mutate(class_notes = if_else(class_notes == ", ", NA, class_notes)) %>% 
     mutate(class_notes = gsub("^(,\\s*)|(,\\s*)$", "", class_notes)) %>% 
     group_by(ProjectCode) %>% 
@@ -113,13 +98,13 @@ normalize_projects_classification <- function(projects, in_dir) {
     filter(is.na(inspection) | is.na(table_analysis) | is.na(multivariate_analysis)) %>% 
     filter(!is.na(class_notes)) %>% 
     filter(!grepl("was not performed|Not formally classified", class_notes)) %>% 
-    distinct(class_notes) %>%
-    pull(class_notes)
+    distinct(ProjectCode) %>%
+    pull(ProjectCode)
   
   if (length(unmatched) > 0) {
-    cli_alert_warning("Some Project ClassificationDescription/ClassificationTool values did not match patterns ({length(unmatched)} unique).")
-    cli_text("Sample (up to 3):")
-    cli_text(paste0("- ", str_trunc(head(unmatched, 3), 120)))
+    cli_alert_warning("Some Projects did not contain classification methods in the lookup table: ({length(unmatched)} unique).")
+    cli_text("Sample (up to 10):")
+    cli_text(paste0(head(unmatched, 10), collapse = ", "))
   }
   
   return(projects_proj)
@@ -306,7 +291,7 @@ get_vb_cc <- function(renew_cache = FALSE){
 #' @note This function downloads VegBank community concepts via API on first run
 load_reference_tables <- function(in_dir, renew_cache = FALSE){
   # Community concepts from VegBank
-  cc_all <- get_vb_cc(renew_cache = renew_cache)
+  cc_all <- suppressMessages(get_vb_cc(renew_cache = renew_cache))
   
   cc_current <- cc_all %>%
     filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
@@ -324,9 +309,9 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
     select(cc_code, comm_code_norm)
   
   mcv_lookup <- cc_all %>% 
-    filter(concept_rf_label %in% c("MCV 2019", "MCV2"))
+    filter(concept_rf_label %in% c("MCV - CDFW CNPS", "MCV2"))
     
-  mcv_lookup$concept_rf_label <- factor(mcv_lookup$concept_rf_label, levels = c("MCV 2019", "MCV2"))
+  mcv_lookup$concept_rf_label <- factor(mcv_lookup$concept_rf_label, levels = c("MCV - CDFW CNPS", "MCV2"))
   
   mcv_lookup <- mcv_lookup %>% 
     group_by(comm_code) %>% 
