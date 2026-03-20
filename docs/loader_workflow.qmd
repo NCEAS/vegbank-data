@@ -33,7 +33,7 @@ invisible(lapply(r_scripts_source, source))
 ```
 
 ```{r}
-in_dir <- '/var/data/curation/vegbank/'
+in_dir <- '/var/data/curation/vegbank/extracted-csvs'
 out_dir <- '../data/loader-tables'
 if (!dir.exists(out_dir)){
   dir.create(out_dir)
@@ -251,7 +251,7 @@ Elevation values are converted to **meters** when marked as feet in the source d
 
 Plot area is normalized by removing unit indicators (assuming square meters), converting hectares to square meters, and calculating area from plot dimensions or view radius when direct area measurements are unavailable. A value of **`-1`** indicates plots with no defined boundaries.
 
-Plot shapes (circle, square, rectangle) are inferred from available dimension data when not explicitly recorded.
+Plot shapes (square, rectangle) are inferred from available dimension data when not explicitly recorded.
 
 ### Slope and Aspect
 
@@ -284,10 +284,6 @@ datatable(
   options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE)
 )
 ```
-
-### Tree Growth Form Assignment
-
-Growth form assignments prioritize the dominant tree type (conifer vs. hardwood) based on cover values, with the secondary growth form assigned to the less dominant type.
 
 ### Topographic Position
 

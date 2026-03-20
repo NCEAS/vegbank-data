@@ -15,11 +15,8 @@ library(cli)
 #'     \item{plots}{Plot data from plotsLT.csv}
 #'   }
 load_stratacover_files <- function(in_dir, out_dir){
-  # loading CA lookup table
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
   
-  plant_files <- dir(sub_folders, full.names = TRUE) %>% 
+  plant_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
   
   if (length(plant_files) == 0) {

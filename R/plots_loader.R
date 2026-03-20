@@ -54,20 +54,17 @@ convert_to_ll <- function(df_group) {
 # read in files from input directory and join into one table
 load_plot_files <- function(in_dir) {
   
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
-  
-  plot_files <- dir(sub_folders, full.names = TRUE) %>% 
+  plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlots.csv', value = TRUE)
-  alt_plot_files <- dir(sub_folders, full.names = TRUE) %>% 
+  alt_plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'AltPlots.csv', value = TRUE)
-  #survey_point_files <- dir(sub_folders, full.names = TRUE) %>% 
+  #survey_point_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
   #  grep(pattern = 'SurveyPoints.csv', value = TRUE)
-  impact_files <- dir(sub_folders, full.names = TRUE) %>% 
+  impact_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAImpacts.csv', value = TRUE)
-  alt_strata_files <- dir(sub_folders, full.names = TRUE) %>% 
+  alt_strata_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'AltStrata.csv', value = TRUE)
-  classification_files <- dir(sub_folders, full.names = TRUE) %>% 
+  classification_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAClassification.csv', value = TRUE)
 
   

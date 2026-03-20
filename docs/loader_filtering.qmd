@@ -194,8 +194,8 @@ audit[["taxon_missing_required_vb_pc_codes"]] <- a11$dropped
 
 a11_1 <- filter_with_audit(
   tax,
-  !is.na(vb_ro_code),
-  "taxon: missing vb_ro_code"
+  !is.na(vb_ar_code),
+  "taxon: missing vb_ar_code"
 )
   
 tax_step1_1 <- a11_1$kept
@@ -220,7 +220,7 @@ steps <- c(
   "strataCover: missing author_plant_name",
   "strataCover: missing user_sr_code (no StrataMethodsLT)",
   "taxon: missing vb_pc_code",
-  "taxon: vb_ro_code",
+  "taxon: vb_ar_code",
   "taxon: missing strataCover link"
 )
 
@@ -397,7 +397,7 @@ downloadthis::download_this(
 ```{r}
 #| eval: false
 
-cols <- c("user_to_code", "vb_pc_code", "vb_ro_code", "drop_reason")
+cols <- c("user_to_code", "vb_pc_code", "vb_ar_code", "drop_reason")
 x <- audit[["taxon_missing_required_vb_codes"]] %>%
   select(any_of(cols)) %>%
   head(500)
@@ -408,7 +408,7 @@ dt(x, pageLength = 25)
 # taxon dropped: not linked to filtered strata cover
 ```{r}
 x <- audit[["taxon_missing_strataCover_link"]] %>%
-  select(any_of(c("user_to_code", "vb_pc_code", "vb_ro_code", "drop_reason"))) %>%
+  select(any_of(c("user_to_code", "vb_pc_code", "vb_ar_code", "drop_reason"))) %>%
   head(500)
 DT::datatable(
     x,
