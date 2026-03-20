@@ -1,7 +1,6 @@
 library(tidyverse)
 library(stringr)
 library(vctrs)
-library(glue)
 
 #' Extract party and contributor information from RAProjects files
 #' and writes to a vegbank loader table.
@@ -28,14 +27,12 @@ party_contributor_loader <- function(in_dir, out_dir){
   sub_folders <- dir(in_dir, full.names = TRUE) %>%
     grep(pattern = "VegBankProject", value = TRUE)
   
-  # read in RAProjects
-  project_files <- dir(sub_folders, full.names = TRUE) %>% 
-    grep(pattern = "RAProjects.csv", value = TRUE)
+  # read in projects file
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+                       progress = FALSE,
+                       show_col_types = FALSE)
   
-  projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
-  projects <- do.call(bind_rows, projects_df_list)
   
-
   
   # Changing to RAProjects to long format to have one row per contact
   # Remove unnecessary variables (can add back later if needed)
@@ -115,10 +112,8 @@ party_contributor_loader <- function(in_dir, out_dir){
   ### role (Contributor) ###
   # Map DataContactRole values to ar.* codes
   # Done manually for each value
-  role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles-2026-02-02.csv")) %>% 
-    rename(ContactRole = found, role_name = allowed)
+  role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles-2026-03-18.csv"))
   
-
   projects <- projects %>%
     mutate(ContactRole = tolower(trimws(ContactRole))) %>% 
     left_join(role_lookup, by = "ContactRole") %>% 
@@ -153,7 +148,6 @@ party_contributor_loader <- function(in_dir, out_dir){
     )
   
   # get existing vb parties by name
-  suppressMessages(vegbankr::vb_set_base_url("https://api-dev.vegbank.org"))
   party_vegbank <- as.data.frame(vegbankr::vb_get_parties(limit = 5000))
   
   vegbank_names <- party_vegbank %>%
@@ -171,7 +165,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # Check if the person matches from party_LT to party_vegbank
   # If there is a match between people names from party_LT and party_vegbank,
   # then save py_code as vb_py_code. Otherwise, leave it as NA
-
+  
   # df2 subset of distinct vegbank parties (vegbank party)
   veg_subset <- vegbank_names %>% 
     select(full_name, py_code) %>% 
@@ -213,7 +207,7 @@ party_contributor_loader <- function(in_dir, out_dir){
     mutate(user_cr_code = sprintf("ca_cr_%03d", seq_len(n())))
   
   pjs <- unique(projects$ProjectCode)
-
+  
   contributor_LT <- ctrib %>%
     select(
       user_cr_code,
