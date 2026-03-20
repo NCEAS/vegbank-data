@@ -20,8 +20,8 @@ library(lubridate)
 #' }
 load_community_def_files <- function(in_dir) {
   
-  alliance_path    <- file.path(in_dir, "lookup-tables/MCV-alliance.csv")
-  association_path <- file.path(in_dir, "lookup-tables/MCV-association.csv")
+  alliance_path    <- '../data/lookup-tables/MCV-allicance.csv'
+  association_path <- '../data/lookup-tables/MCV-association.csv'
   
   if (!file.exists(alliance_path)) {
     cli_abort("Missing file: {alliance_path}")

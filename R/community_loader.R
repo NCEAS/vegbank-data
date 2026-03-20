@@ -318,7 +318,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
     filter(!is.na(comm_code))
   
   # CA code map
-  cacode_sheet_path <- file.path(in_dir, "lookup-tables/VegBank_CrosswalkHierarchyMCV.csv")
+  cacode_sheet_path <- '../data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv'
   
   cacode_map_raw <- read_csv(cacode_sheet_path, progress = FALSE, show_col_types = FALSE)
   
