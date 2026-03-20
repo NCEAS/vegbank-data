@@ -30,7 +30,7 @@ disturbance_loader <- function(in_dir, out_dir){
   impacts <- do.call(bind_rows, impacts_df_list)
 
   
-  impacts_lookup <- read_csv(file.path(in_dir, "lookup-tables/LImpacts.csv"), progress = FALSE, show_col_types = FALSE)
+  impacts_lookup <- read_csv('../data/lookup-tables/LImpacts.csv')
   # additions to resolve missing lookup codes, per Rosie 2026-03-03
   impacts_lookup_add <- tibble::tribble(~CodeImp, ~`Impact type`,
                                         71, "Pollution",

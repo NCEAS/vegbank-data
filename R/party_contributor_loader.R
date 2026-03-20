@@ -109,7 +109,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   ### role (Contributor) ###
   # Map DataContactRole values to ar.* codes
   # Done manually for each value
-  role_lookup <- read.csv(paste0(in_dir, "/lookup-tables/cdfw-roles-2026-03-18.csv"))
+  role_lookup <- read_csv('../data/lookup-tables/cdfw-roles-2026-03-18.csv')
   
   projects <- projects %>%
     mutate(ContactRole = tolower(trimws(ContactRole))) %>% 
