@@ -69,7 +69,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   # If no middle name, it is set to NA
   
   projects <- projects_long %>%
-    extract(
+    tidyr::extract(
       ContactName,
       into  = c("FirstName", "MiddleName", "LastName"),
       regex = "^\\s*([^\\s]+)\\s+(?:([^\\s]+)\\s+)?(.+?)\\s*$",
