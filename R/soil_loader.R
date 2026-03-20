@@ -22,19 +22,14 @@ soil_loader <- function(in_dir, out_dir){
   cli::cli_alert_info(paste("Processing", length(plot_files), "soil tables from:"))
   cli::cli_ul(plot_files)
   
-  plot_df_list <- lapply(plot_files, function(file) {
-    df <- read_csv(file, progress = FALSE, show_col_types = FALSE)
-    # column typing
-    if ("DesertRip" %in% names(df)) {
-      df$DesertRip <- as.character(df$DesertRip)
-    }
-    if ("PlotOther4" %in% names(df)) {
-      df$PlotOther4 <- as.character(df$PlotOther4)
-    }
-    return(df)
-  })
-  
-  plots <- do.call(bind_rows, plot_df_list)
+  plots_df_list <- lapply(plot_files, 
+                          read_csv,
+                          progress = FALSE,
+                          show_col_types = FALSE,
+                          col_types = cols(`PalmJoshua` = col_character(),
+                                           `DesertRip` = col_character()),
+                          guess_max = 20000)
+  plots <- do.call(bind_rows, plots_df_list)
   
   
   # clean up strings
@@ -49,7 +44,8 @@ soil_loader <- function(in_dir, out_dir){
   soil_LT <- plots %>% 
     select(user_ob_code = SurveyID,
            description = Soil_text) %>% 
-    mutate(soil_horizon = "A") %>% 
+    mutate(horizon = "A") %>% 
+    mutate(user_so_code = paste0("SO_", row_number())) %>% 
     drop_na()
   
   # save filled in loader table
