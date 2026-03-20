@@ -21,11 +21,9 @@ library(tidyverse)
 #' }
 disturbance_loader <- function(in_dir, out_dir){
   
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
   
   # read in RAImpacts
-  impact_files <- dir(sub_folders, full.names = TRUE) %>% 
+  impact_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = "RAImpacts.csv", value = TRUE)
   
   impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE)

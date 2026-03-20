@@ -17,14 +17,11 @@ library(cli)
 #'   }
 load_community_files <- function(in_dir) {
   
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
-  
   # files needed for CommunityClassifications
-  plot_files <- dir(sub_folders, full.names = TRUE) %>%
+  plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>%
     grep(pattern = "RAPlots.csv", value = TRUE)
   
-  classification_files <- dir(sub_folders, full.names = TRUE) %>%
+  classification_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>%
     grep(pattern = "RAClassification.csv", value = TRUE)
   
   # read + combine
@@ -49,7 +46,7 @@ load_community_files <- function(in_dir) {
   classification <- do.call(bind_rows, classification_df_list)
   
   # read in projects file
-  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/RAProjects.csv"),
                        progress = FALSE,
                        show_col_types = FALSE)
   

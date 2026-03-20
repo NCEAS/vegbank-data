@@ -19,11 +19,8 @@ library(tidyverse)
 #' }
 project_loader <- function(in_dir, out_dir){
   
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
-  
   # read in projects file
-  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/RAProjects.csv"),
                        progress = FALSE,
                        show_col_types = FALSE)
   

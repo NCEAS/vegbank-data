@@ -22,11 +22,8 @@ library(cli)
 #' ProjectDescription and selects relevant strata-related fields.
 #' Also, this function relies on plot_loader.R being ran first.
 load_stratadef_files <- function(in_dir, out_dir){
-  # loading CA lookup table
-  sub_folders <- dir(in_dir, full.names = TRUE) %>%
-    grep(pattern = "VegBankProject", value = TRUE)
   
-  plant_files <- dir(sub_folders, full.names = TRUE) %>% 
+  plant_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
   
   if (length(plant_files) == 0) {
@@ -46,7 +43,7 @@ load_stratadef_files <- function(in_dir, out_dir){
   }
   
   # read in projects file
-  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/CDFW-projects-final.csv"),
+  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/RAProjects.csv"),
                        progress = FALSE,
                        show_col_types = FALSE) %>% 
     select(ProjectCode, `Type of protocols`, StrataDescription, StrataClassDescription)
