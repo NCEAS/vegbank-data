@@ -3,8 +3,8 @@ library(tidyverse)
 #' Extract project information from RAProjects files
 #' and writes to a vegbank loader table.
 #'
-#' @param in_dir Directory of vegbank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of vegbank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #'
 #' @return None. Writes loader tables projectLT.csv to `out_dir`.
 #' 
@@ -18,6 +18,9 @@ library(tidyverse)
 #'   \item Maps CDFW field names to VegBank loader table field names
 #' }
 project_loader <- function(in_dir, out_dir){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   # read in projects file
   project_files <- dir(in_dir, full.names = TRUE) %>% 
