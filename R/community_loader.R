@@ -8,7 +8,7 @@ library(here)
 #' Reads and combines RAPlots.csv, RAClassification.csv, and RAProjects.csv
 #' files from VegBank
 #' 
-#' @param in_dir Directory of VegBank data to read from. Can be a full or relative file path. 
+#' @param in_dir Directory of VegBank data to read from. Can be a full or relative to working directory. 
 #' 
 #'   A full file path is the complete location of a folder on your computer,
 #'   starting from the top level (e.g., "C:/Users/yourname/Documents/VegBankData"
@@ -74,7 +74,7 @@ load_community_files <- function(in_dir) {
 #' 
 #' @param projects Data frame containing project data with classification
 #'                 information
-#' @param in_dir Directory of VegBank data to read from
+#' @param in_dir Directory of VegBank data to read from. Can be a full or relative to working directory.
 #' 
 #' @return Data frame with one row per ProjectCode containing normalized
 #'         classification method flags and notes
@@ -291,7 +291,7 @@ get_vb_cc <- function(renew_cache = FALSE){
 #' Loads VegBank community concepts and California vegetation code crosswalk
 #' tables needed for matching CDFW classifications to VegBank
 #' 
-#' @param in_dir Directory of VegBank data to read from
+#' @param in_dir Directory of VegBank data to read from. Can be a full or relative to working directory.
 #' @param renew_cache If TRUE, refreshes cached VegBank API reference data
 #' 
 #' @return Named list with two elements:
@@ -471,8 +471,8 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
 #' Main function that orchestrates the complete community classification
 #' processing pipeline from raw CSV files to VegBank-compatible loader tables
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full or relative to working directory.
+#' @param out_dir Directory of data to write to. Can be a full or relative to working directory.
 #' @param renew_cache If TRUE, refreshes cached VegBank API reference data
 #' 
 #' @return None. Writes loader table communityClassificationsLT.csv to `out_dir`
