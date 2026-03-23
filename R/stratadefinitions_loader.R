@@ -43,9 +43,13 @@ load_stratadef_files <- function(in_dir, out_dir){
   }
   
   # read in projects file
-  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/RAProjects.csv"),
-                       progress = FALSE,
-                       show_col_types = FALSE) %>% 
+  
+  project_files <- dir(in_dir, full.names = TRUE) %>% 
+    grep(pattern = "RAProjects.csv", value = TRUE)
+  
+  projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
+  
+  projects <- do.call(bind_rows, projects_df_list) %>% 
     select(ProjectCode, `Type of protocols`, StrataDescription, StrataClassDescription)
   
   
@@ -132,7 +136,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     slice(1) %>% 
     ungroup()
   
-  method_lookup <- read_csv('../data/lookup-tables/CDFW-strata-method-20260304.csv') %>%
+  method_lookup <- read.csv('../data/lookup-tables/CDFW-strata-method-20260304.csv') %>%
     select(proj_code, stratum_method_name) %>% 
     left_join(vb_strata, by = join_by(stratum_method_name)) %>% 
     select(proj_code, sm_code)

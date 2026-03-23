@@ -20,9 +20,13 @@ library(tidyverse)
 project_loader <- function(in_dir, out_dir){
   
   # read in projects file
-  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/RAProjects.csv"),
-                       progress = FALSE,
-                       show_col_types = FALSE)
+  project_files <- dir(in_dir, full.names = TRUE) %>% 
+    grep(pattern = "RAProjects.csv", value = TRUE)
+  
+  projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
+  
+  projects <- do.call(bind_rows, projects_df_list)
+  
   
   # tidying CDFW data -----------------------------------------------------------
   
