@@ -24,6 +24,9 @@ library(vctrs)
 #' }
 party_contributor_loader <- function(in_dir, out_dir){
   
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
+  
   # read in projects file
   project_files <- dir(in_dir, full.names = TRUE) %>% 
     grep(pattern = "RAProjects.csv", value = TRUE)
@@ -113,7 +116,7 @@ party_contributor_loader <- function(in_dir, out_dir){
   ### role (Contributor) ###
   # Map DataContactRole values to ar.* codes
   # Done manually for each value
-  role_lookup <- read.csv('../data/lookup-tables/cdfw-roles-2026-03-18.csv')
+  role_lookup <- read.csv(here('data/lookup-tables/cdfw-roles-2026-03-18.csv'))
   
   projects <- projects %>%
     mutate(ContactRole = tolower(trimws(ContactRole))) %>% 
