@@ -20,7 +20,7 @@ library(lubridate)
 #' }
 load_community_def_files <- function(in_dir) {
   
-  alliance_path    <- '../data/lookup-tables/MCV-allicance.csv'
+  alliance_path    <- '../data/lookup-tables/MCV-alliance.csv'
   association_path <- '../data/lookup-tables/MCV-association.csv'
   
   if (!file.exists(alliance_path)) {
