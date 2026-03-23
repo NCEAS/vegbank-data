@@ -31,9 +31,16 @@ disturbance_loader <- function(in_dir, out_dir){
   
   impacts_df_list <- lapply(impact_files, read_csv, progress = FALSE, show_col_types = FALSE)
   impacts <- do.call(bind_rows, impacts_df_list)
+  
+  missing_files <- c()
+  if (length(impact_files) == 0) missing_files <- c(missing_files, "RAImpacts.csv")
+  
+  if (length(missing_files) > 0) {
+    stop("Required files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
+  }
 
   
-  impacts_lookup <- read.csv(here('data/lookup-tables/LImpacts.csv'))
+  impacts_lookup <- read_csv(here('data/lookup-tables/LImpacts.csv'), progress = FALSE, show_col_types = FALSE)
   # additions to resolve missing lookup codes, per Rosie 2026-03-03
   impacts_lookup_add <- tibble::tribble(~CodeImp, ~`Impact type`,
                                         71, "Pollution",
