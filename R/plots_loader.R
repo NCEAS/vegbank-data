@@ -778,8 +778,8 @@ assign_tree_height <- function(plots_merged){
 #'   \item Saves checkpoints every 10 pages
 #'   \item Deduplicates records across pages
 #' }
-check_existing_plots <- function(plots_merged, renew_cache = FALSE){
-  
+check_existing_plots <- function(plots_merged, renew_cache = FALSE, out_dir){
+  out_dir <- here::here(out_dir)
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
   cache_file <- file.path(cache_dir, "plots_all.csv")
   
@@ -801,7 +801,11 @@ check_existing_plots <- function(plots_merged, renew_cache = FALSE){
   
   if (any(plots_merged_check$SurveyID %in% pl_all$author_plot_code)){
     cli::cli_alert_warning("Some SurveyId values already exist in the vegbank database. Is this expected? Sample SurveyIDs: {head(unique(plots_merged_check$SurveyID))}")
-    # TODO: print existing survey ids (or a sample)
+    if (!dir.exists(file.path(out_dir, "/debug"))){
+      dir.create(file.path(out_dir, "/debug"))
+    }
+    cli::cli_alert_warning("Writing existing plots to file: {file.path(out_dir, 'debug/existing-plots.csv')}")
+    write_csv(plots_merged_check, file.path(out_dir, "debug/existing-plots.csv"))
   }
   
   
@@ -1153,7 +1157,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- extract_location_description(plots_merged)
   plots_merged <- truncate_fields(plots_merged)
   # check for missing projects
-  check_existing_plots(plots_merged, renew_cache = renew_cache)
+  check_existing_plots(plots_merged, out_dir = out_dir, renew_cache = renew_cache)
   
   # Time should be removed
   plots_merged <- plots_merged %>% 
