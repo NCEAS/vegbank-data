@@ -59,9 +59,12 @@ load_community_files <- function(in_dir) {
   classification <- do.call(bind_rows, classification_df_list)
   
   # read in projects file
-  projects <- read_csv(file.path(in_dir, "VegBankProject_projectFiles/RAProjects.csv"),
-                       progress = FALSE,
-                       show_col_types = FALSE)
+  project_files <- dir(in_dir, full.names = TRUE) %>% 
+    grep(pattern = "RAProjects.csv", value = TRUE)
+  
+  projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
+  
+  projects <- do.call(bind_rows, projects_df_list)
   
   out <- list("plots" = plots, "classification" = classification, "projects" = projects)
   
@@ -82,11 +85,9 @@ load_community_files <- function(in_dir) {
 #' @details
 #' Combines ClassificationDescription and ClassificationTool fields into a
 #' single class_notes field, removing empty entries and trailing punctuation
-normalize_projects_classification <- function(projects, in_dir) {
+normalize_projects_classification <- function(projects) {
   
-  in_dir <- here::here(in_dir)
-  
-  method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
+  method_lookup <- read.csv(here("data/lookup-tables/classification-methods-20260318.csv")) %>% 
     select(-ClassificationDescription, -ClassificationTool)
   
   projects_proj <- projects %>% 
@@ -490,7 +491,7 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   
   list2env(out, envir = environment())
   
-  projects_proj <- normalize_projects_classification(projects, in_dir)
+  projects_proj <- normalize_projects_classification(projects)
   plots_conf <- normalize_class_confidence(plots)
   
   refs <- load_reference_tables(in_dir, renew_cache = renew_cache)
