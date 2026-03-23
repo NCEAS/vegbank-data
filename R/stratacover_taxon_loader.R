@@ -315,8 +315,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       filter(is.na(pc_code), !is.na(usda_norm)) %>%
       distinct(usda_norm) %>%
       pull(usda_norm)
-    cli_text("Sample unmapped USDA codes:")
-    cli_ul(head(no_pc, 15))
+    cli_text("Sample unmapped USDA codes: {head(no_pc, 15)}")
   }
   
   vb_strat <- vb_get_stratum_methods(limit = 5000)
