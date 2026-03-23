@@ -6,8 +6,8 @@ library(stringr)
 #' Extracts soil texture descriptions from RAPlots.csv files, validates values
 #' against a lookup table, and generates a soil loader table
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #' 
 #' @return None. Writes loader table soilLT.csv to `out_dir`
 #' 
@@ -15,6 +15,9 @@ library(stringr)
 #' This function performs data loading, data cleaning and checks soil texture
 #' descriptions against the lookup table.
 soil_loader <- function(in_dir, out_dir){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = "RAPlots.csv", value = TRUE)
