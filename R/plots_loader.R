@@ -107,7 +107,6 @@ load_plot_files <- function(in_dir) {
   plots_merged <- plots %>% 
     left_join(alt_plots, by = "SurveyID") %>% 
     left_join(alt_strata, by = "SurveyID") %>% 
-    select(where(~!all(is.na(.x)))) %>% # dropping columns that are filled with NA values
     mutate(SurveyDate = as.Date(lubridate::mdy_hms(SurveyDate))) # drop time from date column after reformatting 
   
   if (any(plots_merged$SurveyDate < as.Date("1900-01-01"), na.rm = TRUE)) {
@@ -655,7 +654,7 @@ calc_tree_cover <- function(plots_merged){
   # Conif_cover/Hdwd_cover/RegenTree_cover (RAPlots) - treeCover (plots)
   # Need to combine 3 columns into one
   plots_merged <- plots_merged %>% 
-    mutate(across(ends_with("_cover"), ~ na_if(.x, 999))) %>% 
+    mutate(across(ends_with("_cover"), ~ na_if(as.numeric(.x), 999))) %>%
     mutate(
       treeCover = rowSums(cbind(Hdwd_cover, Conif_cover, RegenTree_cover), na.rm = TRUE)
     ) %>% 
@@ -790,97 +789,22 @@ check_existing_plots <- function(plots_merged, renew_cache = FALSE){
     pl_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   } else {
     cli::cli_alert_info("Downloading vb plots data.")
-    ### user_pl_code (PlotObservations) ###
-    # For now, there is no matches so user_pl_code will remain empty
-    
-    # Adaptive, resumable pager for VegBank plot observations
-    
-    page_init  <- 5000  # shrink this if there is an error
-    page_min   <- 500   # don't go smaller than this
-    max_pages  <- 500   # hard stop
-    sleep_sec  <- 0.05  # brief pause to avoid error
-    keep_cols  <- c("pl_code","latitude","longitude","ob_code","author_plot_code", "author_obs_code", "state_province","country")
-    checkpoint <- "pl_all_checkpoint.rds" # just in case something fails
-    save_every <- 10
-    
-    out <- list()
-    seen_codes <- character(0)
-    limit <- page_init
-    
-    # column types
-    text_cols <- c("ob_code","state_province","country", "author_obs_code")
-    num_cols  <- c("latitude","longitude")
-    
-    for (i in seq_len(max_pages)) {
-      offset <- (i - 1L) * limit
-      # try once
-      # on failure (e.g., 504), halve the limit and retry
-      chunk <- tryCatch(
-        vb_get_plot_observations(limit = limit, offset = offset),
-        error = function(e) {
-          limit <<- max(page_min, floor(limit/2))
-          tryCatch(get_all_plot_observations(limit = limit, offset = offset),
-                   error = function(e2) { NULL })
-        }
-      )
-      if (is.null(chunk) || !nrow(chunk)) { break }
-      
-      keep <- intersect(keep_cols, names(chunk))
-      if (length(keep)) chunk <- chunk[, keep, drop = FALSE]
-      
-      # normalize
-      chunk <- chunk %>%
-        mutate(
-          across(any_of(text_cols), as.character),
-          across(any_of(num_cols),  as.numeric)
-        )
-      
-      if ("pl_code" %in% names(chunk)) {
-        new <- !chunk$pl_code %in% seen_codes
-        if (!any(new)) { break }
-        seen_codes <- c(seen_codes, chunk$pl_code[new])
-        chunk <- chunk[new, , drop = FALSE]
-      }
-      
-      out[[length(out) + 1L]] <- chunk
-      total <- sum(vapply(out, nrow, integer(1)))
-      
-      if (nrow(chunk) < limit) { break }
-      
-      if (save_every > 0 && (i %% save_every == 0)) {
-        #Normalize again
-        out_fixed <- map(out, ~ .x %>%
-                           mutate(
-                             across(any_of(text_cols), as.character),
-                             across(any_of(num_cols),  as.numeric)
-                           ))
-        tmp <- bind_rows(out_fixed) %>% distinct()
-        saveRDS(tmp, checkpoint)
-      }
-      
-      if (sleep_sec > 0) Sys.sleep(sleep_sec) }
-    
-    # normalize again
-    out_fixed <- map(out, ~ .x %>%
-                       mutate(
-                         across(any_of(text_cols), as.character),
-                         across(any_of(num_cols),  as.numeric)
-                       ))
-    
-    pl_all <- bind_rows(out_fixed) %>% distinct()
+    pl_all <- vb_get_plot_observations(limit = 1000000)
     write_csv(pl_all, cache_file)
   }
   
   plots_merged_check <- plots_merged %>%
-    left_join(
+    inner_join(
       pl_all %>% select(author_plot_code, pl_code),
       by = c("SurveyID" = "author_plot_code")
     )
   
   if (any(plots_merged_check$SurveyID %in% pl_all$author_plot_code)){
-    cli::cli_alert_warning("Some SurveyId values already exist in the vegbank database. Is this expected?")
+    cli::cli_alert_warning("Some SurveyId values already exist in the vegbank database. Is this expected? Sample SurveyIDs: {head(unique(plots_merged_check$SurveyID))}")
     # TODO: print existing survey ids (or a sample)
   }
+  
+  
   
   return(NULL)
   
@@ -1032,7 +956,6 @@ calc_herb_height <- function(plots_merged){
     ) %>% 
     mutate(Herb_ht2 = if_else(Herb_ht2 %in% mv_list, NA, Herb_ht2))
   
-  # TODO: fix this one
   nas <- which(is.na(plots_merged$Herb_ht22) & !is.na(plots_merged$Herb_ht2))
   
   if (length(nas) > 0){
@@ -1102,7 +1025,6 @@ truncate_fields <- function(plots_merged){
 #' and other spatial attributes. Differences in these fields indicate distinct
 #' plots that happen to share the same code.
 # handle duplicate plot data
-# TODO: redo this and 
 deduplicate_plot_data <- function(plots_LT){
   
   plot_fields <- c(
