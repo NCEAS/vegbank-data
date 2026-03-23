@@ -37,6 +37,19 @@ load_community_files <- function(in_dir) {
   classification_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>%
     grep(pattern = "RAClassification.csv", value = TRUE)
   
+  project_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
+    grep(pattern = "RAProjects.csv", value = TRUE)
+  
+  
+  missing_files <- c()
+  if (length(plot_files) == 0) missing_files <- c(missing_files, "RAPlots.csv")
+  if (length(classification_files) == 0) missing_files <- c(missing_files, "RAClassification.csv")
+  if (length(project_files) == 0) missing_files <- c(missing_files, "RAProjects.csv")
+  
+  if (length(missing_files) > 0) {
+    stop("Required files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
+  }
+  
   # read + combine
   plots_df_list <- lapply(
     plot_files,
@@ -59,8 +72,6 @@ load_community_files <- function(in_dir) {
   classification <- do.call(bind_rows, classification_df_list)
   
   # read in projects file
-  project_files <- dir(in_dir, full.names = TRUE) %>% 
-    grep(pattern = "RAProjects.csv", value = TRUE)
   
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   
@@ -217,74 +228,74 @@ get_vb_cc <- function(renew_cache = FALSE){
     cc_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   } else {
     cli::cli_alert_info("Downloading vb community concept data.")
-  
-   page_init  <- 5000   # starting page size (can shrink if error)
-   page_min   <- 500    # don't go smaller than this
-   max_pages  <- 500    # hard stop
-   sleep_sec  <- 0.05   # brief pause to avoid error
-   checkpoint <- "cc_all_checkpoint.rds" # just in case something fails
-   save_every <- 10
-  
-   out        <- list()
-   seen_codes <- character(0)
-   limit      <- page_init
-  
-   for (i in seq_len(max_pages)) {
-     offset <- (i - 1L) * limit
-  
-     chunk <- tryCatch(
-       vb_get_community_concepts(limit = limit, offset = offset),
-       error = function(e) {
-         limit <<- max(page_min, floor(limit / 2))
-         tryCatch(
-           vb_get_community_concepts(limit = limit, offset = offset),
-           error = function(e2) {
-             NULL
-           }
-        )
-       }
-     )
-  
-     if (is.null(chunk) || !nrow(chunk)) {
-       break
-     }
-     
-     if ("cc_code" %in% names(chunk)) {
-       new <- !chunk$cc_code %in% seen_codes
-       if (!any(new)) {
-         break
+    
+    page_init  <- 5000   # starting page size (can shrink if error)
+    page_min   <- 500    # don't go smaller than this
+    max_pages  <- 500    # hard stop
+    sleep_sec  <- 0.05   # brief pause to avoid error
+    checkpoint <- "cc_all_checkpoint.rds" # just in case something fails
+    save_every <- 10
+    
+    out        <- list()
+    seen_codes <- character(0)
+    limit      <- page_init
+    
+    for (i in seq_len(max_pages)) {
+      offset <- (i - 1L) * limit
+      
+      chunk <- tryCatch(
+        vb_get_community_concepts(limit = limit, offset = offset),
+        error = function(e) {
+          limit <<- max(page_min, floor(limit / 2))
+          tryCatch(
+            vb_get_community_concepts(limit = limit, offset = offset),
+            error = function(e2) {
+              NULL
+            }
+          )
+        }
+      )
+      
+      if (is.null(chunk) || !nrow(chunk)) {
+        break
       }
-       seen_codes <- c(seen_codes, chunk$cc_code[new])
-       chunk <- chunk[new, , drop = FALSE]
-     }
-  
-     out[[length(out) + 1L]] <- chunk
-     total <- sum(vapply(out, nrow, integer(1)))
-     if (nrow(chunk) < limit) {
-       break
-     }
-  
-     if (save_every > 0 && (i %% save_every == 0)) {
-       tmp <- bind_rows(out) %>% distinct()
-       saveRDS(tmp, checkpoint)
-     }
-  
-     if (sleep_sec > 0) Sys.sleep(sleep_sec)
-   }
-   
-   out_char <- lapply(out, function(x) {
-     x %>% mutate(comm_description = as.character(comm_description),
-                  comm_party_comments = as.character(comm_party_comments),
-                  status_rf_code = as.character(status_rf_code),
-                  status_rf_label = as.character(status_rf_label),
-                  parent_cc_code = as.character(parent_cc_code),
-                  parent_name = as.character(parent_name),
-                  stop_date = as.POSIXct(stop_date),
-                  start_date = as.POSIXct(start_date))
-   })
-  
-   cc_all <- bind_rows(out_char) %>% distinct()
-   write_csv(cc_all, cache_file, progress = FALSE)
+      
+      if ("cc_code" %in% names(chunk)) {
+        new <- !chunk$cc_code %in% seen_codes
+        if (!any(new)) {
+          break
+        }
+        seen_codes <- c(seen_codes, chunk$cc_code[new])
+        chunk <- chunk[new, , drop = FALSE]
+      }
+      
+      out[[length(out) + 1L]] <- chunk
+      total <- sum(vapply(out, nrow, integer(1)))
+      if (nrow(chunk) < limit) {
+        break
+      }
+      
+      if (save_every > 0 && (i %% save_every == 0)) {
+        tmp <- bind_rows(out) %>% distinct()
+        saveRDS(tmp, checkpoint)
+      }
+      
+      if (sleep_sec > 0) Sys.sleep(sleep_sec)
+    }
+    
+    out_char <- lapply(out, function(x) {
+      x %>% mutate(comm_description = as.character(comm_description),
+                   comm_party_comments = as.character(comm_party_comments),
+                   status_rf_code = as.character(status_rf_code),
+                   status_rf_label = as.character(status_rf_label),
+                   parent_cc_code = as.character(parent_cc_code),
+                   parent_name = as.character(parent_name),
+                   stop_date = as.POSIXct(stop_date),
+                   start_date = as.POSIXct(start_date))
+    })
+    
+    cc_all <- bind_rows(out_char) %>% distinct()
+    write_csv(cc_all, cache_file, progress = FALSE)
   }
   return(cc_all)
 }
@@ -311,7 +322,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
   
   cc_current <- cc_all %>%
     filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
-
+  
   cc_current$concept_rf_label <- factor(cc_current$concept_rf_label, levels = c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
   
   nvc_lookup <- cc_current %>% 
@@ -326,7 +337,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
   
   mcv_lookup <- cc_all %>% 
     filter(concept_rf_label %in% c("MCV - CDFW CNPS", "MCV2"))
-    
+  
   mcv_lookup$concept_rf_label <- factor(mcv_lookup$concept_rf_label, levels = c("MCV - CDFW CNPS", "MCV2"))
   
   mcv_lookup <- mcv_lookup %>% 
@@ -426,8 +437,7 @@ assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup
   # Combine them (no duplicates now)
   class_vbs <- bind_rows(classification_norm_nvc, classification_norm_mcv)
   
-  class_final <- left_join(classification, class_vbs,
-                           by = join_by(SurveyID, Alliance, Association, CaCode, MCVAboveAlliance, ClassificationLevel, ClassificationMethod, ProjectCode, ReportAlliance, ReportAssociation, ReportOtherName, AnalysisID, RAClassificationID)) %>% 
+  class_final <- left_join(classification, class_vbs) %>% 
     rename(vb_cc_code = cc_code) %>% 
     filter(str_detect(CaCode, "^\\d{2}\\.\\d{3}\\.\\d{2}$"))
   
@@ -458,7 +468,7 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
   out <- classification_with_cc %>%
     left_join(plots_conf, by = "SurveyID") %>%
     left_join(projects_proj, by = "ProjectCode")
-
+  
   if (nrow(out) != nrow(classification_with_cc)) {
     stop(glue(
       "Row count changed after joins: {nrow(classification_with_cc)} -> {nrow(out)}. ",
@@ -502,9 +512,9 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
     nvc_lookup = refs$nvc_lookup,
     mcv_lookup = refs$mcv_lookup
   ) 
-    # TODO: drop GXXX values in CaCode
-    # TODO: drop NAs and n/a's in CaCode
-    # they don't get inserted anyway but might as well be explicit about it
+  # TODO: drop GXXX values in CaCode
+  # TODO: drop NAs and n/a's in CaCode
+  # they don't get inserted anyway but might as well be explicit about it
   
   no_match <- classification_with_cc %>% 
     filter(is.na(vb_cc_code)) %>% 
