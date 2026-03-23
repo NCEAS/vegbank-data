@@ -16,7 +16,7 @@ r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, 
 invisible(lapply(r_scripts_source, source))
 
 # set directory to read from and write to
-in_dir <- '/var/data/curation/vegbank/extracted-csvs/'
+in_dir <- 'data/example-data'
 out_dir <- 'data/loader-tables'
 if (!dir.exists(here(out_dir))){
   dir.create(here(out_dir))
