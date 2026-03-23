@@ -1,6 +1,7 @@
 library(tidyverse)
 library(stringr)
 library(cli)
+library(here)
 
 # load in CDFW data -----------------------------------------------------------
 
@@ -16,6 +17,9 @@ library(cli)
 #'     \item{projects}{Combined RAProjects data (deduplicated by ProjectCode)}
 #'   }
 load_community_files <- function(in_dir) {
+  
+  # make path project-root relative (will still use full file paths if provided)
+  in_dir <- here::here(in_dir)
   
   # files needed for CommunityClassifications
   plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>%
@@ -70,6 +74,8 @@ load_community_files <- function(in_dir) {
 #' Combines ClassificationDescription and ClassificationTool fields into a
 #' single class_notes field, removing empty entries and trailing punctuation
 normalize_projects_classification <- function(projects, in_dir) {
+  
+  in_dir <- here::here(in_dir)
   
   method_lookup <- read.csv(paste0(in_dir, "/lookup-tables/classification-methods-20260318.csv")) %>% 
     select(-ClassificationDescription, -ClassificationTool)
@@ -287,6 +293,9 @@ get_vb_cc <- function(renew_cache = FALSE){
 #'  
 #' @note This function downloads VegBank community concepts via API on first run
 load_reference_tables <- function(in_dir, renew_cache = FALSE){
+  
+  in_dir <- here::here(in_dir)
+  
   # Community concepts from VegBank
   cc_all <- suppressMessages(get_vb_cc(renew_cache = renew_cache))
   
@@ -318,7 +327,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
     filter(!is.na(comm_code))
   
   # CA code map
-  cacode_sheet_path <- '../data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv'
+  cacode_sheet_path <- here('data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv')
   
   cacode_map_raw <- read_csv(cacode_sheet_path, progress = FALSE, show_col_types = FALSE)
   
@@ -464,6 +473,9 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
 #' from data loading, mapping project codes, confidence standardization,
 #' matches community concepts, data integration, and loader table generation.
 community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   out <- load_community_files(in_dir)
   
