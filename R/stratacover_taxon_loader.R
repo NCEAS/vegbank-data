@@ -137,89 +137,20 @@ create_person_lookup <- function(plots, contrib){
 load_vb_pc <- function(renew_cache = FALSE){
   
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
-  cache_file <- file.path(cache_dir, "plant_concept_all.csv")
+  cache_file <- file.path(cache_dir, "pc_all.csv")
   
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
   
-  if (!file.exists(cache_file) | renew_cache) {
-    
-    page_init <- 5000 # shrink this if there is an error
-    page_min <- 500 # don't go smaller than this
-    max_pages <- 500 # hard stop
-    sleep_sec <- 0.05 # brief pause to avoid error
-    checkpoint <- "pc_all_checkpoint.rds" # just in case something fails
-    save_every <- 10
-    
-    out <- list()
-    seen_codes <- character(0)
-    limit <- page_init
-    
-    for (i in seq_len(max_pages)) {
-      offset <- (i - 1L) * limit
-      message(sprintf("Page %d | limit=%d | offset=%d", i, limit, offset))
-      
-      #  try once; on failure (e.g., 504), halve the limit and retry
-      chunk <- tryCatch(
-        vb_get_plant_concepts(limit = limit, offset = offset),
-        error = function(e) {
-          message("  Request failed: ", conditionMessage(e))
-          limit <<- max(page_min, floor(limit/2))
-          message("  Reducing limit and retrying with limit=", limit)
-          tryCatch(vb_get_plant_concepts(limit = limit, offset = offset),
-                   error = function(e2) { message("  Retry failed."); NULL })
-        }
-      )
-      if (is.null(chunk) || !nrow(chunk)) { message("  No rows returned; stopping."); break }
-      
-      # Convert plant_code to character to avoid type conflicts
-      if ("plant_code" %in% names(chunk)) {
-        chunk$plant_code <- as.character(chunk$plant_code)
-      }
-      
-      if ("pc_code" %in% names(chunk)) {
-        new <- !chunk$pc_code %in% seen_codes
-        if (!any(new)) { message("  All rows seen already; stopping."); break }
-        seen_codes <- c(seen_codes, chunk$pc_code[new])
-        chunk <- chunk[new, , drop = FALSE]
-      }
-      
-      out[[length(out) + 1L]] <- chunk
-      total <- sum(vapply(out, nrow, integer(1)))
-      message(sprintf("  +%d new rows (total: %d)", nrow(chunk), total))
-      
-      if (nrow(chunk) < limit) { message("  Short page; done."); break }
-      
-      if (save_every > 0 && (i %% save_every == 0)) {
-        
-        tryCatch(
-          {
-            tmp <- dplyr::bind_rows(out) %>% distinct()
-          },
-          error = function(e) {
-            tmp <<- bind_rows(lapply(out, function(df) mutate(df, across(everything(), as.character))))
-          }
-        )
-        saveRDS(tmp, checkpoint)
-        message(sprintf("  Saved checkpoint (%d rows) -> %s", nrow(tmp), checkpoint))
-      }
-      
-      if (sleep_sec > 0) Sys.sleep(sleep_sec)
-    }
-    tryCatch(
-      {
-        pc_all <- dplyr::bind_rows(out) %>% distinct()
-      },
-      error = function(e) {
-        pc_all <<- bind_rows(lapply(out, function(df) mutate(df, across(everything(), as.character))))
-      }
-    )
-    message(sprintf("Finished. Total plant concepts: %d", nrow(pc_all)))
-    
-    write_csv(pc_all, cache_file)
+  obj <- if (file.exists(cache_file) & !renew_cache) {
+    pc_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   } else {
-    pc_all <- read.csv(cache_file)
+    cli::cli_alert_info("Downloading vb plant concept data.")
+    pc_all <- vb_get_plant_concepts(limit = 1000000)
+    
+    write_csv(pc_all, cache_file, progress = FALSE)
   }
   return(pc_all)
+  
 }
 
 #' Main function that orchestrates plant species data processing from raw CSV
