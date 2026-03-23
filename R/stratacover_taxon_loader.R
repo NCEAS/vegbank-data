@@ -19,9 +19,13 @@ load_stratacover_files <- function(in_dir, out_dir){
   plant_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
   
-  if (length(plant_files) == 0) {
-    cli_abort("No RAPlants.csv files found under {in_dir}.")
+  missing_files <- c()
+  if (length(plant_files) == 0) missing_files <- c(missing_files, "RAPlants.csv")
+  
+  if (length(missing_files) > 0) {
+    stop("Required files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
   }
+  
   
   plants_df_list <- lapply(plant_files, 
                            read_csv,
