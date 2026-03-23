@@ -5,8 +5,8 @@ library(cli)
 #' Reads files and loads prequisite loader tables for linking plant observations
 #' to people and projects
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #' 
 #' @return Named list with three elements:
 #'   \describe{
@@ -15,6 +15,9 @@ library(cli)
 #'     \item{plots}{Plot data from plotsLT.csv}
 #'   }
 load_stratacover_files <- function(in_dir, out_dir){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   plant_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
@@ -222,8 +225,8 @@ load_vb_pc <- function(renew_cache = FALSE){
 #' Main function that orchestrates plant species data processing from raw CSV
 #' files to two loader tables: strata cover and taxon interpretations
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #' @param renew_cache Logical. If TRUE, refreshes cached VegBank API data
 #' 
 #' @return None. Writes two CSV files (strataCoverLT.csv and
@@ -239,6 +242,9 @@ load_vb_pc <- function(renew_cache = FALSE){
 #' @note
 #' This function must run after party_contributor_loader.R and plots_loader.R
 stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
 
   l <- load_stratacover_files(in_dir, out_dir)
   list2env(l, envir = environment())
