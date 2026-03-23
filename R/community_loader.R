@@ -228,73 +228,8 @@ get_vb_cc <- function(renew_cache = FALSE){
     cc_all <- read_csv(cache_file, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
   } else {
     cli::cli_alert_info("Downloading vb community concept data.")
-    
-    page_init  <- 5000   # starting page size (can shrink if error)
-    page_min   <- 500    # don't go smaller than this
-    max_pages  <- 500    # hard stop
-    sleep_sec  <- 0.05   # brief pause to avoid error
-    checkpoint <- "cc_all_checkpoint.rds" # just in case something fails
-    save_every <- 10
-    
-    out        <- list()
-    seen_codes <- character(0)
-    limit      <- page_init
-    
-    for (i in seq_len(max_pages)) {
-      offset <- (i - 1L) * limit
+    cc_all <- vb_get_community_concepts(limit = 1000000)
       
-      chunk <- tryCatch(
-        vb_get_community_concepts(limit = limit, offset = offset),
-        error = function(e) {
-          limit <<- max(page_min, floor(limit / 2))
-          tryCatch(
-            vb_get_community_concepts(limit = limit, offset = offset),
-            error = function(e2) {
-              NULL
-            }
-          )
-        }
-      )
-      
-      if (is.null(chunk) || !nrow(chunk)) {
-        break
-      }
-      
-      if ("cc_code" %in% names(chunk)) {
-        new <- !chunk$cc_code %in% seen_codes
-        if (!any(new)) {
-          break
-        }
-        seen_codes <- c(seen_codes, chunk$cc_code[new])
-        chunk <- chunk[new, , drop = FALSE]
-      }
-      
-      out[[length(out) + 1L]] <- chunk
-      total <- sum(vapply(out, nrow, integer(1)))
-      if (nrow(chunk) < limit) {
-        break
-      }
-      
-      if (save_every > 0 && (i %% save_every == 0)) {
-        tmp <- bind_rows(out) %>% distinct()
-        saveRDS(tmp, checkpoint)
-      }
-      
-      if (sleep_sec > 0) Sys.sleep(sleep_sec)
-    }
-    
-    out_char <- lapply(out, function(x) {
-      x %>% mutate(comm_description = as.character(comm_description),
-                   comm_party_comments = as.character(comm_party_comments),
-                   status_rf_code = as.character(status_rf_code),
-                   status_rf_label = as.character(status_rf_label),
-                   parent_cc_code = as.character(parent_cc_code),
-                   parent_name = as.character(parent_name),
-                   stop_date = as.POSIXct(stop_date),
-                   start_date = as.POSIXct(start_date))
-    })
-    
-    cc_all <- bind_rows(out_char) %>% distinct()
     write_csv(cc_all, cache_file, progress = FALSE)
   }
   return(cc_all)
@@ -555,3 +490,4 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   
   write_csv(community_LT, out_path)
 }
+
