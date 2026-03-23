@@ -3,6 +3,7 @@ library(stringr)
 library(cli)
 library(readr)
 library(lubridate)
+library(here)
 
 #' Reads Manual of California Vegetation (MCV) 2019 alliance and association
 #' files and combines them into a single data set
@@ -20,8 +21,8 @@ library(lubridate)
 #' }
 load_community_def_files <- function(in_dir) {
   
-  alliance_path    <- '../data/lookup-tables/MCV-allicance.csv'
-  association_path <- '../data/lookup-tables/MCV-association.csv'
+  alliance_path    <- here('data/lookup-tables/MCV-alliance.csv')
+  association_path <- here('data/lookup-tables/MCV-association.csv')
   
   if (!file.exists(alliance_path)) {
     cli_abort("Missing file: {alliance_path}")
