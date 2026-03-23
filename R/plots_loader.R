@@ -54,18 +54,43 @@ convert_to_ll <- function(df_group) {
 # read in files from input directory and join into one table
 load_plot_files <- function(in_dir) {
   
+  in_dir <- here::here(in_dir)
+  
   plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlots.csv', value = TRUE)
+  
   alt_plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'AltPlots.csv', value = TRUE)
-  #survey_point_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
-  #  grep(pattern = 'SurveyPoints.csv', value = TRUE)
-  impact_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
-    grep(pattern = 'RAImpacts.csv', value = TRUE)
   alt_strata_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'AltStrata.csv', value = TRUE)
-  classification_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
-    grep(pattern = 'RAClassification.csv', value = TRUE)
+  
+  missing_files <- c()
+  if (length(plot_files) == 0) missing_files <- c(missing_files, "RAPlots.csv")
+  optional_files <- c()
+  if (length(alt_plot_files) == 0) optional_files <- c(optional_files, "AltPlots.csv")
+  if (length(alt_strata_files) == 0) optional_files <- c(optional_files, "AltStrata.csv")
+  
+  if (length(missing_files) > 0) {
+    stop("Required files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
+  }
+  
+  if (length(optional_files) > 0) {
+    cli::cli_alert_warning("Optional files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
+    alt_strata <- data.frame(matrix(ncol = 52, nrow = 0))
+    colnames(alt_strata) <- c("SurveyID", "OverstoryTree_Cov", "OverstoryTree_Ht", "OverstoryTree_Ht2", "EmergentTree_Cov", "EmergentTree_Ht", "EmergentTree_Ht2", "LoTreeTallShrub_Cov", "LoTreeTallShrub_Ht", "LoTreeTallShrub_Ht2", "LoMidShrub_Cov", "LoMidShrub_Ht", "LoMidShrub_Ht2", "DwarfShrub_Cov", "DwarfShrub_Ht", "DwarfShrub_Ht2", "Vine_Cov", "Vine_Ht", "Vine_ht2", "Epiphyte_Cov", "Epiphyte_Ht", "Epiphyte_Ht2", "Nonvascular_Cov", "Nonvascular_Ht", "Nonvascular_Ht2", "CC_MOSLICH", "CC_0CM25CM", "CC_25CM50CM", "CC_50CM1M", "CC_1M2M", "CC_2M5M", "CC_5M10M", "CC_10M20M", "CC_20M30M", "CC_30M", "SP_MOSLICH", "SP_0CM25CM", "SP_25CM50CM", "SP_50CM1M", "SP_1M2M", "SP_2M5M", "SP_5M10M", "SP_10M20M", "SP_20M30M", "SP_30M", "TallCover", "Medcover", "Lowcover", "ExoticCover", "StrataComment", "AltStrataID", "InVegBank")
+    alt_plots <- data.frame(matrix(ncol = 37, nrow = 0))
+    colnames(alt_plots) <- c("SurveyID", "Large_rock", "Small_rock", "AspNum1", "AspNum2", "AspNum3", "Latitude_WGS84_Final", "Longitude_WGS84_Final", "AccuracyDescription", "TransectAzimuth", "TransectLength", "TransectFeetMeters", "PICode", "Representative", "DomLayer", "Struct_Gr", "Struct_Sh", "Struct_Tr", "LeafType", "LeafPhen", "Physiognomy", "DomForm", "CowSystem", "CowSubsystem", "CowClass", "Vertical", "Horizontal", "ChannelType", "Trend", "SiteLocation", "AdditionalNotes", "FragOther", "Tree_domin", "H1_subcategory", "HowVegChange", "AltPlotsID", "inVegBank")
+  } else {
+    alt_plots_df_list <- lapply(alt_plot_files,
+                                read_csv,
+                                progress = FALSE,
+                                show_col_types = FALSE,
+                                col_types = cols(`Representative` = col_character()),
+                                guess_max = 20000)
+    alt_plots <- do.call(bind_rows, alt_plots_df_list)
+    alt_strata_df_list <- lapply(alt_strata_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
+    alt_strata <- do.call(bind_rows, alt_strata_df_list)
+  }
 
   
   plots_df_list <- lapply(plot_files, 
@@ -76,15 +101,7 @@ load_plot_files <- function(in_dir) {
                                            `DesertRip` = col_character()),
                           guess_max = 20000)
   plots <- do.call(bind_rows, plots_df_list)
-  alt_plots_df_list <- lapply(alt_plot_files,
-                              read_csv,
-                              progress = FALSE,
-                              show_col_types = FALSE,
-                              col_types = cols(`Representative` = col_character()),
-                              guess_max = 20000)
-  alt_plots <- do.call(bind_rows, alt_plots_df_list)
-  alt_strata_df_list <- lapply(alt_strata_files, read_csv, progress = FALSE, show_col_types = FALSE, guess_max = 20000)
-  alt_strata <- do.call(bind_rows, alt_strata_df_list)
+ 
   
   # join AltPlots and AltStrata with RAPlots
   plots_merged <- plots %>% 
@@ -862,6 +879,7 @@ check_existing_plots <- function(plots_merged, renew_cache = FALSE){
   
   if (any(plots_merged_check$SurveyID %in% pl_all$author_plot_code)){
     cli::cli_alert_warning("Some SurveyId values already exist in the vegbank database. Is this expected?")
+    # TODO: print existing survey ids (or a sample)
   }
   
   return(NULL)
