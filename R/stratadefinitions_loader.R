@@ -6,8 +6,8 @@ library(cli)
 #' Reads RAPlants.csv and RAProjects.csv files. Loads prerequisite plotsLT.csv
 #' loader table needed for linking strata to observations
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #' 
 #' @return Named list with three elements:
 #'   \describe{
@@ -22,6 +22,9 @@ library(cli)
 #' ProjectDescription and selects relevant strata-related fields.
 #' Also, this function relies on plot_loader.R being ran first.
 load_stratadef_files <- function(in_dir, out_dir){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   plant_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
@@ -103,8 +106,8 @@ clean_strata_names <- function(plant_projs){
 #' files to VegBank-compatible loader table, mapping CDFW stratum names to 
 #' VegBank stratum type codes
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #' 
 #' @return None. Writes strataDefinitionsLT.csv to `out_dir`.
 #' 
@@ -114,6 +117,10 @@ clean_strata_names <- function(plant_projs){
 #' VegBank stratum methods, mapping project to stratum method, matching
 #' stratum to stratum type, and validating the data.
 stratadefinitions_loader <- function(in_dir, out_dir){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
+  
   out <- load_stratadef_files(in_dir, out_dir)
   list2env(out, envir = environment())
   
@@ -136,7 +143,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     slice(1) %>% 
     ungroup()
   
-  method_lookup <- read.csv('../data/lookup-tables/CDFW-strata-method-20260304.csv') %>%
+  method_lookup <- read.csv(here('data/lookup-tables/CDFW-strata-method-20260304.csv')) %>%
     select(proj_code, stratum_method_name) %>% 
     left_join(vb_strata, by = join_by(stratum_method_name)) %>% 
     select(proj_code, sm_code)
