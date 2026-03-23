@@ -3,6 +3,7 @@ library(sf)
 library(tigris)
 library(rnaturalearth)
 library(vegbankr)
+library(here)
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
 
@@ -39,8 +40,7 @@ convert_to_ll <- function(df_group) {
 #' Reads RAPlots.csv, AltPlots.csv, and AltStrata.csv files from VegBank
 #' subdirectories and merges them by SurveyID
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
 #' 
 #' @return Merged data frame containing all plot data with validated survey dates
 #' 
@@ -53,6 +53,8 @@ convert_to_ll <- function(df_group) {
 #' }
 # read in files from input directory and join into one table
 load_plot_files <- function(in_dir) {
+  
+  in_dir  <- here::here(in_dir)
   
   plot_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlots.csv', value = TRUE)
@@ -1179,8 +1181,8 @@ deduplicate_plot_data <- function(plots_LT){
 #' Main function that orchestrates the plot data processing pipeline from raw
 #' CSV files to VegBank-compatible loader table
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full file path or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full file path or relative to working directory. 
 #' @param renew_cache Logical. If TRUE, refreshes cached VegBank API data
 #' 
 #' @return None
@@ -1190,6 +1192,9 @@ deduplicate_plot_data <- function(plots_LT){
 #' loading and merging, coordinate processing, plot characteristics,
 #' vegetation metrics, looking at data quality, and field mapping.
 plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
+  
+  in_dir  <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   # read in all the files and join to one table
   plots_merged <- load_plot_files(in_dir)
