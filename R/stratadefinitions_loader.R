@@ -29,8 +29,15 @@ load_stratadef_files <- function(in_dir, out_dir){
   plant_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = 'RAPlants.csv', value = TRUE)
   
-  if (length(plant_files) == 0) {
-    cli_abort("No RAPlants.csv files found under {in_dir}.")
+  project_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
+    grep(pattern = "RAProjects.csv", value = TRUE)
+  
+  missing_files <- c()
+  if (length(project_files) == 0) missing_files <- c(missing_files, "RAProjects.csv")
+  if (length(plant_files) == 0) missing_files <- c(missing_files, "RAPlants.csv")
+  
+  if (length(missing_files) > 0) {
+    stop("Required files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
   }
   
   plants_df_list <- lapply(plant_files, 
@@ -46,10 +53,7 @@ load_stratadef_files <- function(in_dir, out_dir){
   }
   
   # read in projects file
-  
-  project_files <- dir(in_dir, full.names = TRUE) %>% 
-    grep(pattern = "RAProjects.csv", value = TRUE)
-  
+
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
   
   projects <- do.call(bind_rows, projects_df_list) %>% 
