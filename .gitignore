@@ -48,7 +48,6 @@ rsconnect/
 
 # folder with CA data
 data/loader-tables
-data/*.csv
 loader_tables/
 
 # checkpoint rds files
