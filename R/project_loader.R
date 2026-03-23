@@ -27,6 +27,13 @@ project_loader <- function(in_dir, out_dir){
   
   projects <- do.call(bind_rows, projects_df_list)
   
+  missing_files <- c()
+  if (length(project_files) == 0) missing_files <- c(missing_files, "RAProjects.csv")
+  
+  if (length(missing_files) > 0) {
+    stop("Required files not found in directory ", in_dir, ": ", paste(missing_files, collapse = ", "))
+  }
+  
   
   # tidying CDFW data -----------------------------------------------------------
   
