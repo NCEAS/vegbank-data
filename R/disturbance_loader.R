@@ -1,11 +1,12 @@
 library(tidyverse)
+library(here)
 
 #' Extracts disturbance data from RAImpacts.csv files, validates intensity values,
 #' maps impact types to standardized VegBank disturbance categories, and generates a
 #' disturbance loader table for VegBank ingest
 #' 
-#' @param in_dir Directory of VegBank data to read from
-#' @param out_dir Directory of data to write to
+#' @param in_dir Directory of VegBank data to read from. Can be a full or relative to working directory. 
+#' @param out_dir Directory of data to write to. Can be a full or relative to working directory. 
 #' 
 #' @return None. Writes loader tables disturbanceLT.csv to `out_dir`
 #' 
@@ -21,6 +22,8 @@ library(tidyverse)
 #' }
 disturbance_loader <- function(in_dir, out_dir){
   
+  in_dir <- here::here(in_dir)
+  out_dir <- here::here(out_dir)
   
   # read in RAImpacts
   impact_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
@@ -30,7 +33,7 @@ disturbance_loader <- function(in_dir, out_dir){
   impacts <- do.call(bind_rows, impacts_df_list)
 
   
-  impacts_lookup <- read.csv('../data/lookup-tables/LImpacts.csv')
+  impacts_lookup <- read.csv(here('data/lookup-tables/LImpacts.csv'))
   # additions to resolve missing lookup codes, per Rosie 2026-03-03
   impacts_lookup_add <- tibble::tribble(~CodeImp, ~`Impact type`,
                                         71, "Pollution",
