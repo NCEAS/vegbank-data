@@ -204,15 +204,6 @@ normalize_class_confidence <- function(plots) {
 #' **Caching:**
 #' \itemize{
 #'   \item Cache location: `rappdirs::user_cache_dir("vegbank")/cc_all.csv`
-#'   \item Saves checkpoint every 10 pages in case of failure
-#'   \item Automatically resumes from cache if available
-#' }
-#' **Adaptive Paging:**
-#' \itemize{
-#'   \item Starts with 5000 records per page
-#'   \item Reduces to minimum 500 records on errors
-#'   \item Deduplicates records across pages using cc_code
-#'   \item Adds 0.05 second delay between requests
 #' }
 #' **Column Type Standardization:**
 #' Ensures consistent types across pages for fields like comm_description,

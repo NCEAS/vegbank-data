@@ -769,15 +769,6 @@ assign_tree_height <- function(plots_merged){
 #' uses cached data if available
 #' 
 #' @return None
-#' 
-#' @details
-#' **Adaptive Paging:**
-#' \itemize{
-#'   \item Starts with 5000 records per page
-#'   \item Reduces page size on errors (minimum 500)
-#'   \item Saves checkpoints every 10 pages
-#'   \item Deduplicates records across pages
-#' }
 check_existing_plots <- function(plots_merged, renew_cache = FALSE, out_dir){
   out_dir <- here::here(out_dir)
   cache_dir  <- rappdirs::user_cache_dir("vegbank")
