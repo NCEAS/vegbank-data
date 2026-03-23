@@ -8,7 +8,16 @@ library(here)
 #' Reads and combines RAPlots.csv, RAClassification.csv, and RAProjects.csv
 #' files from VegBank
 #' 
-#' @param in_dir Directory of VegBank data to read from
+#' @param in_dir Directory of VegBank data to read from. Can be a full or relative file path. 
+#' 
+#'   A full file path is the complete location of a folder on your computer,
+#'   starting from the top level (e.g., "C:/Users/yourname/Documents/VegBankData"
+#'   or "/Users/yourname/Documents/VegBankData").
+#'   
+#'   A relative file path is the location of the folder relative to your current
+#'   R project or working directory. For example, if your data folder is inside
+#'   your project, you might use "VegBank/data".
+#'   
 #' 
 #' @return Named list with three elements:
 #'   \describe{
