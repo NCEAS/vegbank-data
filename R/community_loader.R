@@ -285,20 +285,6 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
     ) %>%
     filter(!is.na(CaCode_norm), CaCode_norm != "", !is.na(NVC_norm), NVC_norm != "")
   
-  # warn on duplicate CaCodes
-  dup <- cacode_map %>%
-    count(CaCode_norm) %>%
-    filter(n > 1)
-  # TODO: do we need to do anything about this? is this normal?
-  # most recent run says: cacode_map has duplicate CaCode values (45 codes). Mapping may be ambiguous.
-  # Sample duplicates:
-  #  - 21.310.00- 32.037.00- 33.020.00- 35.110.00- 35.111.00- 35.150.00- 35.310.00- 36.310.00- 36.400.00- 37.070.00
-  if (nrow(dup) > 0) {
-    cli_alert_warning("cacode_map has duplicate CaCode values ({nrow(dup)} codes). Mapping may be ambiguous.")
-    cli_text("Sample duplicates:")
-    cli_text(paste0("- ", head(dup$CaCode_norm, 10)))
-  }
-  
   list(
     cacode_map = cacode_map,
     nvc_lookup = nvc_lookup,
@@ -481,4 +467,4 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   
   write_csv(community_LT, out_path)
 }
-
+ 
