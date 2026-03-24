@@ -43,7 +43,6 @@ load_community_def_files <- function(in_dir) {
       CaCode,
       name = ScientificName,
       MCVLevel = ClassifLevel,
-      NVCAboveAlliance,
       date
     ) %>% 
     filter(!is.na(CaCode))
