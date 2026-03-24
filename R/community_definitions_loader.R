@@ -61,7 +61,7 @@ load_community_def_files <- function(in_dir) {
 #' @details
 #' **CaCode Format:**
 #' Only codes matching the pattern `##.###.##` are retained (e.g., "21.100.00").
-load_cdfw_cacodes <- function(in_dir, renew_cache) {
+load_cdfw_cacodes <- function(in_dir, renew_cache = FALSE) {
   
   out <- load_community_files(in_dir)
   list2env(out, envir = environment())
