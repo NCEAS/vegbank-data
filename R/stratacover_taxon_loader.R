@@ -181,7 +181,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   list2env(l, envir = environment())
   people <- create_person_lookup(plots, contrib)
   
-  pc_all <- suppressMessages(load_vb_pc(renew_cache = renew_cache))
+  pc_all <- suppressWarnings(load_vb_pc(renew_cache = renew_cache))
 
   # try to match most recent USDA codes, moving down through older lists if no matches are found
   
@@ -236,7 +236,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
     cli_alert_warning("Row count changed after joining people: {n1} -> {nrow(plants_join)}. This indicates duplicate SurveyID values in the people lookup.")
   }
 
-  if (length(which(is.na(plants_join$user_py_code))) > 0){
+  if (length(which(is.na(plants_join$user_py_code) & is.na(plants_join$vb_py_code))) > 0){
     cli::cli_alert_warning("{length(which(is.na(plants_join$user_py_code)))} rows have NA values for `user_py_code`. A person and role are required for the taxon interpretations loader table.")
   }
   
