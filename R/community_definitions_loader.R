@@ -39,10 +39,13 @@ load_community_def_files <- function(in_dir) {
   mcv <- bind_rows(alliance, association) %>%
     mutate(CaCode = coalesce(AllianceCaCode, AssociationCaCode)) %>%
     mutate(date = coalesce(DateAdded, DateAddedToMCV)) %>% 
-    select(CaCode,
-           name = ScientificName,
-           MCVLevel = ClassifLevel,
-           date) %>% 
+    select(
+      CaCode,
+      name = ScientificName,
+      MCVLevel = ClassifLevel,
+      NVCAboveAlliance,
+      date
+    ) %>% 
     filter(!is.na(CaCode))
   
   return(mcv)
@@ -104,31 +107,37 @@ normalize_comm_level <- function(mcv) {
   if (!("MCVLevel" %in% names(mcv))) {
     cli_abort("Expected column `MCVLevel` not found in MCV data.")
   }
+  if (!("NVCAboveAlliance" %in% names(mcv))) {
+    cli_abort("Expected column `NVCAboveAlliance` not found in MCV data.")
+  }
   
   mcv <- mcv %>%
     mutate(
       mcv_level_raw = as.character(MCVLevel) %>% str_squish() %>% str_to_lower(),
+      nvc_above_raw = as.character(NVCAboveAlliance) %>% str_squish() %>% str_to_lower(),
       comm_level = case_when(
         str_detect(mcv_level_raw, "association") ~ "association",
+        str_detect(mcv_level_raw, "alliance") & str_detect(nvc_above_raw, "macrogroup") ~ "macrogroup",
+        str_detect(mcv_level_raw, "alliance") & str_detect(nvc_above_raw, "group") ~ "group",
         str_detect(mcv_level_raw, "alliance") ~ "alliance",
         TRUE ~ NA_character_
       )
     )
   
   bad_levels <- mcv %>%
-    filter(!is.na(MCVLevel), is.na(comm_level)) %>%
-    distinct(MCVLevel) %>%
-    pull(MCVLevel)
+    filter((!is.na(MCVLevel) & MCVLevel != "") | (!is.na(NVCAboveAlliance) & NVCAboveAlliance != "")) %>%
+    filter(is.na(comm_level)) %>%
+    distinct(MCVLevel, NVCAboveAlliance)
   
-  if (length(bad_levels) > 0) {
-    cli_alert_warning("Some mcv level values were not recognized (comm_level set to NA):")
-    cli_ul(bad_levels)
+  if (nrow(bad_levels) > 0) {
+    cli_alert_warning("Some MCV/NVC level combinations were not recognized (comm_level set to NA):")
+    cli_ul(apply(bad_levels, 1, paste, collapse = " | "))
   }
   
-  missing_names <- which(is.na(mcv$MCVLevel) | mcv$MCVLevel == "")
-  if (length(missing_names) > 0) {
+  missing_levels <- which(is.na(mcv$MCVLevel) | mcv$MCVLevel == "")
+  if (length(missing_levels) > 0) {
     cli::cli_alert_warning(
-      "Some rows are missing an Alliance/Association level ({length(missing_names)} rows)."
+      "Some rows are missing an MCV level ({length(missing_levels)} rows)."
     )
   }
   
