@@ -23,7 +23,7 @@ project_loader <- function(in_dir, out_dir){
   out_dir <- here::here(out_dir)
   
   # read in projects file
-  project_files <- dir(in_dir, full.names = TRUE) %>% 
+  project_files <- dir(in_dir, full.names = TRUE, recursive = TRUE) %>% 
     grep(pattern = "RAProjects.csv", value = TRUE)
   
   projects_df_list <- lapply(project_files, read_csv, progress = FALSE, show_col_types = FALSE)
