@@ -98,7 +98,11 @@ load_community_files <- function(in_dir) {
 #' single class_notes field, removing empty entries and trailing punctuation
 normalize_projects_classification <- function(projects) {
   
-  method_lookup <- read.csv(here("data/lookup-tables/classification-methods-20260318.csv")) %>% 
+  method_lookup <- read_csv(
+    here("data/lookup-tables/classification-methods-20260318.csv"),
+    progress = FALSE,
+    show_col_types = FALSE
+  ) %>% 
     select(-ClassificationDescription, -ClassificationTool)
   
   projects_proj <- projects %>% 
