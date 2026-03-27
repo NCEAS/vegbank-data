@@ -796,13 +796,18 @@ check_existing_plots <- function(plots_merged, renew_cache = FALSE, out_dir){
     write_csv(pl_all, cache_file)
   }
   
+  if ("user_ob_code" %in% names(plots_merged)) {
+    plots_merged <- plots_merged %>% 
+      mutate(SurveyID = user_ob_code)
+  }
+  
   plots_merged_check <- plots_merged %>%
     inner_join(
-      pl_all %>% select(author_plot_code, pl_code),
+      pl_all %>% select(author_plot_code, pl_code, ob_code),
       by = c("SurveyID" = "author_plot_code")
     )
   
-  if (any(plots_merged_check$SurveyID %in% pl_all$author_plot_code)){
+  if (nrow(plots_merged_check) > 0){
     cli::cli_alert_warning("Some SurveyId values already exist in the vegbank database. Is this expected? Sample SurveyIDs: {head(unique(plots_merged_check$SurveyID))}")
     if (!dir.exists(file.path(out_dir, "/debug"))){
       dir.create(file.path(out_dir, "/debug"))
@@ -811,9 +816,7 @@ check_existing_plots <- function(plots_merged, renew_cache = FALSE, out_dir){
     write_csv(plots_merged_check, file.path(out_dir, "debug/existing-plots.csv"))
   }
   
-  
-  
-  return(NULL)
+  return(plots_merged_check)
   
 }
 
@@ -1160,7 +1163,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   plots_merged <- extract_location_description(plots_merged)
   plots_merged <- truncate_fields(plots_merged)
   # check for missing projects
-  check_existing_plots(plots_merged, out_dir = out_dir, renew_cache = renew_cache)
+  existing <- check_existing_plots(plots_merged, out_dir = out_dir, renew_cache = renew_cache)
   
   # Time should be removed
   plots_merged <- plots_merged %>% 
