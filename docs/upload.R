@@ -46,6 +46,17 @@ tax_semi <- tax %>%
   filter(!is.na(vb_ar_code)) %>% 
   filter(user_to_code %in% tax_code)
 
+results <- vb_validate_plot_observations(plot_observations = plots,
+                            projects = projects,
+                            parties = party,
+                            contributors = contrib,
+                            disturbances = dist,
+                            community_classifications = comm,
+                            strata_cover_data = strat,
+                            taxon_interpretations = tax,
+                            strata = strat_defs,
+                            soils = soils)
+
 vb_upload_plot_observations(plot_observations = plots,
                             projects = projects,
                             parties = party,
@@ -59,23 +70,4 @@ vb_upload_plot_observations(plot_observations = plots,
                             dry_run = TRUE)
 
 
-## community concepts
-
-community_concepts <- read.csv("data/loader-tables/communityConceptsLT.csv")
-community_names <- read.csv("data/loader-tables/communityNamesLT.csv")
-
-ref <- data.frame(user_rf_code = "MCV - CDFW CNPS",
-                  short_name = "MCV - CDFW CNPS",
-                  full_citation = "CNPS. 2026. A Manual of California Vegetation, Online Edition. http://www.cnps.org/cnps/vegetation/; searched on 2026-02-06.",
-                  url = "http://www.cnps.org/cnps/vegetation/")
-
-party <- data.frame(user_py_code = "CDFW CNPS",
-                    organization_name = "California Native Plant Society (CNPS) and California Department of Fish and Wildlife (CDFW)")
-
-vb_upload("community-concepts",
-          community_concepts = community_concepts,
-          community_names = community_names,
-          references = ref,
-          parties = party,
-          dry_run = TRUE)
 
