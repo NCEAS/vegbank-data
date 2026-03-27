@@ -333,8 +333,10 @@ community_definitions_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   mcv <- normalize_comm_level(mcv)
   mcv <- filter_mcv_to_classification(mcv, cacodes)
 
-  comm_concepts <- build_community_concepts(mcv)
-  comm_names <- build_community_names(comm_concepts)
+  comm_concepts <- build_community_concepts(mcv) %>% 
+    convert_df_to_utf8()
+  comm_names <- build_community_names(comm_concepts) %>% 
+    convert_df_to_utf8()
   
   if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
   

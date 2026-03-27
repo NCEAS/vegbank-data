@@ -235,12 +235,14 @@ party_contributor_loader <- function(in_dir, out_dir){
                      user_py_code = rep("cdfw_general", length(pjs)),
                      vb_ar_code = rep("ar.46", length(pjs)),
                      contributor_type = rep("Project", length(pjs)),
-                     record_identifier = pjs))
+                     record_identifier = pjs)) %>% 
+    convert_df_to_utf8()
   
   # don't include parties that are already in VB
   party_LT <- party_LT %>% 
     filter(is.na(py_code)) %>% 
-    select(-py_code)
+    select(-py_code) %>% 
+    convert_df_to_utf8()
   
   out_path_party <- file.path(out_dir, "partyLT.csv")
   out_path_contributor <- file.path(out_dir, 'contributorLT.csv')

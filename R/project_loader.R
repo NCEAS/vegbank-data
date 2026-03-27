@@ -74,8 +74,9 @@ project_loader <- function(in_dir, out_dir){
   project_LT <- project_LT %>%
     group_by(user_pj_code) %>% 
     arrange(desc(nchar(project_description))) %>% 
-    slice(1)
-  
+    slice(1) %>% 
+    convert_df_to_utf8()
+   
   # save filled in loader table
   out_path <- file.path(out_dir, "projectLT.csv")
   cli::cli_alert_success("Writing output to: {out_path}")
