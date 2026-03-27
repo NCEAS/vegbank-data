@@ -147,7 +147,11 @@ stratadefinitions_loader <- function(in_dir, out_dir){
     slice(1) %>% 
     ungroup()
   
-  method_lookup <- read.csv(here('data/lookup-tables/CDFW-strata-method-20260304.csv')) %>%
+  method_lookup <- read_csv(
+    here('data/lookup-tables/CDFW-strata-method-20260304.csv'),
+    progress = FALSE,
+    show_col_types = FALSE
+  ) %>%
     select(proj_code, stratum_method_name) %>% 
     left_join(vb_strata, by = join_by(stratum_method_name)) %>% 
     select(proj_code, sm_code)

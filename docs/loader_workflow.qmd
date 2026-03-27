@@ -97,7 +97,7 @@ roles <- tribble(
 
 role_lookup_path <- '../data/lookup-tables/cdfw-roles-2026-03-18.csv'
 
-role_lookup <- read_csv(role_lookup_path, show_col_types = FALSE)
+role_lookup <- read_csv(role_lookup_path, progress = FALSE, show_col_types = FALSE)
 
 role_map_final <- role_lookup %>%
   left_join(roles, by = "role_name") %>%
@@ -388,7 +388,11 @@ downloadthis::download_this(
 Some `StandID` values were duplicated. Since `StandID` gets mapped to `user_pl_id`, the primary key of the plots table, duplicates in this field are not allowed. To resolve this issue, a suffix of `_{n}` was added to the end of duplicated plot ids. The table below shows the duplicated rows.
 
 ```{r}
-plot_dupes <- read.csv(file.path(out_dir, "plotsLT.csv")) %>% 
+plot_dupes <- read_csv(
+  file.path(out_dir, "plotsLT.csv"),
+  progress = FALSE,
+  show_col_types = FALSE
+) %>% 
   filter(grepl("_[0-9]$", user_pl_code)) %>% 
   select(user_pl_code, latitude, longitude, user_pj_code, user_ob_code)
 
@@ -428,7 +432,7 @@ Community classification data is extracted from `RAClassifications.csv` files, a
 Classification methods are standardized using a lookup table that maps project codes to classification techniques. Three classification approaches are identified from project metadata: inspection-based classification, multi-variate analysis, and table analysis. Classification descriptions and tools from project records are concatenated into a `class_notes` field, with empty or redundant entries cleaned.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-method_lookup <- read_csv('../data/lookup-tables/classification-methods-20260318.csv') %>% 
+method_lookup <- read_csv('../data/lookup-tables/classification-methods-20260318.csv', progress = FALSE, show_col_types = FALSE) %>% 
   rename(vegbank_method = technique)
 
 DT::datatable(method_lookup,
@@ -570,7 +574,7 @@ Each plant observation is assigned a unique stratum identifier by concatenating 
 Stratum names are normalized to lowercase and corrected based on project-specific rules to ensure consistency with VegBank stratum methods. The following lookup table is applied to determine which of the available vegbank methods best fits the project.
 
 ```{r}
-method_lookup <- read_csv('../data/lookup-tables/CDFW-strata-method-20260304.csv') %>% 
+method_lookup <- read_csv('../data/lookup-tables/CDFW-strata-method-20260304.csv', progress = FALSE, show_col_types = FALSE) %>% 
   select(proj_code, stratum_method_name, Notes)
 
 datatable(
