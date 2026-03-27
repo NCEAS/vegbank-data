@@ -243,7 +243,7 @@ get_vb_cc <- function(renew_cache = FALSE){
 #'  }
 #'  
 #' @note This function downloads VegBank community concepts via API on first run
-load_reference_tables <- function(in_dir, renew_cache = FALSE){
+load_reference_tables <- function(in_dir, renew_cache = FALSE, cacode_nvc_lookup = 'data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv'){
   
   in_dir <- here::here(in_dir)
   
@@ -278,7 +278,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE){
     filter(!is.na(comm_code))
   
   # CA code map
-  cacode_sheet_path <- here('data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv')
+  cacode_sheet_path <- here(cacode_nvc_lookup)
   
   cacode_map_raw <- read_csv(cacode_sheet_path, progress = FALSE, show_col_types = FALSE)
   
@@ -328,14 +328,18 @@ assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup
   
   # warn if any CaCodes map to multiple NVC codes
   multi <- cacode_map %>%
+    # TODO: filter for only cacodes in classification here
+    filter(CaCode %in% unique(classification$CaCode)) %>% 
     count(CaCode_norm, name = "n_map") %>%
-    filter(n_map > 1)
+    filter(n_map > 1) %>% 
+    left_join(cacode_map)
   
   if (nrow(multi) > 0) {
     cli_alert_warning(
-      "Some CaCode values map to multiple NVC codes in cacode_map ({nrow(multi)} CaCodes). Using the first NVC code for now to avoid row duplication."
+      "Some CaCode values map to multiple NVC codes in lookup table. Using the first NVC code for now to avoid row duplication. Sample duplicates of {nrow(multi)/2} codes: {head(unique(multi$CaCode))}"
     )
-    cli_text(paste0("- ", head(multi$CaCode_norm, 10)))
+    cli::cli_alert_warning("Writing duplicate codes to file: {file.path(out_dir, 'debug/duplicate-cacodes.csv')}")
+    write_csv(multi, file.path(out_dir, 'debug/duplicate-cacodes.csv'))
   }
   
   classification_norm <- classification %>%
@@ -408,7 +412,7 @@ join_classifications <- function(classification_with_cc, plots_conf, projects_pr
 #' This function executes a comprehensive classification processing pipeline
 #' from data loading, mapping project codes, confidence standardization,
 #' matches community concepts, data integration, and loader table generation.
-community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
+community_loader <- function(in_dir, out_dir, renew_cache = FALSE, cacode_nvc_lookup = 'data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv'){
   
   in_dir  <- here::here(in_dir)
   out_dir <- here::here(out_dir)
@@ -420,7 +424,7 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   projects_proj <- normalize_projects_classification(projects)
   plots_conf <- normalize_class_confidence(plots)
   
-  refs <- load_reference_tables(in_dir, renew_cache = renew_cache)
+  refs <- load_reference_tables(in_dir, renew_cache = renew_cache, cacode_nvc_lookup = 'data/lookup-tables/VegBank_CrosswalkHierarchyMCV.csv')
   
   classification_with_cc <- assign_vb_cc_code(
     classification = classification,
@@ -428,9 +432,6 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
     nvc_lookup = refs$nvc_lookup,
     mcv_lookup = refs$mcv_lookup
   ) 
-  # TODO: drop GXXX values in CaCode
-  # TODO: drop NAs and n/a's in CaCode
-  # they don't get inserted anyway but might as well be explicit about it
   
   no_match <- classification_with_cc %>% 
     filter(is.na(vb_cc_code)) %>% 
@@ -447,8 +448,6 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
   class_cc_proj <- class_cc_proj %>% 
     mutate(multivariate_analysis = if_else(!(multivariate_analysis %in% c("TRUE", "FALSE")), NA, multivariate_analysis))
   
-  # TODO: possibly improve messaging here?
-  #stopifnot(nrow(class_cc_proj) == nrow(community_LT))
   stopifnot(all(names(c("class_notes","inspection","multivariate_analysis","class_confidence","vb_cc_code")) %in% names(class_cc_proj)))
   
   community_LT <- class_cc_proj %>%
@@ -462,7 +461,8 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       multivariate_analysis,
       class_confidence,
       vb_cc_code
-    )
+    ) %>% 
+    convert_df_to_utf8()
   
   # save filled in loader table
   out_path <- file.path(out_dir, "communityClassificationsLT.csv")
