@@ -15,15 +15,17 @@ comm <- read.csv(file.path(out_dir, "communityClassificationsLT.csv"))
 # check that all user_ob_code (SurveyIDs) are in VegBank and get the vegbank codes for each plot
 existing <- check_existing_plots(comm, renew_cache = FALSE, out_dir) %>% 
   select(user_ob_code,
-         vb_ob_code = ob_code)
+         vb_ob_code = ob_code) %>% 
+  group_by(user_ob_code) %>% 
+  slice_head(n = 1)
 
 if (any(!(comm$user_ob_code %in% existing$user_ob_code))){
   cli::cli_alert_danger("Some plots in communityClassificationsLT.csv are not already in VegBank. See example-workflow.R and upload-plot-observations.R to upload them.")
 }
 
 # assign vb_ob_code to community classifications, drop user_ob_code
-community_classifications <- left_join(comm, existing) %>% 
-  filter(is.na(vb_ob_code)) %>% 
+community_classifications <- left_join(comm, existing, by = join_by(user_ob_code)) %>% 
+  filter(!is.na(vb_ob_code)) %>% 
   select(-user_ob_code)
 
 # set token and upload
