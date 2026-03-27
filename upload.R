@@ -4,7 +4,7 @@ library(dplyr)
 vb_set_base_url("https://api-dev.vegbank.org")
 
 # read in loader tables
-our_dir <- "data/loader-tables"
+out_dir <- "data/loader-tables"
 
 plots <- read.csv(file.path(out_dir, "plotsLT.csv"))
 projects <- read.csv(file.path(out_dir, "projectLT.csv"))
