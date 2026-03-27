@@ -16,6 +16,7 @@ r_scripts_source <- list.files(file_path, recursive = FALSE, full.names = TRUE, 
 invisible(lapply(r_scripts_source, source))
 
 # set directory to read from and write to
+# change in_dir to point to your real data
 in_dir <- 'data/example-data'
 out_dir <- 'data/loader-tables'
 if (!dir.exists(here(out_dir))){

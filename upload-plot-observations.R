@@ -1,3 +1,5 @@
+# this script uploads new plot observations and related data (community classifications, taxon observations, etc)
+
 library(vegbankr)
 library(dplyr)
 
