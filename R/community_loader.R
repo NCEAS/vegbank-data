@@ -316,7 +316,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE, cacode_nvc_lookup
 #' **Duplicate Handling:**
 #' When a CaCode maps to multiple NVC codes, only the first NVC code is used
 #' to prevent row duplication.
-assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup){
+assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup, out_dir){
   
   cacode_map_1to1 <- cacode_map %>%
     group_by(CaCode_norm) %>%
@@ -430,7 +430,8 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE, cacode_nvc_lo
     classification = classification,
     cacode_map = refs$cacode_map,
     nvc_lookup = refs$nvc_lookup,
-    mcv_lookup = refs$mcv_lookup
+    mcv_lookup = refs$mcv_lookup,
+    out_dir
   ) 
   
   no_match <- classification_with_cc %>% 
