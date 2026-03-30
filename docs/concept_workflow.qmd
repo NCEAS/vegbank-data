@@ -32,7 +32,7 @@ if (!dir.exists(out_dir)){
 ```
 
 ```{r}
-vb_set_base_url("https://api-dev.vegbank.org")
+vb_set_base_url("https://api.vegbank.org")
 renew_cache <- TRUE
 ```
 

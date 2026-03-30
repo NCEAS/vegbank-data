@@ -141,64 +141,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>in_dir <span class="ot">&lt;-</span> <span class="st">'/var/data/curation/vegbank/'</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>out_dir <span class="ot">&lt;-</span> <span class="st">'../data/loader-tables'</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">exists</span>(out_dir)){</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(out_dir)){</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(out_dir)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in dir.create(out_dir): '../data/loader-tables' already exists</code></pre>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vb_set_base_url</span>(<span class="st">"https://api.vegbank.org"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using https://api.vegbank.org as base URL</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>renew_cache <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="new-community-concepts" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="new-community-concepts"><span class="header-section-number">1</span> New Community Concepts</h2>
 <p>These need to be generated and uploaded before <code>loader_workflow.qmd</code>.</p>
 <div class="cell styled-output">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">community_definitions_loader</span>(in_dir, out_dir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">community_definitions_loader</span>(in_dir, out_dir, renew_cache)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Using https://api-dev.vegbank.org as base URL</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>ℹ Downloading vb community concept data.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>! cacode_map has duplicate CaCode values (45 codes). Mapping may be ambiguous.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sample duplicates:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>- 21.310.00- 32.037.00- 33.020.00- 35.110.00- 35.111.00- 35.150.00- 35.310.00-
-36.310.00- 36.400.00- 37.070.00</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>! Some CaCode values map to multiple NVC codes in cacode_map (45 CaCodes). Using the first NVC code for now to avoid row duplication.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>- 21.310.00- 32.037.00- 33.020.00- 35.110.00- 35.111.00- 35.150.00- 35.310.00-
-36.310.00- 36.400.00- 37.070.00</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>! vb_cc_code is NA for 9198 rows (out of 27229).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>! Some mcv level values were not recognized (comm_level set to NA):</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• Special Stands</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>! Some rows are missing an Alliance/Association level (11 rows).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>ℹ Filtered MCV rows: 3202 -&gt; 828 (kept CaCodes present in RAClassification).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>✔ Writing two output files to:</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• ../data/loader-tables/communityConceptsLT.csv</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• ../data/loader-tables/communityNamesLT.csv</code></pre>
+<pre><code>Joining with `by = join_by(CaCode_norm)`
+! Some CaCode values map to multiple NVC codes in lookup table. Using the first
+NVC code for now to avoid row duplication. Sample duplicates of 35 codes:
+32.037.00, 33.020.00, 35.110.00, 35.111.00, 35.150.00, and 35.310.00
+! Writing duplicate codes to file:
+../data/loader-tables/debug/duplicate-cacodes.csv
+Joining with `by = join_by(SurveyID, Alliance, Association, CaCode,
+MCVAboveAlliance, ClassificationLevel, ClassificationMethod, ProjectCode,
+ReportAlliance, ReportAssociation, ReportOtherName, AnalysisID,
+RAClassificationID)`
+! vb_cc_code is NA for 9198 rows (out of 27229).
+! Some mcv level values were not recognized (comm_level set to NA):
+• Special Stands
+! Some rows are missing an Alliance/Association level (6 rows).
+ℹ Filtered MCV rows: 3798 -&gt; 887 (kept CaCodes present in RAClassification).
+✔ Writing two output files to:
+• ../data/loader-tables/communityConceptsLT.csv
+• ../data/loader-tables/communityNamesLT.csv</code></pre>
 </div>
 </div>
 </section>
