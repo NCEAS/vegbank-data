@@ -251,7 +251,7 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE, cacode_nvc_lookup
   cc_all <- suppressMessages(get_vb_cc(renew_cache = renew_cache))
   
   cc_current <- cc_all %>%
-    filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
+    filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0.3'))
   
   cc_current$concept_rf_label <- factor(cc_current$concept_rf_label, levels = c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
   
@@ -328,7 +328,6 @@ assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup
   
   # warn if any CaCodes map to multiple NVC codes
   multi <- cacode_map %>%
-    # TODO: filter for only cacodes in classification here
     filter(CaCode %in% unique(classification$CaCode)) %>% 
     count(CaCode_norm, name = "n_map") %>%
     filter(n_map > 1) %>% 
@@ -339,6 +338,9 @@ assign_vb_cc_code <- function(classification, cacode_map, nvc_lookup, mcv_lookup
       "Some CaCode values map to multiple NVC codes in lookup table. Using the first NVC code for now to avoid row duplication. Sample duplicates of {nrow(multi)/2} codes: {head(unique(multi$CaCode))}"
     )
     cli::cli_alert_warning("Writing duplicate codes to file: {file.path(out_dir, 'debug/duplicate-cacodes.csv')}")
+    if (!dir.exists(file.path(out_dir, 'debug'))){
+      dir.create(file.path(out_dir, 'debug'))
+    }
     write_csv(multi, file.path(out_dir, 'debug/duplicate-cacodes.csv'))
   }
   
