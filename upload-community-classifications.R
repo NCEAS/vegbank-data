@@ -23,9 +23,14 @@ if (any(!(comm$user_ob_code %in% existing$user_ob_code))){
   cli::cli_alert_danger("Some plots in communityClassificationsLT.csv are not already in VegBank. See example-workflow.R and upload-plot-observations.R to upload them.")
 }
 
+if (any(!is.na(comm$vb_cc_code))){
+  cli::cli_alert_danger("Some plots did not have a vegbank community classification code assigned (vb_cc_code). This field is required for ingest into VegBank. See community_loader.R.")
+}
+
 # assign vb_ob_code to community classifications, drop user_ob_code
 community_classifications <- left_join(comm, existing, by = join_by(user_ob_code)) %>% 
-  filter(!is.na(vb_ob_code)) %>% 
+  filter(!is.na(vb_ob_code)) %>% # WARN: drops rows without an existing vb ob code.
+  filter(!is.na(vb_cc_code)) %>% # WARN: drops rows without vb cc code
   select(-user_ob_code)
 
 # set token and upload
