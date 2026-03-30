@@ -210,8 +210,7 @@ stratadefinitions_loader <- function(in_dir, out_dir){
       user_sr_code = strata_id,
       vb_sy_code = sy_code
     ) %>% 
-    distinct() %>% 
-    convert_df_to_utf8()
+    distinct()
   
   out_path_strata <- file.path(out_dir, "strataDefinitionsLT.csv")
 

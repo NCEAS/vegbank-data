@@ -6,19 +6,6 @@ library(vegbankr)
 library(here)
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 
-# convert data frame to UTF8 encoding (used in all functions)
-convert_df_to_utf8 <- function(df) {
-  for (i in seq_along(df)) {
-    if (is.character(df[[i]])) {
-      df[[i]] <- iconv(df[[i]], from = "latin1", to = "UTF-8") # Specify the 'from' encoding
-      Encoding(df[[i]]) <- "UTF-8" # Explicitly mark the encoding
-    } else if (is.factor(df[[i]])) {
-      levels(df[[i]]) <- iconv(levels(df[[i]]), from = "latin1", to = "UTF-8")
-    }
-  }
-  return(df)
-}
-
 #' Convert a data frame with a CRS (epsg code) and an easting/northing 
 #' coordinate ("UTME_final", "UTMN_final") to lat/lon coordinates
 #'
@@ -1221,8 +1208,7 @@ plots_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       rock_type = Substrate
     )
   
-  plots_LT <- deduplicate_plot_data(plots_LT) %>% 
-    convert_df_to_utf8()
+  plots_LT <- deduplicate_plot_data(plots_LT)
   
   # save filled in loader table
   out_path <- file.path(out_dir, "plotsLT.csv")

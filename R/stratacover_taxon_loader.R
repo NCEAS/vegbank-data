@@ -261,8 +261,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       author_plant_name = species_norm,
       cover = Species_cover
     ) %>% 
-    distinct() %>% 
-    convert_df_to_utf8()
+    distinct()
   
   taxon_LT <- plants_join %>%
     mutate(
@@ -278,8 +277,7 @@ stratacover_taxon_loader <- function(in_dir, out_dir, renew_cache = FALSE){
       vb_ar_code,
       original_interpretation,
       current_interpretation
-    ) %>% 
-    convert_df_to_utf8()
+    ) 
   
   out_path_strata <- file.path(out_dir, "strataCoverLT.csv")
   out_path_tax <- file.path(out_dir, 'taxonInterpretationsLT.csv')

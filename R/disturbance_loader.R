@@ -133,8 +133,7 @@ disturbance_loader <- function(in_dir, out_dir){
            comment = Other,
            intensity = Intensity) %>% 
     distinct() %>% 
-    mutate(user_do_code = row_number()) %>% 
-    convert_df_to_utf8()
+    mutate(user_do_code = row_number())
   
   # save filled in loader table
   out_path <- file.path(out_dir, "disturbanceLT.csv")

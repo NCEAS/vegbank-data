@@ -49,8 +49,7 @@ soil_loader <- function(in_dir, out_dir){
            description = Soil_text) %>% 
     mutate(horizon = "A") %>% 
     mutate(user_so_code = paste0("SO_", row_number())) %>% 
-    drop_na() %>% 
-    convert_df_to_utf8()
+    drop_na()
   
   # save filled in loader table
   out_path <- file.path(out_dir, "soilLT.csv")

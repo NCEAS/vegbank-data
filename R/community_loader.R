@@ -464,8 +464,7 @@ community_loader <- function(in_dir, out_dir, renew_cache = FALSE, cacode_nvc_lo
       multivariate_analysis,
       class_confidence,
       vb_cc_code
-    ) %>% 
-    convert_df_to_utf8()
+    )
   
   # save filled in loader table
   out_path <- file.path(out_dir, "communityClassificationsLT.csv")
