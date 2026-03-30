@@ -59,7 +59,7 @@ load_community_def_files <- function(in_dir) {
 #' @details
 #' **CaCode Format:**
 #' Only codes matching the pattern `##.###.##` are retained (e.g., "21.100.00").
-load_cdfw_cacodes <- function(in_dir, renew_cache = FALSE) {
+load_cdfw_cacodes <- function(in_dir, renew_cache = FALSE, out_dir) {
   
   out <- load_community_files(in_dir)
   list2env(out, envir = environment())
@@ -70,7 +70,8 @@ load_cdfw_cacodes <- function(in_dir, renew_cache = FALSE) {
     classification = classification,
     cacode_map = refs$cacode_map,
     nvc_lookup = refs$nvc_lookup,
-    mcv_lookup = refs$mcv_lookup
+    mcv_lookup = refs$mcv_lookup,
+    out_dir
   ) 
   
   if (!("CaCode" %in% names(classification))) {
@@ -327,16 +328,14 @@ build_community_names <- function(comm_concepts) {
 #' community levels, filters to observed vegetation types, builds community
 #' concepts, and builds community names.
 community_definitions_loader <- function(in_dir, out_dir, renew_cache = FALSE){
-  cacodes <- load_cdfw_cacodes(in_dir, renew_cache)
+  cacodes <- load_cdfw_cacodes(in_dir, renew_cache, out_dir)
   
   mcv <- load_community_def_files(in_dir)
   mcv <- normalize_comm_level(mcv)
   mcv <- filter_mcv_to_classification(mcv, cacodes)
 
-  comm_concepts <- build_community_concepts(mcv) %>% 
-    convert_df_to_utf8()
-  comm_names <- build_community_names(comm_concepts) %>% 
-    convert_df_to_utf8()
+  comm_concepts <- build_community_concepts(mcv)
+  comm_names <- build_community_names(comm_concepts)
   
   if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
   
