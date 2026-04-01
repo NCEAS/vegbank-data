@@ -1,497 +1,497 @@
-"SurveyID","Alliance","Association","CaCode","MCVAboveAlliance","ClassificationLevel","ClassificationMethod","ProjectCode","ReportAlliance","ReportAssociation","ReportOtherName","AnalysisID"
-"ANZA001","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA002","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA003","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA004","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA005","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA006","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA007","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA008","Prunus fremontii",,"33.220.00",,"Alliance",,"ANZA","Prunus fremontii",,"Desert Apricot Series",
-"ANZA009","Lotus scoparius",,"52.240.00",,,,"ANZA","Lotus scoparius",,"Deerweed Series",
-"ANZA010","Lotus scoparius",,"52.240.00",,,,"ANZA","Lotus scoparius",,"Deerweed Series",
-"ANZA011","Lotus scoparius",,"52.240.00",,,,"ANZA","Lotus scoparius",,"Deerweed Series",
-"ANZA012","Lotus scoparius",,"52.240.00",,,,"ANZA","Lotus scoparius",,"Deerweed Series",
-"ANZA013","Lotus scoparius",,"52.240.00",,,,"ANZA","Lotus scoparius",,"Deerweed Series",
-"ANZA014","Artemisia tridentata",,"35.110.00",,,,"ANZA","Artemisia tridentata",,"Big Sagebrush Series",
-"ANZA015","Artemisia tridentata",,"35.110.00",,,,"ANZA","Artemisia tridentata",,"Big Sagebrush Series",
-"ANZA016","Artemisia tridentata",,"35.110.00",,,,"ANZA","Artemisia tridentata",,"Big Sagebrush Series",
-"ANZA017","Artemisia tridentata",,"35.110.00",,,,"ANZA","Artemisia tridentata",,"Big Sagebrush Series",
-"ANZA018","Artemisia tridentata",,"35.110.00",,,,"ANZA","Artemisia tridentata",,"Big Sagebrush Series",
-"ANZA019","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA020","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA021","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA022","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA023","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA024","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA025","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA026","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA027","Ambrosia salsola",,"33.200.00",,,,"ANZA","Ambrosia salsola",,"Cheesebush Series",
-"ANZA028","Ambrosia salsola","Ambrosia salsola – Eriogonum fasciculatum","33.200.02",,,,"ANZA","Ambrosia salsola","Ambrosia salsola – Eriogonum fasciculatum","Cheesebush - California Buckwheat Association",
-"ANZA029","Ambrosia salsola","Ambrosia salsola – Eriogonum fasciculatum","33.200.02",,,,"ANZA","Ambrosia salsola","Ambrosia salsola – Eriogonum fasciculatum","Cheesebush - California Buckwheat Association",
-"ANZA030","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Larrea tridentata - Yucca schidigera",,"Creosote Bush - Mojave Yucca Series",
-"ANZA031","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Larrea tridentata - Yucca schidigera",,"Creosote Bush - Mojave Yucca Series",
-"ANZA032","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Larrea tridentata - Yucca schidigera",,"Creosote Bush - Mojave Yucca Series",
-"ANZA033","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Larrea tridentata - Yucca schidigera",,"Creosote Bush - Mojave Yucca Series",
-"ANZA034","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Larrea tridentata - Yucca schidigera",,"Creosote Bush - Mojave Yucca Series",
-"ANZA035","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Larrea tridentata - Yucca schidigera",,"Creosote Bush - Mojave Yucca Series",
-"ANZA036","Yucca schidigera","Yucca schidigera – Larrea tridentata – Ephedra nevadensis","33.070.06",,"Association",,"ANZA","Larrea tridentata - Yucca schidigera","Larrea tridentata - Yucca schidigera - Ephedra nevadensis / Pleuraphis rigida","Creosote Bush - Mojave Yucca - Nevada Ephedra / Big Galleta Association",
-"ANZA037","Yucca schidigera","Yucca schidigera – Larrea tridentata – Ephedra nevadensis","33.070.06",,"Association",,"ANZA","Larrea tridentata - Yucca schidigera","Larrea tridentata - Yucca schidigera - Ephedra nevadensis / Pleuraphis rigida","Creosote Bush - Mojave Yucca - Nevada Ephedra / Big Galleta Association",
-"ANZA038","Yucca schidigera","Yucca schidigera – Larrea tridentata – Ambrosia dumosa","33.070.05",,"Association",,"ANZA","Larrea tridentata - Yucca schidigera","Larrea tridentata - Yucca schidigera - Ambrosia dumosa","Creosote Bush - Mojave Yucca - Burrobush Association",
-"ANZA039","Yucca schidigera","Yucca schidigera – Larrea tridentata – Ambrosia dumosa","33.070.05",,"Association",,"ANZA","Larrea tridentata - Yucca schidigera","Larrea tridentata - Yucca schidigera - Ambrosia dumosa","Creosote Bush - Mojave Yucca - Burrobush Association",
-"ANZA040","Yucca schidigera","Yucca schidigera – Larrea tridentata – Agave deserti","33.070.11",,"Association",,"ANZA","Larrea tridentata - Yucca schidigera","Larrea tridentata - Yucca schidigera - Agave deserti","Creosote Bush - Mojave Yucca - Desert Agave Association",
-"ANZA041","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fagonia laevis","33.140.41",,,,"ANZA","Fagonia laevis",,"Fagonia Series",
-"ANZA042","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fagonia laevis","33.140.41",,,,"ANZA","Fagonia laevis",,"Fagonia Series",
-"ANZA043","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fagonia laevis","33.140.41",,,,"ANZA","Fagonia laevis",,"Fagonia Series",
-"ANZA044","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fagonia laevis","33.140.41",,,,"ANZA","Fagonia laevis",,"Fagonia Series",
-"ANZA045","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fagonia laevis","33.140.41",,,,"ANZA","Fagonia laevis",,"Fagonia Series",
-"ANZA046","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA047","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA048","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA049","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA050","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA051","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA052","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA053","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
-"ANZA055","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Yucca schidigera",,"Mojave Yucca Series",
-"ANZA056","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Yucca schidigera",,"Mojave Yucca Series",
-"ANZA057","Yucca schidigera",,"33.070.00",,"Alliance",,"ANZA","Yucca schidigera",,"Mojave Yucca Series",
-"ANZA058","Agave deserti",,"33.075.00",,,,"ANZA","Agave deserti",,"Desert Agave Series",
-"ANZA059","Agave deserti",,"33.075.00",,,,"ANZA","Agave deserti",,"Desert Agave Series",
-"ANZA060","Agave deserti",,"33.075.00",,,,"ANZA","Agave deserti",,"Desert Agave Series",
-"ANZA061","Agave deserti",,"33.075.00",,,,"ANZA","Agave deserti",,"Desert Agave Series",
-"ANZA062","Agave deserti","Agave deserti – Ambrosia salsola (wash and terrace)","33.075.01",,,,"ANZA","Agave deserti","Agave deserti - wash and terrace","Agave Wash and Terrace Association",
-"ANZA063","Agave deserti","Agave deserti – Ambrosia salsola (wash and terrace)","33.075.01",,,,"ANZA","Agave deserti","Agave deserti - wash and terrace","Agave Wash and Terrace Association",
-"ANZA064","Agave deserti","Agave deserti – Ambrosia salsola (wash and terrace)","33.075.01",,,,"ANZA","Agave deserti","Agave deserti - wash and terrace","Agave Wash and Terrace Association",
-"ANZA065","Agave deserti","Agave deserti – Ambrosia salsola (wash and terrace)","33.075.01",,,,"ANZA","Agave deserti","Agave deserti - wash and terrace","Agave Wash and Terrace Association",
-"ANZA066","Agave deserti","Agave deserti – Yucca schidigera","33.075.02",,,,"ANZA","Agave deserti","Agave deserti – Yucca schidigera","Desert Agave - Mojave Yucca Association",
-"ANZA067","Agave deserti","Agave deserti – Yucca schidigera","33.075.02",,,,"ANZA","Agave deserti","Agave deserti – Yucca schidigera","Desert Agave - Mojave Yucca Association",
-"ANZA068","Agave deserti","Agave deserti – Yucca schidigera","33.075.02",,,,"ANZA","Agave deserti","Agave deserti – Yucca schidigera","Desert Agave - Mojave Yucca Association",
-"ANZA069","Agave deserti","Agave deserti – Yucca schidigera","33.075.02",,,,"ANZA","Agave deserti","Agave deserti – Yucca schidigera","Desert Agave - Mojave Yucca Association",
-"ANZA070","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA071","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA072","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA073","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA074","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA075","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA076","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA077","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA078","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA079","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA080","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA081","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Fouquieria splendens","33.140.44",,,,"ANZA","Fouquieria splendens",,"Ocotillo Series",
-"ANZA082","Hyptis emoryi",,"33.190.00",,,,"ANZA","Hyptis emoryi",,"Desert Lavender Series",
-"ANZA083","Hyptis emoryi",,"33.190.00",,,,"ANZA","Hyptis emoryi",,"Desert Lavender Series",
-"ANZA084","Hyptis emoryi",,"33.190.00",,,,"ANZA","Hyptis emoryi",,"Desert Lavender Series",
-"ANZA085","Hyptis emoryi",,"33.190.00",,,,"ANZA","Hyptis emoryi",,"Desert Lavender Series",
-"ANZA086","Hyptis emoryi",,"33.190.00",,,,"ANZA","Hyptis emoryi",,"Desert Lavender Series",
-"ANZA087","Coleogyne ramosissima","Coleogyne ramosissima","33.020.01",,,,"ANZA","Coleogyne ramosissima","Coleogyne ramosissima","Sonoran blackbush association",
-"ANZA088","Coleogyne ramosissima","Coleogyne ramosissima","33.020.01",,,,"ANZA","Coleogyne ramosissima","Coleogyne ramosissima","Sonoran blackbush association",
-"ANZA089","Coleogyne ramosissima","Coleogyne ramosissima","33.020.01",,,,"ANZA","Coleogyne ramosissima","Coleogyne ramosissima","Sonoran blackbush association",
-"ANZA090","Coleogyne ramosissima","Coleogyne ramosissima","33.020.01",,,,"ANZA","Coleogyne ramosissima","Coleogyne ramosissima","Sonoran blackbush association",
-"ANZA091","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus emoryi – sandy","33.140.08",,,,"ANZA",,,"unclassified",
-"ANZA092","Eriogonum fasciculatum",,"32.040.00",,,,"ANZA","Eriogonum fasciculatum",,"California Buckwheat Series",
-"ANZA093","Eriogonum fasciculatum",,"32.040.00",,,,"ANZA","Eriogonum fasciculatum",,"California Buckwheat Series",
-"ANZA094","Eriogonum fasciculatum",,"32.040.00",,,,"ANZA","Eriogonum fasciculatum",,"California Buckwheat Series",
-"ANZA095","Eriogonum fasciculatum",,"32.040.00",,,,"ANZA","Eriogonum fasciculatum",,"California Buckwheat Series",
-"ANZA096","Eriogonum fasciculatum",,"32.040.00",,,,"ANZA","Eriogonum fasciculatum",,"California Buckwheat Series",
-"ANZA097","Eriogonum fasciculatum","Eriogonum fasciculatum – Ambrosia dumosa","32.040.05",,,,"ANZA","Eriogonum fasciculatum","Eriogonum fasciculatum – Ambrosia dumosa","California Buckwheat - Burrobush Association",
-"ANZA098","Eriogonum wrightii",,"32.041.00",,,,"ANZA","Eriogonum wrightii",,"Wright's Buckwheat Series",
-"ANZA099","Eriogonum wrightii",,"32.041.00",,,,"ANZA","Eriogonum wrightii",,"Wright's Buckwheat Series",
-"ANZA100","Eriogonum fasciculatum – Salvia apiana",,"32.100.00",,,,"ANZA","Eriogonum fasciculatum – Salvia apiana",,"California Buckwheat - White Sage Series",
-"ANZA101","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA102","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA103","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA104","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA105","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA106","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA107","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA108","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA109","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA110","Larrea tridentata",,"33.010.00",,,,"ANZA","Larrea tridentata",,"Creosote Bush Series",
-"ANZA111","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA112","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA113","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA114","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA115","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA116","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA117","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA118","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA119","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA120","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA121","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA122","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA123","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA124","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA125","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA126","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA127","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA128","Larrea tridentata – Encelia farinosa","Larrea tridentata – Encelia farinosa","33.027.05",,,,"ANZA","Larrea tridentata","Larrea tridentata – Encelia farinosa","Creosote Bush - Brittlebush Association",
-"ANZA129","Larrea tridentata","Larrea tridentata – Atriplex polycarpa","33.010.12",,,,"ANZA","Larrea tridentata","Larrea tridentata – Atriplex polycarpa","Creosote Bush - Allscale Association",
-"ANZA130","Larrea tridentata","Larrea tridentata – Atriplex polycarpa","33.010.12",,,,"ANZA","Larrea tridentata","Larrea tridentata – Atriplex polycarpa","Creosote Bush - Allscale Association",
-"ANZA131","Larrea tridentata","Larrea tridentata / wash","33.010.06",,,,"ANZA","Larrea tridentata","Larrea tridentata / wash","Creosote Bush Wash Association",
-"ANZA132","Larrea tridentata","Larrea tridentata / wash","33.010.06",,,,"ANZA","Larrea tridentata","Larrea tridentata / wash","Creosote Bush Wash Association",
-"ANZA133","Larrea tridentata","Larrea tridentata / wash","33.010.06",,,,"ANZA","Larrea tridentata","Larrea tridentata / wash","Creosote Bush Wash Association",
-"ANZA134","Larrea tridentata","Larrea tridentata / wash","33.010.06",,,,"ANZA","Larrea tridentata","Larrea tridentata / wash","Creosote Bush Wash Association",
-"ANZA135","Larrea tridentata","Larrea tridentata – Krameria grayi – Pleuraphis rigida","33.010.07",,,,"ANZA","Larrea tridentata","Larrea tridentata – Krameria grayi – Pleuraphis rigida","Creosote Bush - White Rattany - Big Galleta Association",
-"ANZA136","Larrea tridentata","Larrea tridentata – Krameria grayi – Pleuraphis rigida","33.010.07",,,,"ANZA","Larrea tridentata","Larrea tridentata – Krameria grayi – Pleuraphis rigida","Creosote Bush - White Rattany - Big Galleta Association",
-"ANZA137","Larrea tridentata","Larrea tridentata – Krameria grayi – Pleuraphis rigida","33.010.07",,,,"ANZA","Larrea tridentata","Larrea tridentata – Krameria grayi – Pleuraphis rigida","Creosote Bush - White Rattany - Big Galleta Association",
-"ANZA138","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA139","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA140","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA141","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA142","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA143","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA144","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA145","Viguiera parishii",,"33.032.00",,"Alliance",,"ANZA","Viguiera parishii",,"Desert Sunflower Series",
-"ANZA146","Viguiera parishii","Viguiera parishii – Agave deserti","33.032.01",,"Association",,"ANZA","Viguiera parishii","Viguiera parishii – Agave deserti","Desert Sunflower - Agave Association",
-"ANZA147","Viguiera parishii","Viguiera parishii – Eriogonum fasciculatum","33.032.02",,"Association",,"ANZA","Viguiera parishii","Viguiera parishii – Eriogonum fasciculatum","Desert Sunflower - California Buckwheat Association",
-"ANZA148","Viguiera parishii","Viguiera parishii – Eriogonum fasciculatum","33.032.02",,"Association",,"ANZA","Viguiera parishii","Viguiera parishii – Eriogonum fasciculatum","Desert Sunflower - California Buckwheat Association",
-"ANZA149","Acacia greggii",,"33.040.00",,,,"ANZA","Acacia greggii",,"Catclaw series",
-"ANZA150","Acacia greggii",,"33.040.00",,,,"ANZA","Acacia greggii",,"Catclaw series",
-"ANZA151","Acacia greggii",,"33.040.00",,,,"ANZA","Acacia greggii",,"Catclaw series",
-"ANZA152","Acacia greggii",,"33.040.00",,,,"ANZA","Acacia greggii",,"Catclaw series",
-"ANZA153","Acacia greggii",,"33.040.00",,,,"ANZA","Acacia greggii",,"Catclaw series",
-"ANZA154","Acacia greggii","Acacia greggii wash (Justicia californica)","33.040.01",,,,"ANZA","Acacia greggii","Acacia greggii - wash","Catclaw Wash Association",
-"ANZA155","Acacia greggii","Acacia greggii wash (Justicia californica)","33.040.01",,,,"ANZA","Acacia greggii","Acacia greggii - wash","Catclaw Wash Association",
-"ANZA156","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA157","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA158","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA159","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA160","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA161","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA162","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","33.040.13",,,,"ANZA","Acacia greggii","Acacia greggii – Eriogonum fasciculatum","Catclaw/California buckwheat association",
-"ANZA163","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA164","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA165","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA166","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA167","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA168","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA169","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA170","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA171","Juniperus californica",,"89.100.00",,,,"ANZA","Juniperus californica",,"California Juniper Series",
-"ANZA172","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA173","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA174","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA175","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA176","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA177","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA178","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA179","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA180","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA181","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA182","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA183","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA184","Juniperus californica","Juniperus californica / Agave deserti","89.100.03",,,,"ANZA","Juniperus californica","Juniperus californica / Agave deserti","California Juniper - Desert Agave association",
-"ANZA185","Juniperus californica","Juniperus californica / Coleogyne ramosissima","89.100.04",,,,"ANZA","Juniperus californica","Juniperus californica / Coleogyne ramosissima","California juniper - Blackbush Association",
-"ANZA186","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA187","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA188","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA189","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA190","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA191","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA192","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA193","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA194","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA195","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA196","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA197","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA198","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA199","Rhus ovata",,"37.801.00",,"Alliance",,"ANZA","Rhus ovata",,"Sugarbush Series",
-"ANZA200","Prosopis glandulosa",,"61.512.00",,"Alliance",,"ANZA","Prosopis glandulosa",,"Mesquite Series",
-"ANZA201","Prosopis glandulosa",,"61.512.00",,"Alliance",,"ANZA","Prosopis glandulosa",,"Mesquite Series",
-"ANZA202","Prosopis glandulosa",,"61.512.00",,"Alliance",,"ANZA","Prosopis glandulosa",,"Mesquite Series",
-"ANZA203","Prosopis glandulosa",,"61.512.00",,"Alliance",,"ANZA","Prosopis glandulosa",,"Mesquite Series",
-"ANZA204","Prosopis glandulosa","Prosopis glandulosa / Bebbia juncea – Petalonyx thurberi (wash)","61.512.05",,"Association",,"ANZA","Prosopis glandulosa","Prosopis glandulosa - wash","Mesquite Wash Association",
-"ANZA205","Washingtonia filifera","Washingtonia filifera – Platanus racemosa / Salix spp","61.520.04",,"Association",,"ANZA","Washingtonia filifera","Washingtonia filifera – Platanus racemosa / Salix spp","Fan Palm - Sycamore Association",
-"ANZA206","Prosopis glandulosa","Prosopis glandulosa / Atriplex spp. (alkaline)","61.512.03",,"Association",,"ANZA","Prosopis glandulosa","Prosopis glandulosa / Atriplex spp. (alkaline)","Mesquite Alkaline Spring Type",
-"ANZA207","Prosopis glandulosa","Prosopis glandulosa / Atriplex spp. (alkaline)","61.512.03",,"Association",,"ANZA","Prosopis glandulosa","Prosopis glandulosa / Atriplex spp. (alkaline)","Mesquite Alkaline Spring Type",
-"ANZA208","Prosopis glandulosa","Prosopis glandulosa – (Salix exigua – Salix lasiolepis)","61.512.09",,"Association",,"ANZA","Prosopis glandulosa","Prosopis glandulosa - Salix spp.","Mesquite - Willow Association",
-"ANZA209","Prosopis glandulosa","Prosopis glandulosa – (Salix exigua – Salix lasiolepis)","61.512.09",,"Association",,"ANZA","Prosopis glandulosa","Prosopis glandulosa - Salix spp.","Mesquite - Willow Association",
-"ANZA210","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA211","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA212","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA213","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA214","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA215","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA216","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA217","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA218","Cercocarpus montanus",,"76.100.00",,,,"ANZA","Cercocarpus spp.",,"Birchleaf Mountain Mahogany Series",
-"ANZA219","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Cercocarpus spp.","Cercocarpus spp. - Quercus berbidifolia","Birchleaf Mountain Mahogany - Scrub Oak Association",
-"ANZA220","Cercocarpus montanus","Cercocarpus montanus – Arctostaphylos glauca","76.100.04",,,,"ANZA","Cercocarpus spp.","Cercocarpus spp. - Arctostaphylos glauca","Mountain Mahogany - Bigberry Manzanita Association",
-"ANZA221","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA222","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA223","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA224","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA225","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA226","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA227","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA228","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA229","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA230","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA231","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA232","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA233","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA234","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA235","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA236","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA237","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA238","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA239","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA240","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA241","Ambrosia dumosa",,"33.060.00",,,,"ANZA","Ambrosia dumosa",,"Burrobush Series",
-"ANZA242","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","33.060.01",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","Burrobush - goldenhead association",
-"ANZA243","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","33.060.01",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","Burrobush - goldenhead association",
-"ANZA244","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","33.060.01",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","Burrobush - goldenhead association",
-"ANZA245","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","33.060.01",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","Burrobush - goldenhead association",
-"ANZA246","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","33.060.01",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa – Acamptopappus sphaerocephalus","Burrobush - goldenhead association",
-"ANZA247","Ambrosia dumosa","Ambrosia dumosa","33.060.02",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa","Burrobush Terrace Association",
-"ANZA248","Ambrosia dumosa","Ambrosia dumosa","33.060.02",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa","Burrobush Terrace Association",
-"ANZA249","Ambrosia dumosa","Ambrosia dumosa","33.060.02",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa","Burrobush Terrace Association",
-"ANZA250","Ambrosia dumosa","Ambrosia dumosa","33.060.02",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa","Burrobush Terrace Association",
-"ANZA251","Ambrosia dumosa","Ambrosia dumosa","33.060.02",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa","Burrobush Terrace Association",
-"ANZA252","Ambrosia dumosa","Ambrosia dumosa","33.060.02",,,,"ANZA","Ambrosia dumosa","Ambrosia dumosa","Burrobush Terrace Association",
-"ANZA253","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA254","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA255","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA256","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA257","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA258","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA259","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA260","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA261","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA262","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA263","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA264","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA265","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA266","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA267","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA268","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA269","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA270","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA271","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA272","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA273","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA274","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA275","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA276","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA277","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA278","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA279","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA280","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA281","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA282","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA283","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA284","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Series",
-"ANZA285","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Succulent Association",
-"ANZA286","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Succulent Association",
-"ANZA287","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Succulent Association",
-"ANZA288","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Succulent Association",
-"ANZA289","Encelia farinosa",,"33.030.00",,,,"ANZA","Encelia farinosa",,"Brittlebush Succulent Association",
-"ANZA290","Encelia farinosa","Encelia farinosa – Peucephyllum schottii","33.030.02",,,,"ANZA","Encelia farinosa","Encelia farinosa – Peucephyllum schottii","Brittlebush - Desert Fir Association",
-"ANZA291","Encelia farinosa","Encelia farinosa – Peucephyllum schottii","33.030.02",,,,"ANZA","Encelia farinosa","Encelia farinosa – Peucephyllum schottii","Brittlebush - Desert Fir Association",
-"ANZA292","Encelia farinosa","Encelia farinosa – Peucephyllum schottii","33.030.02",,,,"ANZA","Encelia farinosa","Encelia farinosa – Peucephyllum schottii","Brittlebush - Desert Fir Association",
-"ANZA293","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA294","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA295","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA296","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA297","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA298","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA299","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA300","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","33.030.03",,,,"ANZA","Encelia farinosa","Encelia farinosa – Eriogonum fasciculatum – Agave deserti","Brittlebush - California Buckwheat - Agave Association",
-"ANZA301","Washingtonia filifera",,"61.520.00",,"Alliance",,"ANZA","Washingtonia filifera",,"Fan Palm Series",
-"ANZA302","Washingtonia filifera",,"61.520.00",,"Alliance",,"ANZA","Washingtonia filifera",,"Fan Palm Series",
-"ANZA303","Washingtonia filifera","Washingtonia filifera / spring (Atriplex – Baccharis – Pluchea)","61.520.03",,"Association",,"ANZA","Washingtonia filifera","Washingtonia filifera / spring (Atriplex – Baccharis – Pluchea)","Fan Palm Spring Type",
-"ANZA304","Washingtonia filifera","Washingtonia filifera / spring (Atriplex – Baccharis – Pluchea)","61.520.03",,"Association",,"ANZA","Washingtonia filifera","Washingtonia filifera / spring (Atriplex – Baccharis – Pluchea)","Fan Palm Spring Type",
-"ANZA305","Washingtonia filifera","Washingtonia filifera – Platanus racemosa / Salix spp","61.520.04",,"Association",,"ANZA","Washingtonia filifera","Washingtonia filifera – Platanus racemosa / Salix spp","Fan Palm - Sycamore Association",
-"ANZA306","Juncus arcticus (var. balticus, mexicanus)",,"45.562.00",,,,"ANZA","Juncus mexicanus",,"Mexican Rush Series",
-"ANZA307","Quercus wislizeni (shrub)",,"37.420.00",,"Alliance",,"ANZA","Quercus wislizeni (shrub)",,"Shrub Interior Live Oak Series",
-"ANZA308","Ericameria teretifolia",,"35.330.00",,,,"ANZA","Ericameria teretifolia",,"Round-leaf Rabbitbrush Series",
-"ANZA309","Ericameria teretifolia",,"35.330.00",,,,"ANZA","Ericameria teretifolia",,"Round-leaf Rabbitbrush Series",
-"ANZA310","Ericameria teretifolia",,"35.330.00",,,,"ANZA","Ericameria teretifolia",,"Round-leaf Rabbitbrush Series",
-"ANZA311","Parkinsonia florida – Olneya tesota","Parkinsonia florida","61.545.05",,"Association",,"ANZA","Olneya tesota - Psorothamnus spinosus - Cercidium floridum",,"Ironwood - Smoketree - Blue Palo Verde Series",
-"ANZA312","Parkinsonia florida – Olneya tesota","Parkinsonia florida","61.545.05",,"Association",,"ANZA","Olneya tesota - Psorothamnus spinosus - Cercidium floridum",,"Ironwood - Smoketree - Blue Palo Verde Series",
-"ANZA313","Parkinsonia florida – Olneya tesota","Parkinsonia florida","61.545.05",,"Association",,"ANZA","Olneya tesota - Psorothamnus spinosus - Cercidium floridum",,"Ironwood - Smoketree - Blue Palo Verde Series",
-"ANZA314","Parkinsonia florida – Olneya tesota","Parkinsonia florida","61.545.05",,"Association",,"ANZA","Olneya tesota - Psorothamnus spinosus - Cercidium floridum",,"Ironwood - Smoketree - Blue Palo Verde Series",
-"ANZA315","Parkinsonia florida – Olneya tesota","Parkinsonia florida","61.545.05",,"Association",,"ANZA","Olneya tesota - Psorothamnus spinosus - Cercidium floridum",,"Ironwood - Smoketree - Blue Palo Verde Series",
-"ANZA316","Atriplex polycarpa",,"36.340.00",,,,"ANZA","Atriplex spp.",,"Mixed Saltbush Series",
-"ANZA317","Atriplex polycarpa",,"36.340.00",,,,"ANZA","Atriplex spp.",,"Mixed Saltbush Series",
-"ANZA318","Baccharis salicifolia",,"63.510.00",,,,"ANZA","Baccharis salicifolia",,"Mulefat Series",
-"ANZA319","Psorothamnus spinosus",,"61.570.00",,"Alliance",,"ANZA","Psorothamnus spinosus",,"Smoketree Series",
-"ANZA320","Psorothamnus spinosus",,"61.570.00",,"Alliance",,"ANZA","Psorothamnus spinosus",,"Smoketree Series",
-"ANZA321","Psorothamnus spinosus",,"61.570.00",,"Alliance",,"ANZA","Psorothamnus spinosus",,"Smoketree Series",
-"ANZA322","Psorothamnus spinosus",,"61.570.00",,"Alliance",,"ANZA","Psorothamnus spinosus",,"Smoketree Series",
-"ANZA323","Psorothamnus spinosus",,"61.570.00",,"Alliance",,"ANZA","Psorothamnus spinosus",,"Smoketree Series",
-"ANZA324","Psorothamnus spinosus",,"61.570.00",,"Alliance",,"ANZA","Psorothamnus spinosus",,"Smoketree Series",
-"ANZA325","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA326","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA327","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA328","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA329","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA330","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA331","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA332","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA333","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA334","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA335","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA336","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA337","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA338","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA339","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA340","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA341","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA342","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA343","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA344","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA345","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA346","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA347","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA348","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA349","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA350","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA351","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA352","Larrea tridentata – Ambrosia dumosa",,"33.140.00",,,,"ANZA","Larrea tridentata – Ambrosia dumosa",,"Creosote Bush - Burrobush Series",
-"ANZA353","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA354","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA355","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA356","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA357","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA358","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA359","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA360","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA361","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","33.140.07",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus schottii","Creosote Bush - Burrobush - Indigo Bush Association",
-"ANZA362","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus emoryi – sandy","33.140.08",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Creosote Bush - Burrobush - Sandy","Creosote Bush - Burrobush - Sandy Association",
-"ANZA363","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Psorothamnus emoryi – sandy","33.140.08",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Creosote Bush - Burrobush - Sandy","Creosote Bush - Burrobush - Sandy Association",
-"ANZA364","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Atriplex hymenelytra","33.140.09",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Atriplex hymenelytra","Creosote Bush - Burrobush - Desert Holly Association",
-"ANZA365","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Galium angustifolium – Lyrocarpa coulteri","33.140.10",,,,"ANZA","Larrea tridentata – Ambrosia dumosa","Larrea tridentata – Ambrosia dumosa – Galium angustifolium – Lyrocarpa coulteri","Creosote Bush - Burrobush - Bedstraw - Lyrocarpa Association",
-"ANZA366","Pinus monophylla – (Juniperus osteosperma)",,"87.040.00",,,,"ANZA","Pinus monophylla",,"Single-leaf Pinyon Pine Series",
-"ANZA367","Pinus monophylla – (Juniperus osteosperma)",,"87.040.00",,,,"ANZA","Pinus monophylla",,"Single-leaf Pinyon Pine Series",
-"ANZA368","Parkinsonia florida – Olneya tesota","Olneya tesota","61.545.01",,"Association",,"ANZA","Olneya tesota",,"Ironwood series",
-"ANZA370","Parkinsonia florida – Olneya tesota","Olneya tesota","61.545.01",,"Association",,"ANZA","Olneya tesota",,"Ironwood series",
-"ANZA371","Parkinsonia florida – Olneya tesota","Olneya tesota","61.545.01",,"Association",,"ANZA","Olneya tesota",,"Ironwood series",
-"ANZA372","Quercus berberidifolia",,"37.407.00",,"Alliance",,"ANZA","Quercus berberidifolia",,"Scrub Oak Series",
-"ANZA373","Adenostoma sparsifolium",,"37.501.00",,,,"ANZA","Adenostoma sparsifolium - Adenostoma fasciculatum",,"Redshank - Chamise Series",
-"ANZA374","Adenostoma sparsifolium",,"37.501.00",,,,"ANZA","Adenostoma sparsifolium - Adenostoma fasciculatum",,"Redshank - Chamise Series",
-"ANZA375","Adenostoma sparsifolium",,"37.501.00",,,,"ANZA","Adenostoma sparsifolium - Adenostoma fasciculatum",,"Redshank - Chamise Series",
-"ANZA376","Adenostoma sparsifolium",,"37.501.00",,,,"ANZA","Adenostoma sparsifolium - Adenostoma fasciculatum",,"Redshank - Chamise Series",
-"ANZA377","Adenostoma sparsifolium",,"37.501.00",,,,"ANZA","Adenostoma sparsifolium",,"Redshank Series",
-"ANZA378","Salix lasiolepis",,"61.201.00",,"Alliance",,"ANZA","Salix lasiolepis",,"Arroyo Willow Series",
-"ANZA379","Salix lasiolepis",,"61.201.00",,"Alliance",,"ANZA","Salix lasiolepis",,"Arroyo Willow Series",
-"ANZA380","Salix lasiolepis",,"61.201.00",,"Alliance",,"ANZA","Salix lasiolepis",,"Arroyo Willow Series",
-"ANZA381","Populus fremontii","Populus fremontii – Prosopis spp.","61.130.19",,"Association",,"ANZA","Populus fremontii","Populus fremontii – Prosopis glandulosa","Fremont Cottonwood - Mesquite Association",
-"ANZA382","Populus fremontii","Populus fremontii – Prosopis spp.","61.130.19",,"Association",,"ANZA","Populus fremontii","Populus fremontii – Prosopis glandulosa","Fremont Cottonwood - Mesquite Association",
-"ANZA383","Populus fremontii","Populus fremontii – Prosopis spp.","61.130.19",,"Association",,"ANZA","Populus fremontii","Populus fremontii – Prosopis glandulosa","Fremont Cottonwood - Mesquite Association",
-"ANZA384","Bromus rubens – Schismus (arabicus, barbatus)","Schismus playa","42.024.03",,,,"ANZA","Schismus barbatus","Schimus playa","Schismus Playa Association",
-"ANZA385","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Quercus spp. (shrub)",,"Mixed Scrub Oak Series",
-"ANZA386","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Quercus spp. (shrub)",,"Mixed Scrub Oak Series",
-"ANZA387","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Quercus spp. (shrub)",,"Mixed Scrub Oak Series",
-"ANZA388","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Quercus spp. (shrub)",,"Mixed Scrub Oak Series",
-"ANZA389","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Quercus spp. (shrub)",,"Mixed Scrub Oak Series",
-"ANZA390","Quercus berberidifolia","Quercus berberidifolia – Cercocarpus montanus","37.407.06",,"Association",,"ANZA","Quercus spp. (shrub)",,"Mixed Scrub Oak Series",
-"ANZA391","Arctostaphylos pringlei ssp. drupacea","Arctostaphylos pringlei ssp. drupacea – Arctostaphylos pungens","37.310.01",,,,"ANZA","Arctostaphylos pungens - Arctostaphylos pringlei",,"Mixed Point-leaf - Pink-bracted Manzanita Series",
-"ANZA392","Arctostaphylos pringlei ssp. Drupacea",,"37.310.00",,,,"ANZA","Arctostaphylos pringlei",,"Pink-bracted Manzanita Series",
-"ANZA393","Arctostaphylos pringlei ssp. Drupacea",,"37.310.00",,,,"ANZA","Arctostaphylos pringlei",,"Pink-bracted Manzanita Series",
-"ANZA394","Arctostaphylos pringlei ssp. Drupacea",,"37.310.00",,,,"ANZA","Arctostaphylos pringlei",,"Pink-bracted Manzanita Series",
-"ANZA395","Arctostaphylos pringlei ssp. Drupacea",,"37.310.00",,,,"ANZA","Arctostaphylos pringlei",,"Pink-bracted Manzanita Series",
-"ANZA396","Arctostaphylos pringlei ssp. Drupacea",,"37.310.00",,,,"ANZA","Arctostaphylos pringlei",,"Pink-bracted Manzanita Series",
-"ANZA397","Arctostaphylos glandulosa",,"37.302.00",,,,"ANZA","Arctostaphylos glandulosa",,"Eastwood Manzanita Series",
-"ANZA398","Arctostaphylos glandulosa","Arctostaphylos glandulosa ssp. adamsii","37.302.02",,,,"ANZA","Arctostaphylos glandulosa","Arctostaphylos glandulosa ssp. Adamsii","Adams Manzanita Association",
-"ANZA399","Arctostaphylos glandulosa","Arctostaphylos glandulosa – Cercocarpus montanus","37.302.03",,,,"ANZA","Arctostaphylos glandulosa","Arctostaphylos glandulosa - Cercocarpus spp.","Eastwood Manzanita - Mountain Mahogany Association",
-"ANZA400","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA401","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA402","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA403","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA404","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA405","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA406","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA407","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA408","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA409","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA410","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA411","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA412","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA413","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA414","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA415","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA416","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA417","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA418","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA419","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA420","Adenostoma fasciculatum",,"37.101.00",,,,"ANZA","Adenostoma fasciculatum",,"Chamise Series",
-"ANZA421","Pinus jeffreyi",,"87.020.00",,"Alliance",,"ANZA","Pinus jeffreyi",,"Jeffrey Pine Series",
-"ANZA422","Pinus jeffreyi","Pinus jeffreyi – Quercus kelloggii","87.020.25",,"Association",,"ANZA","Pinus jeffreyi","Pinus jeffreyi – Quercus kelloggii","Jeffrey Pine - Black Oak Association",
-"ANZA423","Pinus jeffreyi","Pinus jeffreyi – Quercus kelloggii","87.020.25",,"Association",,"ANZA","Pinus jeffreyi","Pinus jeffreyi – Quercus kelloggii","Jeffrey Pine - Black Oak Association",
-"ANZA424","Quercus chrysolepis (tree)",,"71.050.00",,"Alliance",,"ANZA","Quercus chrysolepis (tree)",,"Canyon Live Oak Series",
-"ANZA425","Quercus chrysolepis (tree)",,"71.050.00",,"Alliance",,"ANZA","Quercus chrysolepis (tree)",,"Canyon Live Oak Series",
-"ANZA426","Quercus chrysolepis (tree)",,"71.050.00",,"Alliance",,"ANZA","Quercus chrysolepis (tree)",,"Canyon Live Oak Series",
-"ANZA427","Tamarix spp.",,"63.810.00",,"Semi-natural Alliance",,"ANZA","Tamarix spp.",,"Tamarisk Series",
-"ANZA428","Tamarix spp.",,"63.810.00",,"Semi-natural Alliance",,"ANZA","Tamarix spp.",,"Tamarisk Series",
-"ANZA429","Salix exigua",,"61.209.00",,"Alliance",,"ANZA","Salix exigua",,"Narrow-leaf Willow Series",
-"ANZA430",,,,"North American warm desert bedrock cliff and outcrop"," Group",,"ANZA",,,"Mud Hills Annual Forbs",
-"ANZA431",,,,"North American warm desert bedrock cliff and outcrop"," Group",,"ANZA",,,"Sparsely vegetation Gypsum Association",
-"ANZA432","Pinus coulteri","Pinus coulteri – Quercus chrysolepis","87.090.04",,"Association",,"ANZA","Pinus coulteri - Quercus chrysolepis",,"Coulter Pine - Canyon Live Oak Series",
-"ANZA433","Pinus quadrifolia",,"87.030.00",,"Alliance",,"ANZA","Pinus quadrifolia",,"Parry Pinyon Pine Series",
-"ANZA434","Chilopsis linearis",,"61.550.00",,,,"ANZA","Chilopsis linearis",,"Desert Willow Series",
-"ANZA435","Chilopsis linearis",,"61.550.00",,,,"ANZA","Chilopsis linearis",,"Desert Willow Series",
-"ANZA436","Chilopsis linearis",,"61.550.00",,,,"ANZA","Chilopsis linearis",,"Desert Willow Series",
-"ANZA437","Chilopsis linearis",,"61.550.00",,,,"ANZA","Chilopsis linearis",,"Desert Willow Series",
-"ANZA438","Chilopsis linearis",,"61.550.00",,,,"ANZA","Chilopsis linearis",,"Desert Willow Series",
-"ANZA439","Pleuraphis rigida",,"41.030.00",,"Alliance",,"ANZA","Pleuraphis rigida",,"Big Galleta Series",
-"ANZA440","Pleuraphis rigida",,"41.030.00",,"Alliance",,"ANZA","Pleuraphis rigida",,"Big Galleta Series",
-"ANZA441","Quercus agrifolia",,"71.060.00",,"Alliance",,"ANZA","Quercus agrifolia",,"Coast Live Oak Series",
-"ANZA442","Quercus agrifolia","Quercus agrifolia / Eriogonum wrightii","71.060.22",,"Provisional Association",,"ANZA","Quercus agrifolia","Quercus agrifolia / Eriogonum wrightii","Coast Live Oak / Wright's Buckwheat Association",
-"ANZA443","Quercus agrifolia","Quercus agrifolia / Eriogonum wrightii","71.060.22",,"Provisional Association",,"ANZA","Quercus agrifolia","Quercus agrifolia / Eriogonum wrightii","Coast Live Oak / Wright's Buckwheat Association",
-"ANZA444","Quercus agrifolia","Quercus agrifolia – Pinus coulteri","71.060.23",,"Association",,"ANZA","Quercus agrifolia","Quercus agrifolia – Pinus coulteri","Coast Live Oak - Coulter Pine Association",
-"ANZA445","Bromus rubens – Schismus (arabicus, barbatus)",,"42.024.00",,,,"ANZA","Bromus rubens",,"Red Brome Series",
-"ANZA446","Bromus rubens – Schismus (arabicus, barbatus)",,"42.024.00",,,,"ANZA","Bromus rubens",,"Red Brome Series",
-"ANZA447","Atriplex polycarpa",,"36.340.00",,,,"ANZA","Atriplex polycarpa",,"Allscale Series",
-"ANZA448","Atriplex polycarpa",,"36.340.00",,,,"ANZA","Atriplex polycarpa",,"Allscale Series",
-"ANZA449","Atriplex polycarpa",,"36.340.00",,,,"ANZA","Atriplex polycarpa",,"Allscale Series",
-"ANZA450","Atriplex polycarpa",,"36.340.00",,,,"ANZA","Atriplex polycarpa",,"Allscale Series",
-"ANZA452","Suaeda moquinii",,"36.200.00",,"Alliance",,"ANZA","Suaeda moquinii",,"Bush Seepweed Series",
-"ANZA453","Suaeda moquinii",,"36.200.00",,"Alliance",,"ANZA","Suaeda moquinii",,"Bush Seepweed Series",
-"ANZA454","Ceanothus greggii","Ceanothus greggii – Adenostoma fasciculatum","37.212.03",,,,"ANZA","Adenostoma fasciculatum - Ceanothus greggii",,"Chamise - Cupleaf ceanothus series",
-"ANZA455","Ceanothus greggii","Ceanothus greggii – Adenostoma fasciculatum","37.212.03",,,,"ANZA","Adenostoma fasciculatum - Ceanothus greggii",,"Chamise - Cupleaf ceanothus series",
-"ANZA456","Arctostaphylos glandulosa","Arctostaphylos glandulosa – Adenostoma fasciculatum","37.106.13",,,,"ANZA","Adenostoma fasciculatum - Arctostaphylos glandulosa",,"Chamise - Eastwood Manzanita series",
-"ANZA457","Arctostaphylos glandulosa","Arctostaphylos glandulosa – Adenostoma fasciculatum","37.106.13",,,,"ANZA","Adenostoma fasciculatum - Arctostaphylos glandulosa",,"Chamise - Eastwood Manzanita series",
-"ANZA458","Arctostaphylos glandulosa","Arctostaphylos glandulosa – Adenostoma fasciculatum","37.106.13",,,,"ANZA","Adenostoma fasciculatum - Arctostaphylos glandulosa",,"Chamise - Eastwood Manzanita series",
-"ANZA459","Ceanothus greggii","Ceanothus greggii","37.212.01",,,,"ANZA","Cupleaf - Fremontia - Oak Series","Ceanothus greggii","Cupleaf Ceanothus Association",
-"ANZA460","Allenrolfea occidentalis",,"36.120.00",,,,"ANZA","Allenrolfea occidentalis",,"Iodine Bush Series",
-"ANZA461","Allenrolfea occidentalis",,"36.120.00",,,,"ANZA","Allenrolfea occidentalis",,"Iodine Bush Series",
-"ANZA462","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA463","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Cercocarpus montanus","37.415.03",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri - Cercocarpus spp.","Muller Oak - Birchleaf Mountain Mahogany Association",
-"ANZA464","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA465","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA466","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Cercocarpus montanus","37.415.03",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri - Cercocarpus spp.","Muller Oak - Birchleaf Mountain Mahogany Association",
-"ANZA467","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Cercocarpus montanus","37.415.03",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri - Cercocarpus spp.","Muller Oak - Birchleaf Mountain Mahogany Association",
-"ANZA468","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA469","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA470","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA471","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA472","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA473","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA474","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA475","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA476","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA477","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA478","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA479","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA480","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA481","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA482","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA483","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","37.415.01",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Rhus ovata","Muller Oak - Sugarbush Association",
-"ANZA484","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA485","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA486","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA487","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA488","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA489","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA490","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA491","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA492","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA493","Quercus cornelius-mulleri",,"37.415.00",,"Alliance",,"ANZA","Quercus cornelius-mulleri",,"Muller Oak Series",
-"ANZA494","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA495","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA496","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","37.415.02",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Eriogonum fasciculatum – Ericameria linearifolia","Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association",
-"ANZA497","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Cercocarpus montanus","37.415.03",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri - Cercocarpus spp.","Muller Oak - Birchleaf Mountain Mahogany Association",
-"ANZA498","Quercus cornelius-mulleri","Quercus cornelius-mulleri – Cercocarpus montanus","37.415.03",,"Association",,"ANZA","Quercus cornelius-mulleri","Quercus cornelius-mulleri - Cercocarpus spp.","Muller Oak - Birchleaf Mountain Mahogany Association",
-"ANZA954","Cylindropuntia bigelovii",,"33.050.00",,,,"ANZA","Cylindropuntia bigelovii",,"Teddybear Cholla Series",
+SurveyID,Alliance,Association,CaCode,MCVAboveAlliance,ClassificationLevel,ClassificationMethod,ProjectCode,ReportAlliance,ReportAssociation,ReportOtherName,AnalysisID
+ANZA001,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA002,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA003,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA004,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA005,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA006,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA007,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA008,Prunus fremontii,NA,33.220.00,NA,Alliance,NA,ANZA,Prunus fremontii,NA,Desert Apricot Series,NA
+ANZA009,Lotus scoparius,NA,52.240.00,NA,NA,NA,ANZA,Lotus scoparius,NA,Deerweed Series,NA
+ANZA010,Lotus scoparius,NA,52.240.00,NA,NA,NA,ANZA,Lotus scoparius,NA,Deerweed Series,NA
+ANZA011,Lotus scoparius,NA,52.240.00,NA,NA,NA,ANZA,Lotus scoparius,NA,Deerweed Series,NA
+ANZA012,Lotus scoparius,NA,52.240.00,NA,NA,NA,ANZA,Lotus scoparius,NA,Deerweed Series,NA
+ANZA013,Lotus scoparius,NA,52.240.00,NA,NA,NA,ANZA,Lotus scoparius,NA,Deerweed Series,NA
+ANZA014,Artemisia tridentata,NA,35.110.00,NA,NA,NA,ANZA,Artemisia tridentata,NA,Big Sagebrush Series,NA
+ANZA015,Artemisia tridentata,NA,35.110.00,NA,NA,NA,ANZA,Artemisia tridentata,NA,Big Sagebrush Series,NA
+ANZA016,Artemisia tridentata,NA,35.110.00,NA,NA,NA,ANZA,Artemisia tridentata,NA,Big Sagebrush Series,NA
+ANZA017,Artemisia tridentata,NA,35.110.00,NA,NA,NA,ANZA,Artemisia tridentata,NA,Big Sagebrush Series,NA
+ANZA018,Artemisia tridentata,NA,35.110.00,NA,NA,NA,ANZA,Artemisia tridentata,NA,Big Sagebrush Series,NA
+ANZA019,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA020,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA021,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA022,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA023,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA024,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA025,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA026,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA027,Ambrosia salsola,NA,33.200.00,NA,NA,NA,ANZA,Ambrosia salsola,NA,Cheesebush Series,NA
+ANZA028,Ambrosia salsola,Ambrosia salsola â€“ Eriogonum fasciculatum,33.200.02,NA,NA,NA,ANZA,Ambrosia salsola,Ambrosia salsola â€“ Eriogonum fasciculatum,Cheesebush - California Buckwheat Association,NA
+ANZA029,Ambrosia salsola,Ambrosia salsola â€“ Eriogonum fasciculatum,33.200.02,NA,NA,NA,ANZA,Ambrosia salsola,Ambrosia salsola â€“ Eriogonum fasciculatum,Cheesebush - California Buckwheat Association,NA
+ANZA030,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Larrea tridentata - Yucca schidigera,NA,Creosote Bush - Mojave Yucca Series,NA
+ANZA031,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Larrea tridentata - Yucca schidigera,NA,Creosote Bush - Mojave Yucca Series,NA
+ANZA032,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Larrea tridentata - Yucca schidigera,NA,Creosote Bush - Mojave Yucca Series,NA
+ANZA033,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Larrea tridentata - Yucca schidigera,NA,Creosote Bush - Mojave Yucca Series,NA
+ANZA034,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Larrea tridentata - Yucca schidigera,NA,Creosote Bush - Mojave Yucca Series,NA
+ANZA035,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Larrea tridentata - Yucca schidigera,NA,Creosote Bush - Mojave Yucca Series,NA
+ANZA036,Yucca schidigera,Yucca schidigera â€“ Larrea tridentata â€“ Ephedra nevadensis,33.070.06,NA,Association,NA,ANZA,Larrea tridentata - Yucca schidigera,Larrea tridentata - Yucca schidigera - Ephedra nevadensis / Pleuraphis rigida,Creosote Bush - Mojave Yucca - Nevada Ephedra / Big Galleta Association,NA
+ANZA037,Yucca schidigera,Yucca schidigera â€“ Larrea tridentata â€“ Ephedra nevadensis,33.070.06,NA,Association,NA,ANZA,Larrea tridentata - Yucca schidigera,Larrea tridentata - Yucca schidigera - Ephedra nevadensis / Pleuraphis rigida,Creosote Bush - Mojave Yucca - Nevada Ephedra / Big Galleta Association,NA
+ANZA038,Yucca schidigera,Yucca schidigera â€“ Larrea tridentata â€“ Ambrosia dumosa,33.070.05,NA,Association,NA,ANZA,Larrea tridentata - Yucca schidigera,Larrea tridentata - Yucca schidigera - Ambrosia dumosa,Creosote Bush - Mojave Yucca - Burrobush Association,NA
+ANZA039,Yucca schidigera,Yucca schidigera â€“ Larrea tridentata â€“ Ambrosia dumosa,33.070.05,NA,Association,NA,ANZA,Larrea tridentata - Yucca schidigera,Larrea tridentata - Yucca schidigera - Ambrosia dumosa,Creosote Bush - Mojave Yucca - Burrobush Association,NA
+ANZA040,Yucca schidigera,Yucca schidigera â€“ Larrea tridentata â€“ Agave deserti,33.070.11,NA,Association,NA,ANZA,Larrea tridentata - Yucca schidigera,Larrea tridentata - Yucca schidigera - Agave deserti,Creosote Bush - Mojave Yucca - Desert Agave Association,NA
+ANZA041,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fagonia laevis,33.140.41,NA,NA,NA,ANZA,Fagonia laevis,NA,Fagonia Series,NA
+ANZA042,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fagonia laevis,33.140.41,NA,NA,NA,ANZA,Fagonia laevis,NA,Fagonia Series,NA
+ANZA043,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fagonia laevis,33.140.41,NA,NA,NA,ANZA,Fagonia laevis,NA,Fagonia Series,NA
+ANZA044,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fagonia laevis,33.140.41,NA,NA,NA,ANZA,Fagonia laevis,NA,Fagonia Series,NA
+ANZA045,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fagonia laevis,33.140.41,NA,NA,NA,ANZA,Fagonia laevis,NA,Fagonia Series,NA
+ANZA046,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA047,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA048,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA049,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA050,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA051,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA052,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA053,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
+ANZA055,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Yucca schidigera,NA,Mojave Yucca Series,NA
+ANZA056,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Yucca schidigera,NA,Mojave Yucca Series,NA
+ANZA057,Yucca schidigera,NA,33.070.00,NA,Alliance,NA,ANZA,Yucca schidigera,NA,Mojave Yucca Series,NA
+ANZA058,Agave deserti,NA,33.075.00,NA,NA,NA,ANZA,Agave deserti,NA,Desert Agave Series,NA
+ANZA059,Agave deserti,NA,33.075.00,NA,NA,NA,ANZA,Agave deserti,NA,Desert Agave Series,NA
+ANZA060,Agave deserti,NA,33.075.00,NA,NA,NA,ANZA,Agave deserti,NA,Desert Agave Series,NA
+ANZA061,Agave deserti,NA,33.075.00,NA,NA,NA,ANZA,Agave deserti,NA,Desert Agave Series,NA
+ANZA062,Agave deserti,Agave deserti â€“ Ambrosia salsola (wash and terrace),33.075.01,NA,NA,NA,ANZA,Agave deserti,Agave deserti - wash and terrace,Agave Wash and Terrace Association,NA
+ANZA063,Agave deserti,Agave deserti â€“ Ambrosia salsola (wash and terrace),33.075.01,NA,NA,NA,ANZA,Agave deserti,Agave deserti - wash and terrace,Agave Wash and Terrace Association,NA
+ANZA064,Agave deserti,Agave deserti â€“ Ambrosia salsola (wash and terrace),33.075.01,NA,NA,NA,ANZA,Agave deserti,Agave deserti - wash and terrace,Agave Wash and Terrace Association,NA
+ANZA065,Agave deserti,Agave deserti â€“ Ambrosia salsola (wash and terrace),33.075.01,NA,NA,NA,ANZA,Agave deserti,Agave deserti - wash and terrace,Agave Wash and Terrace Association,NA
+ANZA066,Agave deserti,Agave deserti â€“ Yucca schidigera,33.075.02,NA,NA,NA,ANZA,Agave deserti,Agave deserti â€“ Yucca schidigera,Desert Agave - Mojave Yucca Association,NA
+ANZA067,Agave deserti,Agave deserti â€“ Yucca schidigera,33.075.02,NA,NA,NA,ANZA,Agave deserti,Agave deserti â€“ Yucca schidigera,Desert Agave - Mojave Yucca Association,NA
+ANZA068,Agave deserti,Agave deserti â€“ Yucca schidigera,33.075.02,NA,NA,NA,ANZA,Agave deserti,Agave deserti â€“ Yucca schidigera,Desert Agave - Mojave Yucca Association,NA
+ANZA069,Agave deserti,Agave deserti â€“ Yucca schidigera,33.075.02,NA,NA,NA,ANZA,Agave deserti,Agave deserti â€“ Yucca schidigera,Desert Agave - Mojave Yucca Association,NA
+ANZA070,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA071,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA072,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA073,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA074,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA075,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA076,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA077,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA078,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA079,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA080,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA081,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Fouquieria splendens,33.140.44,NA,NA,NA,ANZA,Fouquieria splendens,NA,Ocotillo Series,NA
+ANZA082,Hyptis emoryi,NA,33.190.00,NA,NA,NA,ANZA,Hyptis emoryi,NA,Desert Lavender Series,NA
+ANZA083,Hyptis emoryi,NA,33.190.00,NA,NA,NA,ANZA,Hyptis emoryi,NA,Desert Lavender Series,NA
+ANZA084,Hyptis emoryi,NA,33.190.00,NA,NA,NA,ANZA,Hyptis emoryi,NA,Desert Lavender Series,NA
+ANZA085,Hyptis emoryi,NA,33.190.00,NA,NA,NA,ANZA,Hyptis emoryi,NA,Desert Lavender Series,NA
+ANZA086,Hyptis emoryi,NA,33.190.00,NA,NA,NA,ANZA,Hyptis emoryi,NA,Desert Lavender Series,NA
+ANZA087,Coleogyne ramosissima,Coleogyne ramosissima,33.020.01,NA,NA,NA,ANZA,Coleogyne ramosissima,Coleogyne ramosissima,Sonoran blackbush association,NA
+ANZA088,Coleogyne ramosissima,Coleogyne ramosissima,33.020.01,NA,NA,NA,ANZA,Coleogyne ramosissima,Coleogyne ramosissima,Sonoran blackbush association,NA
+ANZA089,Coleogyne ramosissima,Coleogyne ramosissima,33.020.01,NA,NA,NA,ANZA,Coleogyne ramosissima,Coleogyne ramosissima,Sonoran blackbush association,NA
+ANZA090,Coleogyne ramosissima,Coleogyne ramosissima,33.020.01,NA,NA,NA,ANZA,Coleogyne ramosissima,Coleogyne ramosissima,Sonoran blackbush association,NA
+ANZA091,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus emoryi â€“ sandy,33.140.08,NA,NA,NA,ANZA,NA,NA,unclassified,NA
+ANZA092,Eriogonum fasciculatum,NA,32.040.00,NA,NA,NA,ANZA,Eriogonum fasciculatum,NA,California Buckwheat Series,NA
+ANZA093,Eriogonum fasciculatum,NA,32.040.00,NA,NA,NA,ANZA,Eriogonum fasciculatum,NA,California Buckwheat Series,NA
+ANZA094,Eriogonum fasciculatum,NA,32.040.00,NA,NA,NA,ANZA,Eriogonum fasciculatum,NA,California Buckwheat Series,NA
+ANZA095,Eriogonum fasciculatum,NA,32.040.00,NA,NA,NA,ANZA,Eriogonum fasciculatum,NA,California Buckwheat Series,NA
+ANZA096,Eriogonum fasciculatum,NA,32.040.00,NA,NA,NA,ANZA,Eriogonum fasciculatum,NA,California Buckwheat Series,NA
+ANZA097,Eriogonum fasciculatum,Eriogonum fasciculatum â€“ Ambrosia dumosa,32.040.05,NA,NA,NA,ANZA,Eriogonum fasciculatum,Eriogonum fasciculatum â€“ Ambrosia dumosa,California Buckwheat - Burrobush Association,NA
+ANZA098,Eriogonum wrightii,NA,32.041.00,NA,NA,NA,ANZA,Eriogonum wrightii,NA,Wright's Buckwheat Series,NA
+ANZA099,Eriogonum wrightii,NA,32.041.00,NA,NA,NA,ANZA,Eriogonum wrightii,NA,Wright's Buckwheat Series,NA
+ANZA100,Eriogonum fasciculatum â€“ Salvia apiana,NA,32.100.00,NA,NA,NA,ANZA,Eriogonum fasciculatum â€“ Salvia apiana,NA,California Buckwheat - White Sage Series,NA
+ANZA101,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA102,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA103,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA104,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA105,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA106,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA107,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA108,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA109,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA110,Larrea tridentata,NA,33.010.00,NA,NA,NA,ANZA,Larrea tridentata,NA,Creosote Bush Series,NA
+ANZA111,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA112,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA113,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA114,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA115,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA116,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA117,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA118,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA119,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA120,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA121,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA122,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA123,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA124,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA125,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA126,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA127,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA128,Larrea tridentata â€“ Encelia farinosa,Larrea tridentata â€“ Encelia farinosa,33.027.05,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Encelia farinosa,Creosote Bush - Brittlebush Association,NA
+ANZA129,Larrea tridentata,Larrea tridentata â€“ Atriplex polycarpa,33.010.12,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Atriplex polycarpa,Creosote Bush - Allscale Association,NA
+ANZA130,Larrea tridentata,Larrea tridentata â€“ Atriplex polycarpa,33.010.12,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Atriplex polycarpa,Creosote Bush - Allscale Association,NA
+ANZA131,Larrea tridentata,Larrea tridentata / wash,33.010.06,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata / wash,Creosote Bush Wash Association,NA
+ANZA132,Larrea tridentata,Larrea tridentata / wash,33.010.06,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata / wash,Creosote Bush Wash Association,NA
+ANZA133,Larrea tridentata,Larrea tridentata / wash,33.010.06,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata / wash,Creosote Bush Wash Association,NA
+ANZA134,Larrea tridentata,Larrea tridentata / wash,33.010.06,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata / wash,Creosote Bush Wash Association,NA
+ANZA135,Larrea tridentata,Larrea tridentata â€“ Krameria grayi â€“ Pleuraphis rigida,33.010.07,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Krameria grayi â€“ Pleuraphis rigida,Creosote Bush - White Rattany - Big Galleta Association,NA
+ANZA136,Larrea tridentata,Larrea tridentata â€“ Krameria grayi â€“ Pleuraphis rigida,33.010.07,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Krameria grayi â€“ Pleuraphis rigida,Creosote Bush - White Rattany - Big Galleta Association,NA
+ANZA137,Larrea tridentata,Larrea tridentata â€“ Krameria grayi â€“ Pleuraphis rigida,33.010.07,NA,NA,NA,ANZA,Larrea tridentata,Larrea tridentata â€“ Krameria grayi â€“ Pleuraphis rigida,Creosote Bush - White Rattany - Big Galleta Association,NA
+ANZA138,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA139,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA140,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA141,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA142,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA143,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA144,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA145,Viguiera parishii,NA,33.032.00,NA,Alliance,NA,ANZA,Viguiera parishii,NA,Desert Sunflower Series,NA
+ANZA146,Viguiera parishii,Viguiera parishii â€“ Agave deserti,33.032.01,NA,Association,NA,ANZA,Viguiera parishii,Viguiera parishii â€“ Agave deserti,Desert Sunflower - Agave Association,NA
+ANZA147,Viguiera parishii,Viguiera parishii â€“ Eriogonum fasciculatum,33.032.02,NA,Association,NA,ANZA,Viguiera parishii,Viguiera parishii â€“ Eriogonum fasciculatum,Desert Sunflower - California Buckwheat Association,NA
+ANZA148,Viguiera parishii,Viguiera parishii â€“ Eriogonum fasciculatum,33.032.02,NA,Association,NA,ANZA,Viguiera parishii,Viguiera parishii â€“ Eriogonum fasciculatum,Desert Sunflower - California Buckwheat Association,NA
+ANZA149,Acacia greggii,NA,33.040.00,NA,NA,NA,ANZA,Acacia greggii,NA,Catclaw series,NA
+ANZA150,Acacia greggii,NA,33.040.00,NA,NA,NA,ANZA,Acacia greggii,NA,Catclaw series,NA
+ANZA151,Acacia greggii,NA,33.040.00,NA,NA,NA,ANZA,Acacia greggii,NA,Catclaw series,NA
+ANZA152,Acacia greggii,NA,33.040.00,NA,NA,NA,ANZA,Acacia greggii,NA,Catclaw series,NA
+ANZA153,Acacia greggii,NA,33.040.00,NA,NA,NA,ANZA,Acacia greggii,NA,Catclaw series,NA
+ANZA154,Acacia greggii,Acacia greggii wash (Justicia californica),33.040.01,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii - wash,Catclaw Wash Association,NA
+ANZA155,Acacia greggii,Acacia greggii wash (Justicia californica),33.040.01,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii - wash,Catclaw Wash Association,NA
+ANZA156,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA157,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA158,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA159,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA160,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA161,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA162,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,33.040.13,NA,NA,NA,ANZA,Acacia greggii,Acacia greggii â€“ Eriogonum fasciculatum,Catclaw/California buckwheat association,NA
+ANZA163,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA164,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA165,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA166,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA167,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA168,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA169,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA170,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA171,Juniperus californica,NA,89.100.00,NA,NA,NA,ANZA,Juniperus californica,NA,California Juniper Series,NA
+ANZA172,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA173,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA174,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA175,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA176,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA177,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA178,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA179,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA180,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA181,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA182,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA183,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA184,Juniperus californica,Juniperus californica / Agave deserti,89.100.03,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Agave deserti,California Juniper - Desert Agave association,NA
+ANZA185,Juniperus californica,Juniperus californica / Coleogyne ramosissima,89.100.04,NA,NA,NA,ANZA,Juniperus californica,Juniperus californica / Coleogyne ramosissima,California juniper - Blackbush Association,NA
+ANZA186,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA187,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA188,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA189,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA190,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA191,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA192,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA193,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA194,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA195,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA196,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA197,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA198,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA199,Rhus ovata,NA,37.801.00,NA,Alliance,NA,ANZA,Rhus ovata,NA,Sugarbush Series,NA
+ANZA200,Prosopis glandulosa,NA,61.512.00,NA,Alliance,NA,ANZA,Prosopis glandulosa,NA,Mesquite Series,NA
+ANZA201,Prosopis glandulosa,NA,61.512.00,NA,Alliance,NA,ANZA,Prosopis glandulosa,NA,Mesquite Series,NA
+ANZA202,Prosopis glandulosa,NA,61.512.00,NA,Alliance,NA,ANZA,Prosopis glandulosa,NA,Mesquite Series,NA
+ANZA203,Prosopis glandulosa,NA,61.512.00,NA,Alliance,NA,ANZA,Prosopis glandulosa,NA,Mesquite Series,NA
+ANZA204,Prosopis glandulosa,Prosopis glandulosa / Bebbia juncea â€“ Petalonyx thurberi (wash),61.512.05,NA,Association,NA,ANZA,Prosopis glandulosa,Prosopis glandulosa - wash,Mesquite Wash Association,NA
+ANZA205,Washingtonia filifera,Washingtonia filifera â€“ Platanus racemosa / Salix spp,61.520.04,NA,Association,NA,ANZA,Washingtonia filifera,Washingtonia filifera â€“ Platanus racemosa / Salix spp,Fan Palm - Sycamore Association,NA
+ANZA206,Prosopis glandulosa,Prosopis glandulosa / Atriplex spp. (alkaline),61.512.03,NA,Association,NA,ANZA,Prosopis glandulosa,Prosopis glandulosa / Atriplex spp. (alkaline),Mesquite Alkaline Spring Type,NA
+ANZA207,Prosopis glandulosa,Prosopis glandulosa / Atriplex spp. (alkaline),61.512.03,NA,Association,NA,ANZA,Prosopis glandulosa,Prosopis glandulosa / Atriplex spp. (alkaline),Mesquite Alkaline Spring Type,NA
+ANZA208,Prosopis glandulosa,Prosopis glandulosa â€“ (Salix exigua â€“ Salix lasiolepis),61.512.09,NA,Association,NA,ANZA,Prosopis glandulosa,Prosopis glandulosa - Salix spp.,Mesquite - Willow Association,NA
+ANZA209,Prosopis glandulosa,Prosopis glandulosa â€“ (Salix exigua â€“ Salix lasiolepis),61.512.09,NA,Association,NA,ANZA,Prosopis glandulosa,Prosopis glandulosa - Salix spp.,Mesquite - Willow Association,NA
+ANZA210,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA211,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA212,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA213,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA214,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA215,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA216,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA217,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA218,Cercocarpus montanus,NA,76.100.00,NA,NA,NA,ANZA,Cercocarpus spp.,NA,Birchleaf Mountain Mahogany Series,NA
+ANZA219,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Cercocarpus spp.,Cercocarpus spp. - Quercus berbidifolia,Birchleaf Mountain Mahogany - Scrub Oak Association,NA
+ANZA220,Cercocarpus montanus,Cercocarpus montanus â€“ Arctostaphylos glauca,76.100.04,NA,NA,NA,ANZA,Cercocarpus spp.,Cercocarpus spp. - Arctostaphylos glauca,Mountain Mahogany - Bigberry Manzanita Association,NA
+ANZA221,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA222,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA223,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA224,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA225,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA226,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA227,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA228,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA229,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA230,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA231,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA232,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA233,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA234,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA235,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA236,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA237,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA238,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA239,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA240,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA241,Ambrosia dumosa,NA,33.060.00,NA,NA,NA,ANZA,Ambrosia dumosa,NA,Burrobush Series,NA
+ANZA242,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,33.060.01,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,Burrobush - goldenhead association,NA
+ANZA243,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,33.060.01,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,Burrobush - goldenhead association,NA
+ANZA244,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,33.060.01,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,Burrobush - goldenhead association,NA
+ANZA245,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,33.060.01,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,Burrobush - goldenhead association,NA
+ANZA246,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,33.060.01,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa â€“ Acamptopappus sphaerocephalus,Burrobush - goldenhead association,NA
+ANZA247,Ambrosia dumosa,Ambrosia dumosa,33.060.02,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa,Burrobush Terrace Association,NA
+ANZA248,Ambrosia dumosa,Ambrosia dumosa,33.060.02,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa,Burrobush Terrace Association,NA
+ANZA249,Ambrosia dumosa,Ambrosia dumosa,33.060.02,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa,Burrobush Terrace Association,NA
+ANZA250,Ambrosia dumosa,Ambrosia dumosa,33.060.02,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa,Burrobush Terrace Association,NA
+ANZA251,Ambrosia dumosa,Ambrosia dumosa,33.060.02,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa,Burrobush Terrace Association,NA
+ANZA252,Ambrosia dumosa,Ambrosia dumosa,33.060.02,NA,NA,NA,ANZA,Ambrosia dumosa,Ambrosia dumosa,Burrobush Terrace Association,NA
+ANZA253,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA254,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA255,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA256,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA257,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA258,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA259,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA260,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA261,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA262,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA263,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA264,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA265,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA266,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA267,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA268,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA269,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA270,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA271,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA272,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA273,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA274,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA275,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA276,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA277,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA278,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA279,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA280,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA281,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA282,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA283,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA284,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Series,NA
+ANZA285,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Succulent Association,NA
+ANZA286,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Succulent Association,NA
+ANZA287,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Succulent Association,NA
+ANZA288,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Succulent Association,NA
+ANZA289,Encelia farinosa,NA,33.030.00,NA,NA,NA,ANZA,Encelia farinosa,NA,Brittlebush Succulent Association,NA
+ANZA290,Encelia farinosa,Encelia farinosa â€“ Peucephyllum schottii,33.030.02,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Peucephyllum schottii,Brittlebush - Desert Fir Association,NA
+ANZA291,Encelia farinosa,Encelia farinosa â€“ Peucephyllum schottii,33.030.02,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Peucephyllum schottii,Brittlebush - Desert Fir Association,NA
+ANZA292,Encelia farinosa,Encelia farinosa â€“ Peucephyllum schottii,33.030.02,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Peucephyllum schottii,Brittlebush - Desert Fir Association,NA
+ANZA293,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA294,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA295,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA296,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA297,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA298,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA299,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA300,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,33.030.03,NA,NA,NA,ANZA,Encelia farinosa,Encelia farinosa â€“ Eriogonum fasciculatum â€“ Agave deserti,Brittlebush - California Buckwheat - Agave Association,NA
+ANZA301,Washingtonia filifera,NA,61.520.00,NA,Alliance,NA,ANZA,Washingtonia filifera,NA,Fan Palm Series,NA
+ANZA302,Washingtonia filifera,NA,61.520.00,NA,Alliance,NA,ANZA,Washingtonia filifera,NA,Fan Palm Series,NA
+ANZA303,Washingtonia filifera,Washingtonia filifera / spring (Atriplex â€“ Baccharis â€“ Pluchea),61.520.03,NA,Association,NA,ANZA,Washingtonia filifera,Washingtonia filifera / spring (Atriplex â€“ Baccharis â€“ Pluchea),Fan Palm Spring Type,NA
+ANZA304,Washingtonia filifera,Washingtonia filifera / spring (Atriplex â€“ Baccharis â€“ Pluchea),61.520.03,NA,Association,NA,ANZA,Washingtonia filifera,Washingtonia filifera / spring (Atriplex â€“ Baccharis â€“ Pluchea),Fan Palm Spring Type,NA
+ANZA305,Washingtonia filifera,Washingtonia filifera â€“ Platanus racemosa / Salix spp,61.520.04,NA,Association,NA,ANZA,Washingtonia filifera,Washingtonia filifera â€“ Platanus racemosa / Salix spp,Fan Palm - Sycamore Association,NA
+ANZA306,"Juncus arcticus (var. balticus, mexicanus)",NA,45.562.00,NA,NA,NA,ANZA,Juncus mexicanus,NA,Mexican Rush Series,NA
+ANZA307,Quercus wislizeni (shrub),NA,37.420.00,NA,Alliance,NA,ANZA,Quercus wislizeni (shrub),NA,Shrub Interior Live Oak Series,NA
+ANZA308,Ericameria teretifolia,NA,35.330.00,NA,NA,NA,ANZA,Ericameria teretifolia,NA,Round-leaf Rabbitbrush Series,NA
+ANZA309,Ericameria teretifolia,NA,35.330.00,NA,NA,NA,ANZA,Ericameria teretifolia,NA,Round-leaf Rabbitbrush Series,NA
+ANZA310,Ericameria teretifolia,NA,35.330.00,NA,NA,NA,ANZA,Ericameria teretifolia,NA,Round-leaf Rabbitbrush Series,NA
+ANZA311,Parkinsonia florida â€“ Olneya tesota,Parkinsonia florida,61.545.05,NA,Association,NA,ANZA,Olneya tesota - Psorothamnus spinosus - Cercidium floridum,NA,Ironwood - Smoketree - Blue Palo Verde Series,NA
+ANZA312,Parkinsonia florida â€“ Olneya tesota,Parkinsonia florida,61.545.05,NA,Association,NA,ANZA,Olneya tesota - Psorothamnus spinosus - Cercidium floridum,NA,Ironwood - Smoketree - Blue Palo Verde Series,NA
+ANZA313,Parkinsonia florida â€“ Olneya tesota,Parkinsonia florida,61.545.05,NA,Association,NA,ANZA,Olneya tesota - Psorothamnus spinosus - Cercidium floridum,NA,Ironwood - Smoketree - Blue Palo Verde Series,NA
+ANZA314,Parkinsonia florida â€“ Olneya tesota,Parkinsonia florida,61.545.05,NA,Association,NA,ANZA,Olneya tesota - Psorothamnus spinosus - Cercidium floridum,NA,Ironwood - Smoketree - Blue Palo Verde Series,NA
+ANZA315,Parkinsonia florida â€“ Olneya tesota,Parkinsonia florida,61.545.05,NA,Association,NA,ANZA,Olneya tesota - Psorothamnus spinosus - Cercidium floridum,NA,Ironwood - Smoketree - Blue Palo Verde Series,NA
+ANZA316,Atriplex polycarpa,NA,36.340.00,NA,NA,NA,ANZA,Atriplex spp.,NA,Mixed Saltbush Series,NA
+ANZA317,Atriplex polycarpa,NA,36.340.00,NA,NA,NA,ANZA,Atriplex spp.,NA,Mixed Saltbush Series,NA
+ANZA318,Baccharis salicifolia,NA,63.510.00,NA,NA,NA,ANZA,Baccharis salicifolia,NA,Mulefat Series,NA
+ANZA319,Psorothamnus spinosus,NA,61.570.00,NA,Alliance,NA,ANZA,Psorothamnus spinosus,NA,Smoketree Series,NA
+ANZA320,Psorothamnus spinosus,NA,61.570.00,NA,Alliance,NA,ANZA,Psorothamnus spinosus,NA,Smoketree Series,NA
+ANZA321,Psorothamnus spinosus,NA,61.570.00,NA,Alliance,NA,ANZA,Psorothamnus spinosus,NA,Smoketree Series,NA
+ANZA322,Psorothamnus spinosus,NA,61.570.00,NA,Alliance,NA,ANZA,Psorothamnus spinosus,NA,Smoketree Series,NA
+ANZA323,Psorothamnus spinosus,NA,61.570.00,NA,Alliance,NA,ANZA,Psorothamnus spinosus,NA,Smoketree Series,NA
+ANZA324,Psorothamnus spinosus,NA,61.570.00,NA,Alliance,NA,ANZA,Psorothamnus spinosus,NA,Smoketree Series,NA
+ANZA325,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA326,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA327,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA328,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA329,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA330,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA331,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA332,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA333,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA334,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA335,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA336,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA337,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA338,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA339,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA340,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA341,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA342,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA343,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA344,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA345,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA346,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA347,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA348,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA349,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA350,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA351,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA352,Larrea tridentata â€“ Ambrosia dumosa,NA,33.140.00,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,NA,Creosote Bush - Burrobush Series,NA
+ANZA353,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA354,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA355,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA356,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA357,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA358,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA359,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA360,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA361,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,33.140.07,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus schottii,Creosote Bush - Burrobush - Indigo Bush Association,NA
+ANZA362,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus emoryi â€“ sandy,33.140.08,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Creosote Bush - Burrobush - Sandy,Creosote Bush - Burrobush - Sandy Association,NA
+ANZA363,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Psorothamnus emoryi â€“ sandy,33.140.08,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Creosote Bush - Burrobush - Sandy,Creosote Bush - Burrobush - Sandy Association,NA
+ANZA364,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Atriplex hymenelytra,33.140.09,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Atriplex hymenelytra,Creosote Bush - Burrobush - Desert Holly Association,NA
+ANZA365,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Galium angustifolium â€“ Lyrocarpa coulteri,33.140.10,NA,NA,NA,ANZA,Larrea tridentata â€“ Ambrosia dumosa,Larrea tridentata â€“ Ambrosia dumosa â€“ Galium angustifolium â€“ Lyrocarpa coulteri,Creosote Bush - Burrobush - Bedstraw - Lyrocarpa Association,NA
+ANZA366,Pinus monophylla â€“ (Juniperus osteosperma),NA,87.040.00,NA,NA,NA,ANZA,Pinus monophylla,NA,Single-leaf Pinyon Pine Series,NA
+ANZA367,Pinus monophylla â€“ (Juniperus osteosperma),NA,87.040.00,NA,NA,NA,ANZA,Pinus monophylla,NA,Single-leaf Pinyon Pine Series,NA
+ANZA368,Parkinsonia florida â€“ Olneya tesota,Olneya tesota,61.545.01,NA,Association,NA,ANZA,Olneya tesota,NA,Ironwood series,NA
+ANZA370,Parkinsonia florida â€“ Olneya tesota,Olneya tesota,61.545.01,NA,Association,NA,ANZA,Olneya tesota,NA,Ironwood series,NA
+ANZA371,Parkinsonia florida â€“ Olneya tesota,Olneya tesota,61.545.01,NA,Association,NA,ANZA,Olneya tesota,NA,Ironwood series,NA
+ANZA372,Quercus berberidifolia,NA,37.407.00,NA,Alliance,NA,ANZA,Quercus berberidifolia,NA,Scrub Oak Series,NA
+ANZA373,Adenostoma sparsifolium,NA,37.501.00,NA,NA,NA,ANZA,Adenostoma sparsifolium - Adenostoma fasciculatum,NA,Redshank - Chamise Series,NA
+ANZA374,Adenostoma sparsifolium,NA,37.501.00,NA,NA,NA,ANZA,Adenostoma sparsifolium - Adenostoma fasciculatum,NA,Redshank - Chamise Series,NA
+ANZA375,Adenostoma sparsifolium,NA,37.501.00,NA,NA,NA,ANZA,Adenostoma sparsifolium - Adenostoma fasciculatum,NA,Redshank - Chamise Series,NA
+ANZA376,Adenostoma sparsifolium,NA,37.501.00,NA,NA,NA,ANZA,Adenostoma sparsifolium - Adenostoma fasciculatum,NA,Redshank - Chamise Series,NA
+ANZA377,Adenostoma sparsifolium,NA,37.501.00,NA,NA,NA,ANZA,Adenostoma sparsifolium,NA,Redshank Series,NA
+ANZA378,Salix lasiolepis,NA,61.201.00,NA,Alliance,NA,ANZA,Salix lasiolepis,NA,Arroyo Willow Series,NA
+ANZA379,Salix lasiolepis,NA,61.201.00,NA,Alliance,NA,ANZA,Salix lasiolepis,NA,Arroyo Willow Series,NA
+ANZA380,Salix lasiolepis,NA,61.201.00,NA,Alliance,NA,ANZA,Salix lasiolepis,NA,Arroyo Willow Series,NA
+ANZA381,Populus fremontii,Populus fremontii â€“ Prosopis spp.,61.130.19,NA,Association,NA,ANZA,Populus fremontii,Populus fremontii â€“ Prosopis glandulosa,Fremont Cottonwood - Mesquite Association,NA
+ANZA382,Populus fremontii,Populus fremontii â€“ Prosopis spp.,61.130.19,NA,Association,NA,ANZA,Populus fremontii,Populus fremontii â€“ Prosopis glandulosa,Fremont Cottonwood - Mesquite Association,NA
+ANZA383,Populus fremontii,Populus fremontii â€“ Prosopis spp.,61.130.19,NA,Association,NA,ANZA,Populus fremontii,Populus fremontii â€“ Prosopis glandulosa,Fremont Cottonwood - Mesquite Association,NA
+ANZA384,"Bromus rubens â€“ Schismus (arabicus, barbatus)",Schismus playa,42.024.03,NA,NA,NA,ANZA,Schismus barbatus,Schimus playa,Schismus Playa Association,NA
+ANZA385,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Quercus spp. (shrub),NA,Mixed Scrub Oak Series,NA
+ANZA386,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Quercus spp. (shrub),NA,Mixed Scrub Oak Series,NA
+ANZA387,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Quercus spp. (shrub),NA,Mixed Scrub Oak Series,NA
+ANZA388,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Quercus spp. (shrub),NA,Mixed Scrub Oak Series,NA
+ANZA389,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Quercus spp. (shrub),NA,Mixed Scrub Oak Series,NA
+ANZA390,Quercus berberidifolia,Quercus berberidifolia â€“ Cercocarpus montanus,37.407.06,NA,Association,NA,ANZA,Quercus spp. (shrub),NA,Mixed Scrub Oak Series,NA
+ANZA391,Arctostaphylos pringlei ssp. drupacea,Arctostaphylos pringlei ssp. drupacea â€“ Arctostaphylos pungens,37.310.01,NA,NA,NA,ANZA,Arctostaphylos pungens - Arctostaphylos pringlei,NA,Mixed Point-leaf - Pink-bracted Manzanita Series,NA
+ANZA392,Arctostaphylos pringlei ssp. Drupacea,NA,37.310.00,NA,NA,NA,ANZA,Arctostaphylos pringlei,NA,Pink-bracted Manzanita Series,NA
+ANZA393,Arctostaphylos pringlei ssp. Drupacea,NA,37.310.00,NA,NA,NA,ANZA,Arctostaphylos pringlei,NA,Pink-bracted Manzanita Series,NA
+ANZA394,Arctostaphylos pringlei ssp. Drupacea,NA,37.310.00,NA,NA,NA,ANZA,Arctostaphylos pringlei,NA,Pink-bracted Manzanita Series,NA
+ANZA395,Arctostaphylos pringlei ssp. Drupacea,NA,37.310.00,NA,NA,NA,ANZA,Arctostaphylos pringlei,NA,Pink-bracted Manzanita Series,NA
+ANZA396,Arctostaphylos pringlei ssp. Drupacea,NA,37.310.00,NA,NA,NA,ANZA,Arctostaphylos pringlei,NA,Pink-bracted Manzanita Series,NA
+ANZA397,Arctostaphylos glandulosa,NA,37.302.00,NA,NA,NA,ANZA,Arctostaphylos glandulosa,NA,Eastwood Manzanita Series,NA
+ANZA398,Arctostaphylos glandulosa,Arctostaphylos glandulosa ssp. adamsii,37.302.02,NA,NA,NA,ANZA,Arctostaphylos glandulosa,Arctostaphylos glandulosa ssp. Adamsii,Adams Manzanita Association,NA
+ANZA399,Arctostaphylos glandulosa,Arctostaphylos glandulosa â€“ Cercocarpus montanus,37.302.03,NA,NA,NA,ANZA,Arctostaphylos glandulosa,Arctostaphylos glandulosa - Cercocarpus spp.,Eastwood Manzanita - Mountain Mahogany Association,NA
+ANZA400,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA401,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA402,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA403,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA404,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA405,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA406,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA407,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA408,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA409,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA410,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA411,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA412,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA413,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA414,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA415,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA416,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA417,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA418,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA419,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA420,Adenostoma fasciculatum,NA,37.101.00,NA,NA,NA,ANZA,Adenostoma fasciculatum,NA,Chamise Series,NA
+ANZA421,Pinus jeffreyi,NA,87.020.00,NA,Alliance,NA,ANZA,Pinus jeffreyi,NA,Jeffrey Pine Series,NA
+ANZA422,Pinus jeffreyi,Pinus jeffreyi â€“ Quercus kelloggii,87.020.25,NA,Association,NA,ANZA,Pinus jeffreyi,Pinus jeffreyi â€“ Quercus kelloggii,Jeffrey Pine - Black Oak Association,NA
+ANZA423,Pinus jeffreyi,Pinus jeffreyi â€“ Quercus kelloggii,87.020.25,NA,Association,NA,ANZA,Pinus jeffreyi,Pinus jeffreyi â€“ Quercus kelloggii,Jeffrey Pine - Black Oak Association,NA
+ANZA424,Quercus chrysolepis (tree),NA,71.050.00,NA,Alliance,NA,ANZA,Quercus chrysolepis (tree),NA,Canyon Live Oak Series,NA
+ANZA425,Quercus chrysolepis (tree),NA,71.050.00,NA,Alliance,NA,ANZA,Quercus chrysolepis (tree),NA,Canyon Live Oak Series,NA
+ANZA426,Quercus chrysolepis (tree),NA,71.050.00,NA,Alliance,NA,ANZA,Quercus chrysolepis (tree),NA,Canyon Live Oak Series,NA
+ANZA427,Tamarix spp.,NA,63.810.00,NA,Semi-natural Alliance,NA,ANZA,Tamarix spp.,NA,Tamarisk Series,NA
+ANZA428,Tamarix spp.,NA,63.810.00,NA,Semi-natural Alliance,NA,ANZA,Tamarix spp.,NA,Tamarisk Series,NA
+ANZA429,Salix exigua,NA,61.209.00,NA,Alliance,NA,ANZA,Salix exigua,NA,Narrow-leaf Willow Series,NA
+ANZA430,NA,NA,NA,North American warm desert bedrock cliff and outcrop,Group,NA,ANZA,NA,NA,Mud Hills Annual Forbs,NA
+ANZA431,NA,NA,NA,North American warm desert bedrock cliff and outcrop,Group,NA,ANZA,NA,NA,Sparsely vegetation Gypsum Association,NA
+ANZA432,Pinus coulteri,Pinus coulteri â€“ Quercus chrysolepis,87.090.04,NA,Association,NA,ANZA,Pinus coulteri - Quercus chrysolepis,NA,Coulter Pine - Canyon Live Oak Series,NA
+ANZA433,Pinus quadrifolia,NA,87.030.00,NA,Alliance,NA,ANZA,Pinus quadrifolia,NA,Parry Pinyon Pine Series,NA
+ANZA434,Chilopsis linearis,NA,61.550.00,NA,NA,NA,ANZA,Chilopsis linearis,NA,Desert Willow Series,NA
+ANZA435,Chilopsis linearis,NA,61.550.00,NA,NA,NA,ANZA,Chilopsis linearis,NA,Desert Willow Series,NA
+ANZA436,Chilopsis linearis,NA,61.550.00,NA,NA,NA,ANZA,Chilopsis linearis,NA,Desert Willow Series,NA
+ANZA437,Chilopsis linearis,NA,61.550.00,NA,NA,NA,ANZA,Chilopsis linearis,NA,Desert Willow Series,NA
+ANZA438,Chilopsis linearis,NA,61.550.00,NA,NA,NA,ANZA,Chilopsis linearis,NA,Desert Willow Series,NA
+ANZA439,Pleuraphis rigida,NA,41.030.00,NA,Alliance,NA,ANZA,Pleuraphis rigida,NA,Big Galleta Series,NA
+ANZA440,Pleuraphis rigida,NA,41.030.00,NA,Alliance,NA,ANZA,Pleuraphis rigida,NA,Big Galleta Series,NA
+ANZA441,Quercus agrifolia,NA,71.060.00,NA,Alliance,NA,ANZA,Quercus agrifolia,NA,Coast Live Oak Series,NA
+ANZA442,Quercus agrifolia,Quercus agrifolia / Eriogonum wrightii,71.060.22,NA,Provisional Association,NA,ANZA,Quercus agrifolia,Quercus agrifolia / Eriogonum wrightii,Coast Live Oak / Wright's Buckwheat Association,NA
+ANZA443,Quercus agrifolia,Quercus agrifolia / Eriogonum wrightii,71.060.22,NA,Provisional Association,NA,ANZA,Quercus agrifolia,Quercus agrifolia / Eriogonum wrightii,Coast Live Oak / Wright's Buckwheat Association,NA
+ANZA444,Quercus agrifolia,Quercus agrifolia â€“ Pinus coulteri,71.060.23,NA,Association,NA,ANZA,Quercus agrifolia,Quercus agrifolia â€“ Pinus coulteri,Coast Live Oak - Coulter Pine Association,NA
+ANZA445,"Bromus rubens â€“ Schismus (arabicus, barbatus)",NA,42.024.00,NA,NA,NA,ANZA,Bromus rubens,NA,Red Brome Series,NA
+ANZA446,"Bromus rubens â€“ Schismus (arabicus, barbatus)",NA,42.024.00,NA,NA,NA,ANZA,Bromus rubens,NA,Red Brome Series,NA
+ANZA447,Atriplex polycarpa,NA,36.340.00,NA,NA,NA,ANZA,Atriplex polycarpa,NA,Allscale Series,NA
+ANZA448,Atriplex polycarpa,NA,36.340.00,NA,NA,NA,ANZA,Atriplex polycarpa,NA,Allscale Series,NA
+ANZA449,Atriplex polycarpa,NA,36.340.00,NA,NA,NA,ANZA,Atriplex polycarpa,NA,Allscale Series,NA
+ANZA450,Atriplex polycarpa,NA,36.340.00,NA,NA,NA,ANZA,Atriplex polycarpa,NA,Allscale Series,NA
+ANZA452,Suaeda moquinii,NA,36.200.00,NA,Alliance,NA,ANZA,Suaeda moquinii,NA,Bush Seepweed Series,NA
+ANZA453,Suaeda moquinii,NA,36.200.00,NA,Alliance,NA,ANZA,Suaeda moquinii,NA,Bush Seepweed Series,NA
+ANZA454,Ceanothus greggii,Ceanothus greggii â€“ Adenostoma fasciculatum,37.212.03,NA,NA,NA,ANZA,Adenostoma fasciculatum - Ceanothus greggii,NA,Chamise - Cupleaf ceanothus series,NA
+ANZA455,Ceanothus greggii,Ceanothus greggii â€“ Adenostoma fasciculatum,37.212.03,NA,NA,NA,ANZA,Adenostoma fasciculatum - Ceanothus greggii,NA,Chamise - Cupleaf ceanothus series,NA
+ANZA456,Arctostaphylos glandulosa,Arctostaphylos glandulosa â€“ Adenostoma fasciculatum,37.106.13,NA,NA,NA,ANZA,Adenostoma fasciculatum - Arctostaphylos glandulosa,NA,Chamise - Eastwood Manzanita series,NA
+ANZA457,Arctostaphylos glandulosa,Arctostaphylos glandulosa â€“ Adenostoma fasciculatum,37.106.13,NA,NA,NA,ANZA,Adenostoma fasciculatum - Arctostaphylos glandulosa,NA,Chamise - Eastwood Manzanita series,NA
+ANZA458,Arctostaphylos glandulosa,Arctostaphylos glandulosa â€“ Adenostoma fasciculatum,37.106.13,NA,NA,NA,ANZA,Adenostoma fasciculatum - Arctostaphylos glandulosa,NA,Chamise - Eastwood Manzanita series,NA
+ANZA459,Ceanothus greggii,Ceanothus greggii,37.212.01,NA,NA,NA,ANZA,Cupleaf - Fremontia - Oak Series,Ceanothus greggii,Cupleaf Ceanothus Association,NA
+ANZA460,Allenrolfea occidentalis,NA,36.120.00,NA,NA,NA,ANZA,Allenrolfea occidentalis,NA,Iodine Bush Series,NA
+ANZA461,Allenrolfea occidentalis,NA,36.120.00,NA,NA,NA,ANZA,Allenrolfea occidentalis,NA,Iodine Bush Series,NA
+ANZA462,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA463,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Cercocarpus montanus,37.415.03,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri - Cercocarpus spp.,Muller Oak - Birchleaf Mountain Mahogany Association,NA
+ANZA464,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA465,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA466,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Cercocarpus montanus,37.415.03,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri - Cercocarpus spp.,Muller Oak - Birchleaf Mountain Mahogany Association,NA
+ANZA467,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Cercocarpus montanus,37.415.03,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri - Cercocarpus spp.,Muller Oak - Birchleaf Mountain Mahogany Association,NA
+ANZA468,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA469,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA470,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA471,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA472,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA473,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA474,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA475,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA476,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA477,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA478,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA479,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA480,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA481,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA482,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA483,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,37.415.01,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Rhus ovata,Muller Oak - Sugarbush Association,NA
+ANZA484,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA485,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA486,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA487,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA488,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA489,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA490,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA491,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA492,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA493,Quercus cornelius-mulleri,NA,37.415.00,NA,Alliance,NA,ANZA,Quercus cornelius-mulleri,NA,Muller Oak Series,NA
+ANZA494,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA495,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA496,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,37.415.02,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Eriogonum fasciculatum â€“ Ericameria linearifolia,Muller Oak - California Buckwheat - Narrowleaf Goldenbush Association,NA
+ANZA497,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Cercocarpus montanus,37.415.03,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri - Cercocarpus spp.,Muller Oak - Birchleaf Mountain Mahogany Association,NA
+ANZA498,Quercus cornelius-mulleri,Quercus cornelius-mulleri â€“ Cercocarpus montanus,37.415.03,NA,Association,NA,ANZA,Quercus cornelius-mulleri,Quercus cornelius-mulleri - Cercocarpus spp.,Muller Oak - Birchleaf Mountain Mahogany Association,NA
+ANZA954,Cylindropuntia bigelovii,NA,33.050.00,NA,NA,NA,ANZA,Cylindropuntia bigelovii,NA,Teddybear Cholla Series,NA
