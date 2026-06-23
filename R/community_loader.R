@@ -251,9 +251,9 @@ load_reference_tables <- function(in_dir, renew_cache = FALSE, cacode_nvc_lookup
   cc_all <- suppressMessages(get_vb_cc(renew_cache = renew_cache))
   
   cc_current <- cc_all %>%
-    filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0.3'))
+    filter(concept_rf_label %in% c('NVC 2004', 'USNVC 2016', 'USNVC 3.0.3',  'USNVC 3.0'))
   
-  cc_current$concept_rf_label <- factor(cc_current$concept_rf_label, levels = c('NVC 2004', 'USNVC 2016', 'USNVC 3.0'))
+  cc_current$concept_rf_label <- factor(cc_current$concept_rf_label, levels = c('NVC 2004', 'USNVC 2016', 'USNVC 3.0.3', 'USNVC 3.0'))
   
   nvc_lookup <- cc_current %>% 
     group_by(comm_code) %>% 
